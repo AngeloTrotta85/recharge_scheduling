@@ -87,6 +87,9 @@ public:
 
     virtual double getGameTheoryC(void) {return 0;}
 
+    virtual double calculateRechargeProb(void);
+    virtual double calculateDischargeProb(void);
+
 
 private:
     L3Address myAddr;
@@ -98,6 +101,7 @@ private:
     std::map<int, nodeInfo_t> neigh;
 
     int rechargeLostAccess;
+    int failedAttemptCount;
 
     // messages
     cMessage *autoMsgRecharge = nullptr;
@@ -110,6 +114,15 @@ private:
     double sensorRadious;
     Coord rebornPos;
     int chargingStationNumber;
+
+    // statistical vectors
+    cOutVector activeNodesVector;
+    cOutVector rechargingNodesVector;
+    cOutVector responseVector;
+    cOutVector degreeVector;
+    cOutVector energyVector;
+    cOutVector failedAttemptVector;
+    cOutVector dischargeProbVector;
 };
 
 } /* namespace inet */

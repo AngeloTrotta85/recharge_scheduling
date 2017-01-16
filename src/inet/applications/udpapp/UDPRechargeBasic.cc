@@ -58,6 +58,7 @@ void UDPRechargeBasic::initialize(int stage)
         rebornPos = Coord(rx, ry);
 
         rechargeLostAccess = 0;
+        failedAttemptCount = 0;
 
         goToCharge = new cMessage("goToCharge");
 
@@ -78,7 +79,21 @@ void UDPRechargeBasic::initialize(int stage)
 }
 
 void UDPRechargeBasic::finish(void) {
+    if (myAppAddr == 0) {
 
+        int numberNodes = this->getParentModule()->getVectorSize();
+
+        double sumEnergy = 0.0;
+        for (int i = 0; i < numberNodes; i++) {
+            power::SimpleBattery *battN = check_and_cast<power::SimpleBattery *>(this->getParentModule()->getParentModule()->getSubmodule("host", i)->getSubmodule("battery"));
+            sumEnergy += battN->getBatteryLevelAbs();
+        }
+        recordScalar("FINALENERGY", sumEnergy);
+        recordScalar("LIFETIME", simTime());
+    }
+
+    recordScalar("FAILED_ATTEMPT_COUNT", failedAttemptCount);
+    recordScalar("FAILED_ATTEMPT_FREQ", ((double)failedAttemptCount)/simTime().dbl());
 }
 
 
@@ -125,6 +140,7 @@ void UDPRechargeBasic::handleMessageWhenUp(cMessage *msg) {
         }
         else {
             rechargeLostAccess++;
+            failedAttemptCount++;
 
             sb->setDoubleSwapPenality();
         }
@@ -278,7 +294,7 @@ void UDPRechargeBasic::sendPacket()
 }
 
 double UDPRechargeBasic::calculateSendBackoff(void){
-    double cw = 1;
+    double cw = 0.5;
     double ris = 0;
 
     //cw = cw / (((double)rechargeLostAccess) + 1.0);
@@ -379,12 +395,20 @@ int UDPRechargeBasic::calculateNodeDegree(void) {
     return filteredNeigh.size();
 }
 
+double calculateRechargeProb(void){
+    return 0.25;
+}
+
+double calculateDischargeProb(void){
+    return 1.0;
+}
+
 bool UDPRechargeBasic::checkRecharge(void) {
-    return (dblrand() < 0.25);
+    return (dblrand() < calculateRechargeProb());
 }
 
 bool UDPRechargeBasic::checkDischarge(void) {
-    return true;
+    return (dblrand() < calculateDischargeProb());
 }
 
 void UDPRechargeBasic::make5secStats(void) {
@@ -393,6 +417,38 @@ void UDPRechargeBasic::make5secStats(void) {
 
 void UDPRechargeBasic::make1secStats(void) {
 
+    if (myAppAddr == 0) {
+        int nnodesActive = 0;
+        int nnodesRecharging = 0;
+
+        int numberNodes = this->getParentModule()->getVectorSize();
+
+        for (int i = 0; i < numberNodes; i++) {
+            power::SimpleBattery *battN = check_and_cast<power::SimpleBattery *>(this->getParentModule()->getParentModule()->getSubmodule("host", i)->getSubmodule("battery"));
+
+            if (battN->isCharging()) {
+                nnodesRecharging++;
+            }
+            else {
+                nnodesActive++;
+            }
+        }
+
+        activeNodesVector.record(nnodesActive);
+        rechargingNodesVector.record(nnodesRecharging);
+    }
+
+
+    degreeVector.record(calculateNodeDegree());
+    failedAttemptVector.record(failedAttemptCount);
+    if (sb->isCharging()) {
+        dischargeProbVector.record(calculateDischargeProb());
+    }
+    else {
+        responseVector.record(calculateRechargeProb());
+    }
+
+    energyVector.record(sb->getBatteryLevelAbs());
 }
 
 } /* namespace inet */
