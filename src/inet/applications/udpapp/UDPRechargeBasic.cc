@@ -60,6 +60,14 @@ void UDPRechargeBasic::initialize(int stage)
         rechargeLostAccess = 0;
         failedAttemptCount = 0;
 
+        activeNodesVector.setName("activeNodes");
+        rechargingNodesVector.setName("rechargingNodes");
+        responseVector.setName("ResponseVal");
+        degreeVector.setName("DegreeVal");
+        energyVector.setName("EnergyVal");
+        failedAttemptVector.setName("FailedAttemptVal");
+        dischargeProbVector.setName("DischargeProbVal");
+
         goToCharge = new cMessage("goToCharge");
 
         stat1sec = new cMessage("stat1secMsg");
@@ -73,6 +81,7 @@ void UDPRechargeBasic::initialize(int stage)
     }
     else if (stage == INITSTAGE_LAST) {
         myAddr = L3AddressResolver().resolve(this->getParentModule()->getFullPath().c_str());
+        this->getParentModule()->getDisplayString().setTagArg("t", 0, myAddr.str().c_str());
 
         sb->setState(power::SimpleBattery::DISCHARGING);
     }
