@@ -3,6 +3,7 @@
 	<name>recharge_scheduling</name>
 	<comment></comment>
 	<projects>
+		<project>inet</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
