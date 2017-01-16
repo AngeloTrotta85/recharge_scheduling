@@ -15,15 +15,25 @@
 
 #include "UDPRechargeBasic.h"
 
+#include <stdio.h>
+#include <stdlib.h>
+
+#include <iomanip>      // std::setprecision
+
+#include "inet/networklayer/common/L3AddressResolver.h"
+
+#include "inet/applications/base/ApplicationPacket_m.h"
+#include "inet/transportlayer/contract/udp/UDPDataIndicationExt_m.h"
+
+#include "inet/common/geometry/common/Coord.h"
+
 namespace inet {
 
-UDPRechargeBasic::UDPRechargeBasic() {
-    // TODO Auto-generated constructor stub
-
-}
+Define_Module(UDPRechargeBasic)
 
 UDPRechargeBasic::~UDPRechargeBasic() {
-    // TODO Auto-generated destructor stub
+    //cancelAndDelete(autoMsgRecharge);
 }
+
 
 } /* namespace inet */

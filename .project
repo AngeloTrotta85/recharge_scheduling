@@ -4,6 +4,8 @@
 	<comment></comment>
 	<projects>
 		<project>inet</project>
+		<project>inet_ext</project>
+		<project>virtual-spring</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

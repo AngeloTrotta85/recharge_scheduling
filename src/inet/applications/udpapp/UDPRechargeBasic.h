@@ -16,11 +16,34 @@
 #ifndef INET_APPLICATIONS_UDPAPP_UDPRECHARGEBASIC_H_
 #define INET_APPLICATIONS_UDPAPP_UDPRECHARGEBASIC_H_
 
+#include "inet/common/INETDefs.h"
+
+#include <simplebattery/SimpleBattery.h>
+#include <vector>
+#include <map>
+#include <list>
+#include <iomanip>      // std::setprecision
+
+#include "inet/applications/udpapp/UDPBasicApp.h"
+
+#include "inet/mobility/single/VirtualSpringMobility.h"
+#include "inet/applications/base/ApplicationPacketRecharge_m.h"
+
 namespace inet {
 
-class UDPRechargeBasic {
+class INET_API UDPRechargeBasic : public UDPBasicApp {
 public:
-    UDPRechargeBasic();
+
+    typedef enum {
+        ANALYTICAL,
+        ROUNDROBIN,
+        STIMULUS,
+        PROBABILISTIC
+    } Scheduling_Type;
+
+public:
+
+    UDPRechargeBasic() {}
     virtual ~UDPRechargeBasic();
 };
 
