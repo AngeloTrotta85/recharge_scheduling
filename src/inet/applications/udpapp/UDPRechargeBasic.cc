@@ -72,6 +72,8 @@ void UDPRechargeBasic::initialize(int stage)
     }
     else if (stage == INITSTAGE_LAST) {
         myAddr = L3AddressResolver().resolve(this->getParentModule()->getFullPath().c_str());
+
+        sb->setState(power::SimpleBattery::DISCHARGING);
     }
 }
 
@@ -139,6 +141,7 @@ void UDPRechargeBasic::handleMessageWhenUp(cMessage *msg) {
     }
     else if (msg == stat1sec) {
         updateNeighbourhood();
+        updateVirtualForces();
 
         make1secStats();
         scheduleAt(simTime() + 1, msg);
@@ -312,6 +315,7 @@ void UDPRechargeBasic::updateVirtualForces(void) {
         uVec.normalize();
 
         //EV << "Setting force with displacement: " << springDispl << " (distance: " << distance << ")" << endl;
+        //fprintf(stderr, "[%d] - adding force with displacement %lf\n", myAppAddr, springDispl);fflush(stderr);
         mob->addVirtualSpring(uVec, preferredDistance, springDispl);
     }
 
@@ -376,11 +380,11 @@ int UDPRechargeBasic::calculateNodeDegree(void) {
 }
 
 bool UDPRechargeBasic::checkRecharge(void) {
-    return (rand() < 0.5);
+    return (dblrand() < 0.25);
 }
 
 bool UDPRechargeBasic::checkDischarge(void) {
-    return (rand() < 0.5);
+    return true;
 }
 
 void UDPRechargeBasic::make5secStats(void) {
