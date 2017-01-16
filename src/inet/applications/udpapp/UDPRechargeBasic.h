@@ -18,7 +18,6 @@
 
 #include "inet/common/INETDefs.h"
 
-#include <simplebattery/SimpleBattery.h>
 #include <vector>
 #include <map>
 #include <list>
@@ -26,25 +25,91 @@
 
 #include "inet/applications/udpapp/UDPBasicApp.h"
 
+#include "inet/power/simplebattery/SimpleBattery.h"
 #include "inet/mobility/single/VirtualSpringMobility.h"
 #include "inet/applications/base/ApplicationPacketRecharge_m.h"
 
 namespace inet {
 
 class INET_API UDPRechargeBasic : public UDPBasicApp {
+
 public:
 
-    typedef enum {
-        ANALYTICAL,
-        ROUNDROBIN,
-        STIMULUS,
-        PROBABILISTIC
-    } Scheduling_Type;
+    typedef struct {
+        L3Address addr;
+        int appAddr;
+        double rcvPow;
+        double rcvSnr;
+        Coord pos;
+
+        simtime_t timestamp;
+
+        double batteryLevelAbs;
+        double batteryLevelPerc;
+        double coveragePercentage;
+        double leftLifetime;
+        int nodeDegree;
+        double inRechargeT;
+        double gameTheoryC;
+    } nodeInfo_t;
+
+protected:
+  virtual int numInitStages() const override { return NUM_INIT_STAGES; }
+  virtual void initialize(int stage) override;
+  virtual void handleMessageWhenUp(cMessage *msg) override;
+  virtual void finish(void) override;
+
+  virtual ApplicationPacketRecharge *generatePktToSend(const char *name, bool goingToRecharge);
+  virtual void sendPacket();
+  virtual void processPacket(cPacket *msg);
+  virtual double calculateSendBackoff(void);
+  virtual void sendRechargeMessage(void);
+  virtual bool checkRechargingStationFree(void);
+
+  virtual double calculateInterDistance(double radious);
+  virtual void updateVirtualForces(void);
+  virtual void updateNeighbourhood(void);
+
+  virtual void getFilteredNeigh(std::map<int, nodeInfo_t> &filteredNeigh);
+  virtual int calculateNodeDegree(void);
+
+  virtual double calculateRechargeTime(void){return 0;}
+  virtual bool checkRecharge(void);
+  virtual bool checkDischarge(void);
+
+  virtual void make1secStats(void);
+  virtual void make5secStats(void);
 
 public:
 
     UDPRechargeBasic() {}
     virtual ~UDPRechargeBasic();
+
+    virtual double getGameTheoryC(void) {return 0;}
+
+
+private:
+    L3Address myAddr;
+    int myAppAddr;
+
+    VirtualSpringMobility *mob = nullptr;
+    power::SimpleBattery *sb = nullptr;
+
+    std::map<int, nodeInfo_t> neigh;
+
+    int rechargeLostAccess;
+
+    // messages
+    cMessage *autoMsgRecharge = nullptr;
+    cMessage *goToCharge = nullptr;
+    cMessage *stat1sec = nullptr;
+    cMessage *stat5sec = nullptr;
+
+    //parameters
+    double checkRechargeTimer;
+    double sensorRadious;
+    Coord rebornPos;
+    int chargingStationNumber;
 };
 
 } /* namespace inet */
