@@ -22,7 +22,7 @@ simple UDPRechargeStimulus extends UDPRechargeBasic
         double stimulusExponent = default(1);									// stimulus exponent
         int numRechargeSlotsStimulusZeroNeigh = default(3);						// default number of recharge slots if no neighbours
         string chargeLengthType @enum("MIN", "MAX", "AVG") = default("AVG");	// aggregation method (neighbourood energy) to use in recharge time calculation
-        bool stationANDnodeKNOWN = default(false);								// knowledge of the numero of the uavs
+        bool stationANDnodeKNOWN = default(true);								// knowledge of the numero of the uavs
         double chargeTimeOthersNodeFactor = default(0.0);						// factor to equalize the recharging time between uavs
         bool makeLowEnergyFactorCurves = default(true);							// method for calculating the stimulus
         

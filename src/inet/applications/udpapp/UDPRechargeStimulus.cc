@@ -315,27 +315,30 @@ double UDPRechargeStimulus::calculateRechargeStimuliTimeFactor(void) {
     //averageE = sumE / ((double) (neigh.size() + 1));
     //averageE = sumE / ((double) (filteredNeigh.size() + 1));
 
-    double rechargeEstimation = ((sb->getFullCapacity() - sb->getBatteryLevelAbs()) / sb->getChargingFactor(checkRechargeTimer)) * checkRechargeTimer;
-    if (filteredNeigh.size() > 0) {
+    //double rechargeEstimation = ((sb->getFullCapacity() - sb->getBatteryLevelAbs()) / sb->getChargingFactor(checkRechargeTimer)) * checkRechargeTimer;
+    //if (filteredNeigh.size() > 0) {
     //if (neigh.size() > 0) {
         //rechargeEstimation = (averageE / ((sb->getDischargingFactor(checkRechargeTimer)) * ((double) neigh.size()))) * checkRechargeTimer;
         //rechargeEstimation = (maxE / ((sb->getDischargingFactor(checkRechargeTimer)) * ((double) neigh.size()))) * checkRechargeTimer;
-        rechargeEstimation = (maxE / ((sb->getDischargingFactor(checkRechargeTimer)) * ((double) filteredNeigh.size()))) * checkRechargeTimer;
-    }
+    //    rechargeEstimation = (maxE / ((sb->getDischargingFactor(checkRechargeTimer)) * ((double) filteredNeigh.size()))) * checkRechargeTimer;
+    //}
 
-    rechargeEstimation = calculateRechargeTime(false);
+    double rechargeEstimation = calculateRechargeTime(false);
 
     //double timeFactor = (simTime() - lastRechargeTimestamp).dbl() / (rechargeEstimation * timeFactorMultiplier);
     //double timeFactor = (simTime() - lastRechargeTimestamp).dbl() / (rechargeEstimation * ((double) filteredNeigh.size()));
     //timeFactor = timeFactor / timeFactorMultiplier;
 
-    double timeFactor = (simTime() - lastRechargeTimestamp).dbl() / (rechargeEstimation * ((double) filteredNeigh.size()));
+    double timeFactor;
     if (stationANDnodeKNOWN) {
         int numberNodes = this->getParentModule()->getVectorSize();
         timeFactor = (simTime() - lastRechargeTimestamp).dbl() / (rechargeEstimation * (((double) numberNodes) / ((double) chargingStationNumber)));
     }
-    if (timeFactor > 1) timeFactor = 1;
+    else {
+        timeFactor = (simTime() - lastRechargeTimestamp).dbl() / (rechargeEstimation * ((double) filteredNeigh.size()));
+    }
 
+    if (timeFactor > 1) timeFactor = 1;
     return timeFactor;
 
 }
@@ -418,7 +421,7 @@ double UDPRechargeStimulus::calculateDischargeProb(void){
     }
     else {
         if (useProbabilisticDischarge){
-            return (1.0 - slotsInCharge);
+            return (1.0 / slotsInCharge);
         }
         else if (useQuadraticProbabilisticDischarge) {
             if (countRechargeSlot >= slotsInCharge) {
