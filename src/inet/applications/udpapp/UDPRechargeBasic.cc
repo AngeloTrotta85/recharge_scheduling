@@ -404,11 +404,11 @@ int UDPRechargeBasic::calculateNodeDegree(void) {
     return filteredNeigh.size();
 }
 
-double calculateRechargeProb(void){
+double UDPRechargeBasic::calculateRechargeProb(void){
     return 0.25;
 }
 
-double calculateDischargeProb(void){
+double UDPRechargeBasic::calculateDischargeProb(void){
     return 1.0;
 }
 

@@ -23,7 +23,10 @@ simple UDPRechargeAnalytical extends UDPRechargeBasic
 {
     parameters:
         string schedulingType @enum("ANALYTICAL", "ROUNDROBIN") = default("ANALYTICAL");
-                
+		int roundrobinRechargeSize = default(1);      
+		
+		string analticalLogFile = default("/dev/null");
+        bool printAnalticalLog = default(false);          
         
         @display("i=block/app");
         @class(UDPRechargeAnalytical);

@@ -55,6 +55,24 @@ protected:
 
   virtual void initCentralizedRecharge(void);
   virtual bool decideRechargeSceduling(void);
+  virtual void checkCentralizedRecharge(void);
+  virtual void checkCentralizedRechargeGroup(groupInfo_t *actGI);
+  virtual bool checkScheduleFeasibilityGroup(groupInfo_t *actGI);
+
+  virtual bool decideRechargeScedulingGroup(groupInfo_t *actGI);
+  virtual bool decideRechargeScedulingGroupRR(groupInfo_t *actGI);
+  virtual void decideRechargeScedulingGroupLast(groupInfo_t *actGI);
+
+  void putNodeInCharging(int addr);
+  void putNodeInDischarging(int addr);
+
+  void updateBatteryVals(std::list<nodeAlgo_t> *list);
+  int getNodeWithMaxEnergy(groupInfo_t *gi, double &battVal);
+  int getNodeWithMinEnergy(groupInfo_t *gi, double &battVal);
+
+  void printChargingInfo(void);
+  void printChargingInfo(std::ostream &ss, const char *str);
+  void printChargingInfo(const char *str);
 
 public:
     virtual ~UDPRechargeAnalytical();
@@ -63,6 +81,10 @@ private:
     std::list<groupInfo_t> groupList;
 
     Scheduling_Type st;
+
+    int roundrobinRechargeSize;
+    char logFile[256];
+    bool printAnalticalLog;
 
 };
 

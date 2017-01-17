@@ -91,7 +91,7 @@ public:
     virtual double calculateDischargeProb(void);
 
 
-private:
+protected:
     L3Address myAddr;
     int myAppAddr;
 
