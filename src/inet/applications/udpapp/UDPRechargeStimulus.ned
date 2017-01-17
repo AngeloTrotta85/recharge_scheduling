@@ -19,15 +19,15 @@ simple UDPRechargeStimulus extends UDPRechargeBasic
 {
     parameters:
         
-        double stimulusExponent = default(1);
-        int numRechargeSlotsStimulusZeroNeigh = default(3);
-        string chargeLengthType @enum("MIN", "MAX", "AVG") = default("AVG");
-        bool stationANDnodeKNOWN = default(false);
-        double chargeTimeOthersNodeFactor = default(0.0);
-        bool makeLowEnergyFactorCurves = default(true);
+        double stimulusExponent = default(1);									// stimulus exponent
+        int numRechargeSlotsStimulusZeroNeigh = default(3);						// default number of recharge slots if no neighbours
+        string chargeLengthType @enum("MIN", "MAX", "AVG") = default("AVG");	// aggregation method (neighbourood energy) to use in recharge time calculation
+        bool stationANDnodeKNOWN = default(false);								// knowledge of the numero of the uavs
+        double chargeTimeOthersNodeFactor = default(0.0);						// factor to equalize the recharging time between uavs
+        bool makeLowEnergyFactorCurves = default(true);							// method for calculating the stimulus
         
-        bool useProbabilisticDischarge = default(false);
-        bool useQuadraticProbabilisticDischarge = default(false);
+        bool useProbabilisticDischarge = default(false);						// if true, use (1/T) as probability of discharging (T=calculated recharge time)
+        bool useQuadraticProbabilisticDischarge = default(false);				// if true, use (t/T)^2 as probability of discharging (T=calculated recharge time; t=time from start charging)
         
         @display("i=block/app");
         @class(UDPRechargeStimulus);

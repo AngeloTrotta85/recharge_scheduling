@@ -123,7 +123,13 @@ double UDPRechargeStimulus::calculateRechargeProb(void){
 
 double UDPRechargeStimulus::calculateSwapPenalitiesEstimationCount(double estimatedSteps) {
     double ris = 0;
-    int nSteps = estimatedSteps * ((((double) this->getParentModule()->getVectorSize()) / ((double) chargingStationNumber)) - 1.0);
+    int nSteps;
+    if(stationANDnodeKNOWN) {
+        nSteps = estimatedSteps * ((((double) this->getParentModule()->getVectorSize()) / ((double) chargingStationNumber)) - 1.0);
+    }
+    else {
+        nSteps = estimatedSteps * ((((double) this->getParentModule()->getVectorSize()) / ((double) neigh.size())) - 1.0);
+    }
 
     for (int i = 1; i <= nSteps; i++) {
         ris += ((double) i) / ((double) nSteps);

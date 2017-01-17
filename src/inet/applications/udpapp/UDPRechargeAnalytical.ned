@@ -22,7 +22,7 @@ import inet.applications.udpapp.UDPRechargeBasic;
 simple UDPRechargeAnalytical extends UDPRechargeBasic
 {
     parameters:
-        string schedulingType @enum("ANALYTICAL", "ROUNDROBIN") = default("ANALYTICAL");
+        string schedulingType @enum("ANALYTICAL", "ROUNDROBIN") = default("ANALYTICAL");		
 		int roundrobinRechargeSize = default(1);      
 		
 		string analticalLogFile = default("/dev/null");
