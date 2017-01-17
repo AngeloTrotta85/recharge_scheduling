@@ -19,7 +19,9 @@ package inet.applications.udpapp;
 simple UDPRechargeProbabilisitic extends UDPRechargeBasic
 {
     parameters:
-               
+        bool useDischargeProbability = default(false);
+        double dischargeProbability = default(0.5);
+        int chargeSlots = default(1);
         
         @display("i=block/app");
         @class(UDPRechargeProbabilisitic);

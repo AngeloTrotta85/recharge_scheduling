@@ -30,10 +30,24 @@ namespace inet {
 class INET_API UDPRechargeProbabilistic : public UDPRechargeBasic {
 
 protected:
-  virtual void initialize(int stage) override;
+    virtual void initialize(int stage) override;
+    virtual void handleMessageWhenUp(cMessage *msg) override;
+
+    virtual double calculateDischargeProbability(void);
 
 public:
     virtual ~UDPRechargeProbabilistic();
+
+
+    virtual double calculateRechargeProb(void);
+    virtual double calculateDischargeProb(void);
+
+protected:
+    bool useDischargeProbability;
+    double dischargeProbability;
+    int chargeSlots;
+
+    int countRechargeSlot;
 };
 
 } /* namespace inet */
