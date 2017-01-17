@@ -172,10 +172,26 @@ void UDPRechargeBasic::handleMessageWhenUp(cMessage *msg) {
         updateVirtualForces();
 
         make1secStats();
+
+        if (myAppAddr == 0) {
+            checkAlive();
+        }
+
         scheduleAt(simTime() + 1, msg);
     }
     else {
         UDPBasicApp::handleMessageWhenUp(msg);
+    }
+}
+void UDPRechargeBasic::checkAlive(void) {
+    int numberNodes = this->getParentModule()->getVectorSize();
+
+    for (int i = 0; i < numberNodes; i++) {
+        power::SimpleBattery *battN = check_and_cast<power::SimpleBattery *>(this->getParentModule()->getParentModule()->getSubmodule("host", i)->getSubmodule("battery"));
+
+        if (battN->getBatteryLevelAbs() <= 0) {
+            endSimulation();
+        }
     }
 }
 
@@ -218,12 +234,19 @@ void UDPRechargeBasic::processPacket(cPacket *pk)
             }
             else {
 
+                std::stringstream ss;
+
                 if (neigh.count(aPkt->getAppAddr()) == 0) {
                     nodeInfo_t newInfo;
                     newInfo.addr = aPkt->getAddr();
                     newInfo.appAddr = aPkt->getAppAddr();
 
                     neigh[aPkt->getAppAddr()] = newInfo;
+
+                    ss << "[" << myAppAddr << "] - ADDING NEIGHBOUR: ";
+                }
+                else {
+                    ss << "[" << myAppAddr << "] - UPDATING NEIGHBOUR: ";
                 }
 
                 nodeInfo_t *node = &(neigh[aPkt->getAppAddr()]);
@@ -240,6 +263,10 @@ void UDPRechargeBasic::processPacket(cPacket *pk)
                 node->nodeDegree = aPkt->getNodeDegree();
                 node->inRechargeT = aPkt->getInRecharge();
                 node->gameTheoryC = aPkt->getGameTheoryC();
+
+                ss << node->appAddr << ". NEIG.SIZE: " << neigh.size();
+                //fprintf(stderr, "%s\n", ss.str().c_str());fflush(stderr);
+                EV << ss.str() << endl;
             }
 
             updateVirtualForces();
@@ -364,8 +391,11 @@ void UDPRechargeBasic::updateNeighbourhood(void) {
             nodeInfo_t *act = &(it->second);
 
             if ((simTime() - act->timestamp) > (2.0 * par("sendInterval").doubleValue())) {
-
-                EV << "[" << myAppAddr << "] - UPDATE NEIGHBOURHOOD. Removing: " << it->second.appAddr << endl;
+                std::stringstream ss;
+                ss << "[" << myAppAddr << "] - UPDATE NEIGHBOURHOOD. Removing: " << it->second.appAddr << " ";
+                ss << "- NOW: " << simTime() << " - timestamp: " << act->timestamp;
+                //fprintf(stderr, "%s\n", ss.str().c_str());fflush(stderr);
+                EV << ss.str() << endl;
 
                 neigh.erase(it);
                 removed = true;

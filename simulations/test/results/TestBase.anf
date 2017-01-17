@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scave:Analysis xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:scave="http://www.omnetpp.org/omnetpp/scave">
+  <inputs>
+    <inputs name="/recharge_scheduling/simulations/test/results/TestBase*/*.vec"/>
+    <inputs name="/recharge_scheduling/simulations/test/results/TestBase*/*.sca"/>
+  </inputs>
+  <datasets>
+    <datasets name="LIFETIME">
+      <items xsi:type="scave:Add" filterPattern="LIFETIME"/>
+      <items xsi:type="scave:BarChart" name="LIFETIME"/>
+    </datasets>
+    <datasets name="Response">
+      <items xsi:type="scave:Add" filterPattern="ResponseVal AND run(TestBaseSTIMULUS-0-20170117-15:08:32-21422) " type="VECTOR"/>
+      <items xsi:type="scave:LineChart" name="Response" lineNameFormat=""/>
+    </datasets>
+    <datasets name="BATTERY">
+      <items xsi:type="scave:Add" filterPattern="EnergyVal AND run(TestBaseSTIMULUS-0-20170117-15:08:32-21422) " type="VECTOR"/>
+      <items xsi:type="scave:LineChart" name="Battery" lineNameFormat=""/>
+    </datasets>
+  </datasets>
+  <chartSheets>
+    <chartSheets name="default" charts="//@datasets/@datasets.0/@items.1 //@datasets/@datasets.1/@items.1 //@datasets/@datasets.2/@items.1"/>
+  </chartSheets>
+</scave:Analysis>

@@ -25,7 +25,7 @@
 
 #include "inet/applications/udpapp/UDPBasicApp.h"
 
-#include "inet/power/simplebattery/SimpleBattery.h"
+#include <simplebattery/SimpleBattery.h>
 #include "inet/mobility/single/VirtualSpringMobility.h"
 #include "inet/applications/base/ApplicationPacketRecharge_m.h"
 
@@ -58,6 +58,7 @@ protected:
   virtual void initialize(int stage) override;
   virtual void handleMessageWhenUp(cMessage *msg) override;
   virtual void finish(void) override;
+  virtual void checkAlive(void);
 
   virtual ApplicationPacketRecharge *generatePktToSend(const char *name, bool goingToRecharge);
   virtual void sendPacket();

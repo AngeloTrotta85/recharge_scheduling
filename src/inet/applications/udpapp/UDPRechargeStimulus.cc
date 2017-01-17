@@ -67,6 +67,9 @@ void UDPRechargeStimulus::initialize(int stage)
 }
 
 void UDPRechargeStimulus::handleMessageWhenUp(cMessage *msg) {
+
+    double possibleRechargeTime = calculateRechargeTime(false);
+
     if (msg == autoMsgRecharge) {
         if (sb->isCharging()){
             lastRechargeTimestamp = simTime();
@@ -84,8 +87,12 @@ void UDPRechargeStimulus::handleMessageWhenUp(cMessage *msg) {
         firstRecharge = false;
 
         if (sb->isCharging()){
-            slotsInCharge = calculateRechargeTime(true) / checkRechargeTimer;
+            //slotsInCharge = calculateRechargeTime(true) / checkRechargeTimer;
+            slotsInCharge = possibleRechargeTime / checkRechargeTimer;
         }
+    }
+    else if (msg == stat5sec) {
+        //fprintf(stderr, "[%d] - Neigh_size: %d\n", myAppAddr, ((int) neigh.size()));fflush(stderr);
     }
 }
 
@@ -102,7 +109,7 @@ void UDPRechargeStimulus::processPacket(cPacket *pk) {
 
 double UDPRechargeStimulus::calculateRechargeProb(void){
 
-    if (!sb->isCharging()) {
+    if (sb->isCharging()) {
         return 0.0;
     }
     else {
@@ -161,7 +168,7 @@ double UDPRechargeStimulus::calculateRechargeTime(bool log) {
     //double tt = ((sb->getFullCapacity() - sb->getBatteryLevelAbs()) / sb->getChargingFactor(checkRechargeTimer)) * checkRechargeTimer;
     double tt = numRechargeSlotsStimulusZeroNeigh * checkRechargeTimer;
 
-    if (log) ss << "RECHARGETIME STIMULUS: Default charge time: " << tt << " - Neigh size: " << neigh.size() << endl;
+    if (log) ss << "[" << myAppAddr << "] RECHARGETIME STIMULUS: Default charge time: " << tt << " - Neigh size: " << neigh.size() << endl;
 
     if (neigh.size() > 0) {
 
@@ -271,7 +278,7 @@ double UDPRechargeStimulus::calculateRechargeTime(bool log) {
 
 
     if (log) {
-        ss << "RECHARGETIME Final decision charge time: " << recTime << endl;
+        ss << "[" << myAppAddr << "] RECHARGETIME Final decision charge time: " << recTime << endl;
 
         fprintf(stderr, "%s", ss.str().c_str());
     }
@@ -400,7 +407,7 @@ double UDPRechargeStimulus::calculateRechargeThreshold(void) {
 }
 
 double UDPRechargeStimulus::calculateDischargeProb(void){
-    if (sb->isCharging()) {
+    if (!sb->isCharging()) {
         return 0.0;
     }
     else {

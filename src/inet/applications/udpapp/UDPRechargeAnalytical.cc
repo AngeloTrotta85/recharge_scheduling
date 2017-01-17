@@ -49,6 +49,10 @@ void UDPRechargeAnalytical::initialize(int stage)
         snprintf(logFile, sizeof(logFile), "%s", par("analticalLogFile").stringValue());
         remove(logFile);
 
+        if (printAnalticalLog) {
+            recordScalar("TESTLOG", 0);
+        }
+
     }
     else if (stage == INITSTAGE_LAST) {
         myAddr = L3AddressResolver().resolve(this->getParentModule()->getFullPath().c_str());

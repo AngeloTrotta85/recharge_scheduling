@@ -75,7 +75,10 @@ protected:
   void printChargingInfo(const char *str);
 
 public:
-    virtual ~UDPRechargeAnalytical();
+  virtual ~UDPRechargeAnalytical();
+
+  virtual double calculateRechargeProb(void) {return 0;}
+  virtual double calculateDischargeProb(void) {return 0;}
 
 private:
     std::list<groupInfo_t> groupList;

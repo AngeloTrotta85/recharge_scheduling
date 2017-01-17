@@ -16,12 +16,12 @@
 package inet.applications.udpapp;
 
 
-simple UDPRechargeProbabilisitic extends UDPRechargeBasic
+simple UDPRechargeProbabilistic extends UDPRechargeBasic
 {
     parameters:
         bool useDischargeProbability = default(false);
         int chargeSlots = default(1);
         
         @display("i=block/app");
-        @class(UDPRechargeProbabilisitic);
+        @class(UDPRechargeProbabilistic);
 }
