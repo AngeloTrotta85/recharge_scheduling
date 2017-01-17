@@ -69,6 +69,7 @@ void UDPRechargeAnalytical::initialize(int stage)
 
 void UDPRechargeAnalytical::handleMessageWhenUp(cMessage *msg) {
     if (msg == autoMsgRecharge) {
+        checkCentralizedRecharge();
         scheduleAt(simTime() + checkRechargeTimer, autoMsgRecharge);
     }
     else {
