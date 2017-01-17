@@ -29,7 +29,6 @@ void UDPRechargeProbabilistic::initialize(int stage)
 
     if (stage == INITSTAGE_LOCAL) {
         useDischargeProbability = par("useDischargeProbability").boolValue();
-        dischargeProbability = par("dischargeProbability");
         chargeSlots = par("chargeSlots");
 
         countRechargeSlot = 0;
@@ -63,14 +62,15 @@ double UDPRechargeProbabilistic::calculateRechargeProb(void){
 
 double UDPRechargeProbabilistic::calculateDischargeProb(void){
     if (useDischargeProbability) {
-        return dischargeProbability;
+        //return dischargeProbability;
+        return (1.0 / ((double) chargeSlots));
     }
     else {
-        return calculateDischargeProbability();
+        return calculateStaticDischargeProbability();
     }
 }
 
-double UDPRechargeProbabilistic::calculateDischargeProbability(void) {
+double UDPRechargeProbabilistic::calculateStaticDischargeProbability(void) {
     if (!sb->isCharging()) {
         return 0.0;
     }

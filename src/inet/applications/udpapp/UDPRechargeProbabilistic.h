@@ -33,7 +33,7 @@ protected:
     virtual void initialize(int stage) override;
     virtual void handleMessageWhenUp(cMessage *msg) override;
 
-    virtual double calculateDischargeProbability(void);
+    virtual double calculateStaticDischargeProbability(void);
 
 public:
     virtual ~UDPRechargeProbabilistic();
@@ -44,7 +44,6 @@ public:
 
 protected:
     bool useDischargeProbability;
-    double dischargeProbability;
     int chargeSlots;
 
     int countRechargeSlot;

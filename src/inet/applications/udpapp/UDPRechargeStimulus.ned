@@ -14,3 +14,11 @@
 // 
 
 package inet.applications.udpapp;
+
+simple UDPRechargeStimulus extends UDPRechargeBasic
+{
+    parameters:
+        
+        @display("i=block/app");
+        @class(UDPRechargeStimulus);
+}
