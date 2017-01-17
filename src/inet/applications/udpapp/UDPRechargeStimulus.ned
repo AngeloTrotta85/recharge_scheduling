@@ -19,6 +19,16 @@ simple UDPRechargeStimulus extends UDPRechargeBasic
 {
     parameters:
         
+        double stimulusExponent = default(1);
+        int numRechargeSlotsStimulusZeroNeigh = default(3);
+        string chargeLengthType @enum("MIN", "MAX", "AVG") = default("AVG");
+        bool stationANDnodeKNOWN = default(false);
+        double chargeTimeOthersNodeFactor = default(0.0);
+        bool makeLowEnergyFactorCurves = default(true);
+        
+        bool useProbabilisticDischarge = default(false);
+        bool useQuadraticProbabilisticDischarge = default(false);
+        
         @display("i=block/app");
         @class(UDPRechargeStimulus);
 }

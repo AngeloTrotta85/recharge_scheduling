@@ -16,12 +16,61 @@
 #ifndef INET_APPLICATIONS_UDPAPP_UDPRECHARGESTIMULUS_H_
 #define INET_APPLICATIONS_UDPAPP_UDPRECHARGESTIMULUS_H_
 
+#include "inet/common/INETDefs.h"
+
+#include <vector>
+#include <map>
+#include <list>
+#include <iomanip>      // std::setprecision
+
+#include "inet/applications/udpapp/UDPRechargeBasic.h"
+
 namespace inet {
 
-class UDPRechargeStimulus {
+class INET_API UDPRechargeStimulus : public UDPRechargeBasic {
+
 public:
-    UDPRechargeStimulus();
+    typedef enum {
+        MIN_VAL,
+        MAX_VAL,
+        AVG_VAL
+    } RechargeLength_Type;
+
+protected:
+    virtual void initialize(int stage) override;
+    virtual void handleMessageWhenUp(cMessage *msg) override;
+    virtual void processPacket(cPacket *msg);
+
+    virtual double calculateSwapPenalitiesEstimationCount(double estimatedSteps);
+    virtual double calculateChargeDiff (double myChoice);
+    virtual double calculateRechargeTime(bool log);
+
+    virtual double calculateRechargeStimuliEnergyFactor(void);
+    virtual double calculateRechargeStimuliTimeFactor(void);
+
+    virtual double calculateRechargeStimuli(void);
+    virtual double calculateRechargeThreshold(void);
+
+public:
     virtual ~UDPRechargeStimulus();
+
+    virtual double calculateRechargeProb(void);
+    virtual double calculateDischargeProb(void);
+
+protected:
+    double stimulusExponent;
+    int numRechargeSlotsStimulusZeroNeigh;
+    RechargeLength_Type rlt;
+    bool stationANDnodeKNOWN;
+    double chargeTimeOthersNodeFactor;
+    bool makeLowEnergyFactorCurves;
+    bool useProbabilisticDischarge;
+    bool useQuadraticProbabilisticDischarge;
+
+    bool firstRecharge;
+    simtime_t lastRechargeTimestamp;
+    double slotsInCharge;
+    int countRechargeSlot;
 };
 
 } /* namespace inet */

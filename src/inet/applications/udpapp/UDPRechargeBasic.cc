@@ -59,6 +59,7 @@ void UDPRechargeBasic::initialize(int stage)
 
         rechargeLostAccess = 0;
         failedAttemptCount = 0;
+        inRechargingTime = 0;
 
         activeNodesVector.setName("activeNodes");
         rechargingNodesVector.setName("rechargingNodes");
@@ -110,6 +111,8 @@ void UDPRechargeBasic::handleMessageWhenUp(cMessage *msg) {
     if (msg == autoMsgRecharge) {
         if (sb->getState() == power::SimpleBattery::CHARGING){
             bool stopCharging = checkDischarge();
+
+            inRechargingTime += checkRechargeTimer;
 
             if (stopCharging) {
 
@@ -267,7 +270,7 @@ ApplicationPacketRecharge *UDPRechargeBasic::generatePktToSend(const char *name,
     payload->setCoveragePercentage(0);
     payload->setLeftLifetime(sb->getBatteryLevelAbs() / sb->getDischargingFactor(checkRechargeTimer));
     payload->setNodeDegree(calculateNodeDegree());
-    payload->setInRecharge(0); //TODO
+    payload->setInRecharge(inRechargingTime);
     payload->setGoingToRechargeTime(calculateRechargeTime());
     payload->setGameTheoryC(getGameTheoryC());
 
