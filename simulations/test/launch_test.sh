@@ -42,13 +42,13 @@ for cu in $CONFIGS_USER; do
 			
 			IDX=$INDEX_USER
 			
-			while [ $IDX -le $ci_ns ]
+			while [ $IDX -lt $ci_ns ]
 			do
 				echo "INDEX: $IDX"
 				
 				COMM="../../src/recharge_scheduling -r ${IDX} -u Cmdenv -c ${ci_name} -n ../../src:..:../../../../../../media/angelo/BigLinux/Programs/OMNeT++/omnetpp-5.0/samples/inet/examples:../../../../../../media/angelo/BigLinux/Programs/OMNeT++/omnetpp-5.0/samples/inet/src:../../../../../../media/angelo/BigLinux/Programs/OMNeT++/omnetpp-5.0/samples/inet/tutorials:../../../inet_ext/src:../../../inet_ext/simulations:../../../virtual_spring/examples:../../../virtual_spring/src -l ../../../../../../media/angelo/BigLinux/Programs/OMNeT++/omnetpp-5.0/samples/inet/src/INET -l ../../../inet_ext/src/inet_ext -l ../../../virtual_spring/src/virtual-spring --debug-on-errors=false omnetpp.ini"
 				
-				echo "$COMM"
+				#echo "$COMM"
 				$COMM
 				
 				IDX=$((IDX+TOTAL_RUNS))				

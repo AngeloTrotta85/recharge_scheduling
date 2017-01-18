@@ -17,6 +17,7 @@ fi
 for i in $(seq ${NPARALLEL})
 do
 	./launch_test.sh ${i} ${NPARALLEL} "TestBaseANALYTICAL TestBaseROUNDROBIN TestBasePROBABILISTIC TestBaseSTIMULUS TestBaseGAMETHEORY" &
+	sleep 1
 done
 
 wait
