@@ -60,6 +60,7 @@ void UDPRechargeBasic::initialize(int stage)
         rechargeLostAccess = 0;
         failedAttemptCount = 0;
         inRechargingTime = 0;
+        startRecharge = simTime();
 
         activeNodesVector.setName("activeNodes");
         rechargingNodesVector.setName("rechargingNodes");
@@ -146,6 +147,7 @@ void UDPRechargeBasic::handleMessageWhenUp(cMessage *msg) {
         if (checkRechargingStationFree()) {
 
             rechargeLostAccess = 0;
+            startRecharge = simTime();
 
             sb->setState(power::SimpleBattery::CHARGING);
 

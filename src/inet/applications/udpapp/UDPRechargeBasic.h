@@ -104,6 +104,7 @@ protected:
     int rechargeLostAccess;
     int failedAttemptCount;
     double inRechargingTime;
+    simtime_t startRecharge;
 
     // messages
     cMessage *autoMsgRecharge = nullptr;
