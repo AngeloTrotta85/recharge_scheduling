@@ -1,21 +1,22 @@
 #!/bin/bash
 
-if [ $# -lt 3 ]; then
-	echo "(1) Usage $0 runIndex[1..4] totalRUN[1..4] \"c1 c2 ... cn\""
+if [ $# -lt 4 ]; then
+	echo "(1) Usage $0 runIndex[1..4] totalRUN[1..4] \"c1 c2 ... cn\" logPath"
 	exit
 fi
 
 if [ $1 -ge 5 ] && [ $1 -le 0 ]; then
-	echo "(2) Usage $0 runIndex[1..4] totalRUN[1..4] \"c1 c2 ... cn\""
+	echo "(2) Usage $0 runIndex[1..4] totalRUN[1..4] \"c1 c2 ... cn\" logPath"
 	exit
 fi
 
 if [ $1 -gt $2 ]; then
-	echo "(3) Usage $0 runIndex[1..4] totalRUN[1..4] \"c1 c2 ... cn\""
+	echo "(3) Usage $0 runIndex[1..4] totalRUN[1..4] \"c1 c2 ... cn\" logPath"
 	echo "runIndex[1..4] must be less then or equal to totalRUN"
 	exit
 fi
 
+LOG_PATH=$4
 INDEX_USER=$1
 INDEX_USER=$((INDEX_USER-1))
 TOTAL_RUNS=$2
@@ -36,7 +37,7 @@ for cu in $CONFIGS_USER; do
 		#echo $cu
 
 		if [ "$ci_name" = "$cu" ]; then 
-			echo $ci_name
+			#echo $ci_name
 			#echo $cu
 			#echo "STRINGS Matched"
 			
@@ -44,12 +45,22 @@ for cu in $CONFIGS_USER; do
 			
 			while [ $IDX -lt $ci_ns ]
 			do
-				echo "INDEX: $IDX"
+				FILE_PATH="${LOG_PATH}/${ci_name}-${IDX}.log"
+				#echo "INDEX: $IDX"
+				
+				if [ -e ${FILE_PATH} ]; then
+					#echo "FILE EXISTS: $FILE_PATH"
+					IDX=$((IDX+TOTAL_RUNS))	
+					continue
+				fi
+				
+				echo "FILE_PATH: $FILE_PATH"
 				
 				COMM="../../src/recharge_scheduling -r ${IDX} -u Cmdenv -c ${ci_name} -n ../../src:..:../../../../../../media/angelo/BigLinux/Programs/OMNeT++/omnetpp-5.0/samples/inet/examples:../../../../../../media/angelo/BigLinux/Programs/OMNeT++/omnetpp-5.0/samples/inet/src:../../../../../../media/angelo/BigLinux/Programs/OMNeT++/omnetpp-5.0/samples/inet/tutorials:../../../inet_ext/src:../../../inet_ext/simulations:../../../virtual_spring/examples:../../../virtual_spring/src -l ../../../../../../media/angelo/BigLinux/Programs/OMNeT++/omnetpp-5.0/samples/inet/src/INET -l ../../../inet_ext/src/inet_ext -l ../../../virtual_spring/src/virtual-spring --debug-on-errors=false omnetpp.ini"
 				
 				#echo "$COMM"
-				$COMM
+				$COMM &>${FILE_PATH}
+				#touch ${FILE_PATH}
 				
 				IDX=$((IDX+TOTAL_RUNS))				
 			done						
