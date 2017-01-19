@@ -39,7 +39,11 @@ public:
     typedef enum {
         LINEARINCREASE,
         LINEARINCREASECONSISTENT
-    } VarConstant_Type;
+    } VarTConstant_Type;
+
+    typedef enum {
+        LINEAR_P
+    } VarPConstant_Type;
 
     typedef enum {
         ENERGYMIN,
@@ -54,6 +58,18 @@ protected:
     double getGameTheoryC_LinearIncrease(void);
     double getGameTheoryC_LinearIncreaseConsistent(void);
 
+    virtual double calculateEstimatedTimeInRecharging(void);
+
+    virtual double calculateUTplusFail(void);
+    virtual double calculateUTplusOk(void);
+    virtual double calculateUTminusBusy(void);
+    virtual double calculateUTminusFree(void);
+
+    virtual double calculateUPplusZero(void);
+    virtual double calculateUPplusMore(void);
+    virtual double calculateUPminusZero(void);
+    virtual double calculateUPminusMore(void);
+
 public:
     virtual ~UDPRechargeGameTheory();
 
@@ -61,6 +77,7 @@ public:
     virtual double calculateDischargeProb(void);
 
     virtual double getGameTheoryC(void) override;
+    virtual double getGameTheoryProbC(void);
 
     double getTheta(void);
     double getGamma(void);
@@ -79,10 +96,12 @@ private:
     double constDischargeProb;
     double exponential_dischargeProb_decay;
     double temp_factorProbDischarge;
+    bool useNewGameTheoryDischargeProb;
 
     DischargeProbEnergyToUse_Type dischargeProbEnergyToUse;
     GameTheoryKnowledge_Type gameTheoryKnowledgeType;
-    VarConstant_Type constant_type;
+    VarTConstant_Type constant_T_type;
+    VarPConstant_Type constant_P_type;
 };
 
 } /* namespace inet */

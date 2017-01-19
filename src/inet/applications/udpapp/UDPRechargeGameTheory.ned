@@ -23,11 +23,13 @@ simple UDPRechargeGameTheory extends UDPRechargeBasic
         bool variableP = default(true);
         string gameTheoryKnowledgeType @enum("LOCAL_KNOWLEDGE", "GLOBAL_KNOWLEDGE") = default("GLOBAL_KNOWLEDGE");
         string varConstantType @enum("LINEARINCREASE", "LINEARINCREASECONSISTENT") = default("LINEARINCREASE");
+        string varPConstantType @enum("LINEAR_P") = default("LINEAR_P");
         string dischargeProbEnergyToUse @enum("ENERGYMIN", "ENERGYMAX", "ENERGYAVG") = default("ENERGYMIN");
         double linearIncreaseFactor = default(0.5);
         double constDischargeProb = default(1.0);
         double exponential_dischargeProb_decay = default(2.0);
         double temp_factorProbDischarge = default(2.0);
+        bool useNewGameTheoryDischargeProb = default(false);
         
         @display("i=block/app");
         @class(UDPRechargeGameTheory);

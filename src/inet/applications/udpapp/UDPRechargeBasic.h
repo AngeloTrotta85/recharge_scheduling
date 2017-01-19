@@ -100,6 +100,7 @@ protected:
     power::SimpleBattery *sb = nullptr;
 
     std::map<int, nodeInfo_t> neigh;
+    std::map<int, nodeInfo_t> neighBackupWhenRecharging;
 
     int rechargeLostAccess;
     int failedAttemptCount;
