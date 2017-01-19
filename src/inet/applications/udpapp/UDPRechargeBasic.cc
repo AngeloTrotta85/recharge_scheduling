@@ -52,6 +52,7 @@ void UDPRechargeBasic::initialize(int stage)
         checkRechargeTimer = par("checkRechargeTimer");
         sensorRadious = par("sensorRadious");
         chargingStationNumber = par("chargingStationNumber");
+        activateVirtualForceMovements = par("activateVirtualForceMovements").boolValue();
 
         double rx = (mob->getConstraintAreaMax().x - mob->getConstraintAreaMin().x) / 2.0;
         double ry = (mob->getConstraintAreaMax().y - mob->getConstraintAreaMin().y) / 2.0;
@@ -359,29 +360,32 @@ void UDPRechargeBasic::updateVirtualForces(void) {
     // clear everything
     mob->clearVirtualSprings();
 
-    for (auto it = neigh.begin(); it != neigh.end(); it++) {
-        nodeInfo_t *act = &(it->second);
-        double preferredDistance = calculateInterDistance(sensorRadious);
+    if (activateVirtualForceMovements) {
 
-        double distance = act->pos.distance(myPos);
-        double springDispl = preferredDistance - distance;
+        for (auto it = neigh.begin(); it != neigh.end(); it++) {
+            nodeInfo_t *act = &(it->second);
+            double preferredDistance = calculateInterDistance(sensorRadious);
 
-        Coord uVec = Coord(1, 1);
-        if (distance == 0)  uVec = Coord(dblrand(), dblrand());
-        else  uVec = act->pos - myPos;
-        uVec.normalize();
+            double distance = act->pos.distance(myPos);
+            double springDispl = preferredDistance - distance;
 
-        //EV << "Setting force with displacement: " << springDispl << " (distance: " << distance << ")" << endl;
-        //fprintf(stderr, "[%d] - adding force with displacement %lf\n", myAppAddr, springDispl);fflush(stderr);
-        mob->addVirtualSpring(uVec, preferredDistance, springDispl);
-    }
+            Coord uVec = Coord(1, 1);
+            if (distance == 0)  uVec = Coord(dblrand(), dblrand());
+            else  uVec = act->pos - myPos;
+            uVec.normalize();
 
-    // add the force towards the center rebornPos
-    if (rebornPos.distance(myPos) > 10) {
-        Coord uVec = rebornPos - myPos;
-        //Coord uVec = myPos - rebornPos;
-        uVec.normalize();
-        mob->addVirtualSpring(uVec, rebornPos.distance(myPos), -3);
+            //EV << "Setting force with displacement: " << springDispl << " (distance: " << distance << ")" << endl;
+            //fprintf(stderr, "[%d] - adding force with displacement %lf\n", myAppAddr, springDispl);fflush(stderr);
+            mob->addVirtualSpring(uVec, preferredDistance, springDispl);
+        }
+
+        // add the force towards the center rebornPos
+        if (rebornPos.distance(myPos) > 10) {
+            Coord uVec = rebornPos - myPos;
+            //Coord uVec = myPos - rebornPos;
+            uVec.normalize();
+            mob->addVirtualSpring(uVec, rebornPos.distance(myPos), -3);
+        }
     }
 }
 

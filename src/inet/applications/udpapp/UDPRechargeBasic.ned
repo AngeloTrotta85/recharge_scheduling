@@ -26,6 +26,8 @@ simple UDPRechargeBasic extends UDPBasicApp
         double sensorRadious @unit(m) = default(50m);
         
         int chargingStationNumber = default(3);
+        
+        bool activateVirtualForceMovements = default(true);
                 
         
         @display("i=block/app");

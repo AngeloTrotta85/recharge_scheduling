@@ -117,6 +117,7 @@ protected:
     double sensorRadious;
     Coord rebornPos;
     int chargingStationNumber;
+    bool activateVirtualForceMovements;
 
     // statistical vectors
     cOutVector activeNodesVector;
