@@ -77,6 +77,7 @@ public:
     virtual double calculateDischargeProb(void);
 
     virtual double getGameTheoryC(void) override;
+    virtual double getGameTheoryCNew(void);
     virtual double getGameTheoryProbC(void);
 
     double getTheta(void);

@@ -46,9 +46,11 @@ for cu in $CONFIGS_USER; do
 			while [ $IDX -lt $ci_ns ]
 			do
 				FILE_PATH="${LOG_PATH}/${ci_name}-${IDX}.log"
+				CHECK_PATH="${FILE_PATH}.ok"
 				#echo "INDEX: $IDX"
 				
-				if [ -e ${FILE_PATH} ]; then
+				#if [ -e ${FILE_PATH} ]; then
+				if [ -e ${CHECK_PATH} ]; then
 					#echo "FILE EXISTS: $FILE_PATH"
 					IDX=$((IDX+TOTAL_RUNS))	
 					continue
@@ -60,7 +62,7 @@ for cu in $CONFIGS_USER; do
 				
 				#echo "$COMM"
 				$COMM &>${FILE_PATH}
-				#touch ${FILE_PATH}
+				touch ${CHECK_PATH}
 				
 				IDX=$((IDX+TOTAL_RUNS))				
 			done						

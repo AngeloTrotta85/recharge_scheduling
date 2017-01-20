@@ -349,7 +349,17 @@ double UDPRechargeGameTheory::calculateDischargeProb(void){
 
         }
         else {
-            ris = constDischargeProb;
+            if (useNewGameTheoryDischargeProb) {
+                int numberNodes = this->getParentModule()->getVectorSize();
+                double unomenoc = 1.0 - getGameTheoryCNew();
+                double cp = getGameTheoryProbC();
+
+                ris = unomenoc / cp;
+                ris = ris * pow(cp, 1.0 / (numberNodes - 1.0));
+            }
+            else {
+                ris = constDischargeProb;
+            }
         }
 
         if (ris < 0) ris = 0;
@@ -363,6 +373,8 @@ double UDPRechargeGameTheory::calculateDischargeProb(void){
 double UDPRechargeGameTheory::getGameTheoryC(void) {
     double ris = 0;
 
+    ris = getGameTheoryCNew();
+    /*
     if (variableC) {
         switch (constant_T_type) {
         case LINEARINCREASE:
@@ -386,12 +398,41 @@ double UDPRechargeGameTheory::getGameTheoryC(void) {
 
     if (ris > 1) ris = 1;
     if (ris < 0) ris = 0;
+    */
+
+    return ris;
+}
+
+double UDPRechargeGameTheory::getGameTheoryCNew(void) {
+    double utMenoFree, utMenoBusy, utPiuOk, utPiuFail;
+    double ris = 0;
+
+    utMenoFree = calculateUTminusFree();
+    utMenoBusy = calculateUTminusBusy();
+    utPiuOk = calculateUTplusOk();
+    utPiuFail = calculateUTplusFail();
+
+    ris = (utMenoFree - utPiuOk) / (utPiuFail - utPiuOk + utMenoFree - utMenoBusy);
+
+    if (ris > 1) ris = 1;
+    if (ris < 0) ris = 0;
 
     return ris;
 }
 
 double UDPRechargeGameTheory::getGameTheoryProbC(void) {
+    double upMenoZero, upMenoMore, upPiuZero, upPiuMore;
     double ris = 0;
+
+    upMenoZero = calculateUPminusZero();
+    upMenoMore = calculateUPminusMore();
+    upPiuZero = calculateUPplusZero();
+    upPiuMore = calculateUPplusMore();
+
+    ris = (upMenoMore - upPiuMore) / (upPiuZero - upPiuMore + upMenoMore - upMenoZero);
+
+    if (ris > 1) ris = 1;
+    if (ris < 0) ris = 0;
 
     return ris;
 }
@@ -745,6 +786,30 @@ double UDPRechargeGameTheory::calculateUTminusFree(void) {
 
 double UDPRechargeGameTheory::calculateUPplusZero(void) {
     double valUPplusZero = 0;
+    double eMAX = getEmax(false, gameTheoryKnowledgeType);
+    double eMIN = getEmin(false, gameTheoryKnowledgeType);
+    double a = getAlpha();
+    //double b = getBeta();
+    double t = getTheta();
+    //double g = getGamma();
+    double myE = sb->getBatteryLevelAbs();
+
+    double e = 1;
+    if ((eMAX - eMIN) != 0) {
+        e = (eMAX - myE) / (eMAX - eMIN);
+    }
+
+    if (variableP) {
+        switch (constant_P_type) {
+        case LINEAR_P:
+        default:
+            valUPplusZero = (-a-t)*(1.0 + e);
+            break;
+        }
+    }
+    else {
+        valUPplusZero = (-a-t);
+    }
 
     return valUPplusZero;
 }
@@ -752,17 +817,69 @@ double UDPRechargeGameTheory::calculateUPplusZero(void) {
 double UDPRechargeGameTheory::calculateUPplusMore(void) {
     double valUPplusMore = 0;
 
+    double b = getBeta();
+    double t = getTheta();
+
+    if (variableP) {
+        switch (constant_P_type) {
+        case LINEAR_P:
+        default:
+            valUPplusMore = b+t;
+            break;
+        }
+    }
+    else {
+        valUPplusMore = b+t;
+    }
+
     return valUPplusMore;
 }
 
 double UDPRechargeGameTheory::calculateUPminusZero(void) {
     double valUPminusZero = 0;
+    double eMAX = getEmax(false, gameTheoryKnowledgeType);
+    double eMIN = getEmin(false, gameTheoryKnowledgeType);
+    double a = getAlpha();
+    double b = getBeta();
+    double t = getTheta();
+    //double g = getGamma();
+    double myE = sb->getBatteryLevelAbs();
+
+    double e = 1;
+    if ((eMAX - eMIN) != 0) {
+        e = (eMAX - myE) / (eMAX - eMIN);
+    }
+
+    if (variableP) {
+        switch (constant_P_type) {
+        case LINEAR_P:
+        default:
+            valUPminusZero = b - ((a+t)*(1.0-e));
+            break;
+        }
+    }
+    else {
+        valUPminusZero = b;
+    }
 
     return valUPminusZero;
 }
 
 double UDPRechargeGameTheory::calculateUPminusMore(void) {
     double valUPminusMore = 0;
+    double b = getBeta();
+
+    if (variableP) {
+        switch (constant_P_type) {
+        case LINEAR_P:
+        default:
+            valUPminusMore = b;
+            break;
+        }
+    }
+    else {
+        valUPminusMore = b;
+    }
 
     return valUPminusMore;
 }
