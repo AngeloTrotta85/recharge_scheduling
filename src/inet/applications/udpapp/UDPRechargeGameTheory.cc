@@ -76,6 +76,9 @@ void UDPRechargeGameTheory::initialize(int stage)
         if (constPType.compare("LINEAR_P") == 0) {
             constant_P_type = LINEAR_P;
         }
+        else if (constPType.compare("LINEAR_T") == 0) {
+            constant_P_type = LINEAR_T;
+        }
         else {
             error("Wrong \"varConstantType\" parameter");
         }
@@ -210,9 +213,9 @@ double UDPRechargeGameTheory::calculateRechargeProb(void){
         }
         else {
             double c = (getGamma()+getTheta()) / (getAlpha() + getBeta());
-            if (variableP){
-                c = c / constDischargeProb;
-            }
+            //if (variableP){
+            //    c = c / constDischargeProb;
+            //}
             s = pow(c, 1.0 / (((double) numberNodes) - 1.0));
 
             ris = 1.0 - s;
@@ -250,6 +253,29 @@ double UDPRechargeGameTheory::calculateEstimatedTimeInRecharging(void) {
     return estimatedTimeInRecharging;
 }
 
+double UDPRechargeGameTheory::calculateTimePassedRatioFromEstimated(void) {
+    double ris = 0.0;
+
+    if (sb->isCharging()) {
+        double estimatedTimeInRecharging = calculateEstimatedTimeInRecharging();
+        double timeInCharge = (simTime() - startRecharge).dbl();
+
+        estimatedTimeInRecharging = estimatedTimeInRecharging * checkRechargeTimer;
+
+        //fprintf(stderr, "timeInCharge: %lf and estimatedTimeInRecharging = %lf\n", timeInCharge, estimatedTimeInRecharging); fflush(stderr);
+
+        if (timeInCharge >= estimatedTimeInRecharging){
+            ris = 1.0;
+        }
+        else {
+            //ris = pow(timeInCharge / estimatedTimeInRecharging, exponential_dischargeProb_decay);
+            ris = timeInCharge / estimatedTimeInRecharging;
+        }
+    }
+
+    return ris;
+}
+
 double UDPRechargeGameTheory::calculateDischargeProb(void){
     if (!sb->isCharging()) {
         return 0.0;
@@ -264,21 +290,29 @@ double UDPRechargeGameTheory::calculateDischargeProb(void){
                 long double produttoria = 1.0;
                 long double probCi = getGameTheoryProbC();
 
+                fprintf(stderr, "upMenoMore:%lf < upPiuMore:%lf - upPiuZero:%lf < upMenoZero:%lf\n",
+                        calculateUPminusMore(),calculateUPplusMore(),calculateUPplusZero(),calculateUPminusZero());
+                fprintf(stderr, "probCi: %Lf \n", probCi);
+
                 if (gameTheoryKnowledgeType == GLOBAL_KNOWLEDGE) {
                     for (int j = 0; j < numberNodes; j++) {
                         UDPRechargeGameTheory *hostj = check_and_cast<UDPRechargeGameTheory *>(this->getParentModule()->getParentModule()->getSubmodule("host", j)->getSubmodule("udpApp", 0));
-                        power::SimpleBattery *battN = check_and_cast<power::SimpleBattery *>(this->getParentModule()->getParentModule()->getSubmodule("host", j)->getSubmodule("battery"));
+                        //power::SimpleBattery *battN = check_and_cast<power::SimpleBattery *>(this->getParentModule()->getParentModule()->getSubmodule("host", j)->getSubmodule("battery"));
 
-                        if (!battN->isCharging()) {
+                        //if (!battN->isCharging()) {
+                        {
                             // TAKE ONLY ACTIVE NODES
                             double hostC = hostj->getGameTheoryC();
                             long double ppp = (1.0 - hostC) / probCi;
                             produttoria = produttoria * ppp;
 
+                            fprintf(stderr, "HC:%lf;TMP:%Lf;DIV:%Lf      ", hostC, produttoria, ppp);
+
                             //fprintf(stderr, "%Lf ", ppp);
                         }
 
                     }
+                    fprintf(stderr, "\n");fflush(stderr);
                 }
                 else if (gameTheoryKnowledgeType == LOCAL_KNOWLEDGE) {
                     if (sb->isCharging()) {
@@ -305,7 +339,9 @@ double UDPRechargeGameTheory::calculateDischargeProb(void){
                     error("Wrong knowledge scope");
                 }
 
+                fprintf(stderr, "Prod:%Lf \n", produttoria);
                 produttoria = produttoria * probCi;
+                fprintf(stderr, "Prod*CK:%Lf \n", produttoria);
 
                 if (gameTheoryKnowledgeType == GLOBAL_KNOWLEDGE) {
                     nmeno1SquareRoot = powl(produttoria, 1.0 / (((long double) numberNodes) - 1.0));
@@ -321,6 +357,8 @@ double UDPRechargeGameTheory::calculateDischargeProb(void){
                 else {
                     error("Wrong knowledge scope");
                 }
+
+                fprintf(stderr, "RIS:%Lf \n\n", nmeno1SquareRoot);
 
                 ris = nmeno1SquareRoot;
             }
@@ -786,6 +824,7 @@ double UDPRechargeGameTheory::calculateUTminusFree(void) {
 
 double UDPRechargeGameTheory::calculateUPplusZero(void) {
     double valUPplusZero = 0;
+    double tr = 1 - calculateTimePassedRatioFromEstimated();
     double eMAX = getEmax(false, gameTheoryKnowledgeType);
     double eMIN = getEmin(false, gameTheoryKnowledgeType);
     double a = getAlpha();
@@ -803,7 +842,10 @@ double UDPRechargeGameTheory::calculateUPplusZero(void) {
         switch (constant_P_type) {
         case LINEAR_P:
         default:
-            valUPplusZero = (-a-t)*(1.0 + e);
+            valUPplusZero = (-a-t)*(1.0 + e)*0.5;
+            break;
+        case LINEAR_T:
+            valUPplusZero = (-a-t)*(1.0 + tr);
             break;
         }
     }
@@ -816,27 +858,7 @@ double UDPRechargeGameTheory::calculateUPplusZero(void) {
 
 double UDPRechargeGameTheory::calculateUPplusMore(void) {
     double valUPplusMore = 0;
-
-    double b = getBeta();
-    double t = getTheta();
-
-    if (variableP) {
-        switch (constant_P_type) {
-        case LINEAR_P:
-        default:
-            valUPplusMore = b+t;
-            break;
-        }
-    }
-    else {
-        valUPplusMore = b+t;
-    }
-
-    return valUPplusMore;
-}
-
-double UDPRechargeGameTheory::calculateUPminusZero(void) {
-    double valUPminusZero = 0;
+    double tr = 1 - calculateTimePassedRatioFromEstimated();
     double eMAX = getEmax(false, gameTheoryKnowledgeType);
     double eMIN = getEmin(false, gameTheoryKnowledgeType);
     double a = getAlpha();
@@ -854,7 +876,44 @@ double UDPRechargeGameTheory::calculateUPminusZero(void) {
         switch (constant_P_type) {
         case LINEAR_P:
         default:
-            valUPminusZero = b - ((a+t)*(1.0-e));
+            valUPplusMore = (-a-t)*(1.0 - e)/numberNodesInSimulation;
+            break;
+        case LINEAR_T:
+            valUPplusMore = (-a-t)*(tr)+(b*(1.0-tr));
+            break;
+        }
+    }
+    else {
+        valUPplusMore = (-a-t);
+    }
+
+    return valUPplusMore;
+}
+
+double UDPRechargeGameTheory::calculateUPminusZero(void) {
+    double valUPminusZero = 0;
+    double tr = 1 - calculateTimePassedRatioFromEstimated();
+    //double eMAX = getEmax(false, gameTheoryKnowledgeType);
+    //double eMIN = getEmin(false, gameTheoryKnowledgeType);
+    //double a = getAlpha();
+    double b = getBeta();
+    //double t = getTheta();
+    //double g = getGamma();
+    //double myE = sb->getBatteryLevelAbs();
+
+    //double e = 1;
+    //if ((eMAX - eMIN) != 0) {
+    //    e = (eMAX - myE) / (eMAX - eMIN);
+    //}
+
+    if (variableP) {
+        switch (constant_P_type) {
+        case LINEAR_P:
+        default:
+            valUPminusZero = b;
+            break;
+        case LINEAR_T:
+            valUPminusZero = (b);//*(1.0 + tr);
             break;
         }
     }
@@ -867,13 +926,26 @@ double UDPRechargeGameTheory::calculateUPminusZero(void) {
 
 double UDPRechargeGameTheory::calculateUPminusMore(void) {
     double valUPminusMore = 0;
+    double tr = 1 - calculateTimePassedRatioFromEstimated();
+    double eMAX = getEmax(false, gameTheoryKnowledgeType);
+    double eMIN = getEmin(false, gameTheoryKnowledgeType);
     double b = getBeta();
+    double t = getTheta();
+    double myE = sb->getBatteryLevelAbs();
+
+    double e = 1;
+    if ((eMAX - eMIN) != 0) {
+        e = (eMAX - myE) / (eMAX - eMIN);
+    }
 
     if (variableP) {
         switch (constant_P_type) {
         case LINEAR_P:
         default:
-            valUPminusMore = b;
+            valUPminusMore = b - (numberNodesInSimulation * t * (1 + e));
+            break;
+        case LINEAR_T:
+            valUPminusMore = 0;//(b * tr)-(numberNodesInSimulation * t * 3);
             break;
         }
     }

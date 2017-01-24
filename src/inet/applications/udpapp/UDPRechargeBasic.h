@@ -106,6 +106,7 @@ protected:
     int failedAttemptCount;
     double inRechargingTime;
     simtime_t startRecharge;
+    int numberNodesInSimulation;
 
     // messages
     cMessage *autoMsgRecharge = nullptr;

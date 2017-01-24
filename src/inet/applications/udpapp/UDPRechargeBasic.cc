@@ -48,6 +48,7 @@ void UDPRechargeBasic::initialize(int stage)
         sb = check_and_cast<power::SimpleBattery *>(this->getParentModule()->getSubmodule("battery"));
 
         myAppAddr = this->getParentModule()->getIndex();
+        numberNodesInSimulation = this->getParentModule()->getVectorSize();
 
         checkRechargeTimer = par("checkRechargeTimer");
         sensorRadious = par("sensorRadious");

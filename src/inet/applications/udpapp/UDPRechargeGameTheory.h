@@ -42,7 +42,8 @@ public:
     } VarTConstant_Type;
 
     typedef enum {
-        LINEAR_P
+        LINEAR_P,
+        LINEAR_T
     } VarPConstant_Type;
 
     typedef enum {
@@ -59,6 +60,7 @@ protected:
     double getGameTheoryC_LinearIncreaseConsistent(void);
 
     virtual double calculateEstimatedTimeInRecharging(void);
+    virtual double calculateTimePassedRatioFromEstimated(void);
 
     virtual double calculateUTplusFail(void);
     virtual double calculateUTplusOk(void);

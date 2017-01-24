@@ -1,9 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<scave:Analysis xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:scave="http://www.omnetpp.org/omnetpp/scave">
+<scave:Analysis xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:scave="http://www.omnetpp.org/omnetpp/scave">
   <inputs>
-    <inputs name="/recharge_scheduling/simulations/test/results/TestInternalGAMETHEORY/0.vec"/>
-    <inputs name="/recharge_scheduling/simulations/test/results/TestInternalGAMETHEORY/0.sca"/>
+    <inputs name="/recharge_scheduling/simulations/test/results/TestInternalGAMETHEORY/*.vec"/>
+    <inputs name="/recharge_scheduling/simulations/test/results/TestInternalGAMETHEORY/*.sca"/>
   </inputs>
-  <datasets/>
-  <chartSheets/>
+  <datasets>
+    <datasets name="LIFETIME">
+      <items xsi:type="scave:Add" filterPattern="LIFETIME"/>
+      <items xsi:type="scave:BarChart" name="Lifetime"/>
+    </datasets>
+    <datasets name="BatteryNEW">
+      <items xsi:type="scave:Add" filterPattern="EnergyVal AND attr:NGT(true) AND attr:VC(true) AND attr:VP(true)   " type="VECTOR"/>
+      <items xsi:type="scave:LineChart" name="BatteryNEW" lineNameFormat=""/>
+    </datasets>
+    <datasets name="BatteryOLD">
+      <items xsi:type="scave:Add" filterPattern="EnergyVal AND attr:NGT(false) AND attr:VC(true) AND attr:VP(true)   " type="VECTOR"/>
+      <items xsi:type="scave:LineChart" name="BatteryOLD" lineNameFormat=""/>
+    </datasets>
+    <datasets name="DischargeNEW">
+      <items xsi:type="scave:Add" filterPattern="DischargeProbVal AND attr:NGT(true) AND attr:VC(true) AND attr:VP(true)   " type="VECTOR"/>
+      <items xsi:type="scave:LineChart" name="DischargeNEW" lineNameFormat=""/>
+    </datasets>
+    <datasets name="DischargeOLD">
+      <items xsi:type="scave:Add" filterPattern="DischargeProbVal AND attr:NGT(false) AND attr:VC(true) AND attr:VP(true)   " type="VECTOR"/>
+      <items xsi:type="scave:LineChart" name="DischargeOLD" lineNameFormat=""/>
+    </datasets>
+    <datasets name="ChargingStationNEW">
+      <items xsi:type="scave:Add" filterPattern="rechargingNodes AND attr:NGT(true) AND attr:VC(true) AND attr:VP(true)   " type="VECTOR"/>
+      <items xsi:type="scave:LineChart" name="ChargingStationNEW" lineNameFormat=""/>
+    </datasets>
+  </datasets>
+  <chartSheets>
+    <chartSheets name="default" charts="//@datasets/@datasets.0/@items.1 //@datasets/@datasets.1/@items.1 //@datasets/@datasets.2/@items.1 //@datasets/@datasets.3/@items.1 //@datasets/@datasets.4/@items.1 //@datasets/@datasets.5/@items.1"/>
+  </chartSheets>
 </scave:Analysis>
