@@ -56,7 +56,7 @@ for cu in $CONFIGS_USER; do
 					continue
 				fi
 				
-				echo "FILE_PATH: $FILE_PATH"
+				echo "$INDEX_USER - FILE_PATH: $FILE_PATH"
 				
 				COMM="../../src/recharge_scheduling -r ${IDX} -u Cmdenv -c ${ci_name} -n ../../src:..:../../../../../../media/angelo/BigLinux/Programs/OMNeT++/omnetpp-5.0/samples/inet/examples:../../../../../../media/angelo/BigLinux/Programs/OMNeT++/omnetpp-5.0/samples/inet/src:../../../../../../media/angelo/BigLinux/Programs/OMNeT++/omnetpp-5.0/samples/inet/tutorials:../../../inet_ext/src:../../../inet_ext/simulations:../../../virtual_spring/examples:../../../virtual_spring/src -l ../../../../../../media/angelo/BigLinux/Programs/OMNeT++/omnetpp-5.0/samples/inet/src/INET -l ../../../inet_ext/src/inet_ext -l ../../../virtual_spring/src/virtual-spring --debug-on-errors=false omnetpp.ini"
 				

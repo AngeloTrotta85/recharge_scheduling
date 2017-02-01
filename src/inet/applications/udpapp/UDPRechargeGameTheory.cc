@@ -80,7 +80,7 @@ void UDPRechargeGameTheory::initialize(int stage)
             constant_P_type = LINEAR_T;
         }
         else {
-            error("Wrong \"varConstantType\" parameter");
+            error("Wrong \"varPConstantType\" parameter");
         }
     }
     else if (stage == INITSTAGE_LAST) {
@@ -892,7 +892,7 @@ double UDPRechargeGameTheory::calculateUPplusMore(void) {
 
 double UDPRechargeGameTheory::calculateUPminusZero(void) {
     double valUPminusZero = 0;
-    double tr = 1 - calculateTimePassedRatioFromEstimated();
+    //double tr = 1 - calculateTimePassedRatioFromEstimated();
     //double eMAX = getEmax(false, gameTheoryKnowledgeType);
     //double eMIN = getEmin(false, gameTheoryKnowledgeType);
     //double a = getAlpha();
@@ -926,7 +926,7 @@ double UDPRechargeGameTheory::calculateUPminusZero(void) {
 
 double UDPRechargeGameTheory::calculateUPminusMore(void) {
     double valUPminusMore = 0;
-    double tr = 1 - calculateTimePassedRatioFromEstimated();
+    //double tr = 1 - calculateTimePassedRatioFromEstimated();
     double eMAX = getEmax(false, gameTheoryKnowledgeType);
     double eMIN = getEmin(false, gameTheoryKnowledgeType);
     double b = getBeta();
