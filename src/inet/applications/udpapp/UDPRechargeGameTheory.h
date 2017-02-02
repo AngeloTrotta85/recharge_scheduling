@@ -32,6 +32,7 @@ class INET_API UDPRechargeGameTheory : public UDPRechargeBasic {
 public:
 
     typedef enum {
+        PERSONAL_KNOWLEDGE,
         LOCAL_KNOWLEDGE,
         GLOBAL_KNOWLEDGE
     } GameTheoryKnowledge_Type;
@@ -59,6 +60,7 @@ protected:
     double getGameTheoryC_LinearIncrease(void);
     double getGameTheoryC_LinearIncreaseConsistent(void);
 
+    virtual double estimateDischargeProb(void);
     virtual double calculateEstimatedTimeInRecharging(void);
     virtual double calculateTimePassedRatioFromEstimated(void);
 

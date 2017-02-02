@@ -31,6 +31,20 @@ void UDPRechargeProbabilistic::initialize(int stage)
         useDischargeProbability = par("useDischargeProbability").boolValue();
         chargeSlots = par("chargeSlots");
 
+        std::string probKnowledgeType_str = par("probKnowledgeType").stdstringValue();
+        if (probKnowledgeType_str.compare("LOCAL_KNOWLEDGE") == 0) {
+            probKnowledgeType = LOCAL_KNOWLEDGE;
+        }
+        else if (probKnowledgeType_str.compare("GLOBAL_KNOWLEDGE") == 0) {
+            probKnowledgeType = GLOBAL_KNOWLEDGE;
+        }
+        else if (probKnowledgeType_str.compare("PERSONAL_KNOWLEDGE") == 0) {
+            probKnowledgeType = PERSONAL_KNOWLEDGE;
+        }
+        else {
+            error("Wrong \"probKnowledgeType\" parameter");
+        }
+
         countRechargeSlot = 0;
     }
     else if (stage == INITSTAGE_LAST) {
@@ -56,7 +70,27 @@ double UDPRechargeProbabilistic::calculateRechargeProb(void){
         return 0.0;
     }
     else {
-        return (1.0 - sb->getBatteryLevelPercInitial());
+        double ris = 1;
+        double emax, emin;
+        switch (probKnowledgeType) {
+            case PERSONAL_KNOWLEDGE:
+            default:
+                ris = 1.0 - sb->getBatteryLevelPercInitial();
+                break;
+
+            case LOCAL_KNOWLEDGE:
+            case GLOBAL_KNOWLEDGE:
+                emax = getEmax(false, probKnowledgeType);
+                emin = getEmin(false, probKnowledgeType);
+                if (emax <= emin) {
+                    ris = 1.0 - sb->getBatteryLevelPercInitial();
+                }
+                else {
+                    ris = (emax - sb->getBatteryLevelAbs()) / (emax - emin);
+                }
+                break;
+        }
+        return ris;
     }
 }
 
@@ -82,6 +116,97 @@ double UDPRechargeProbabilistic::calculateStaticDischargeProbability(void) {
             return 0.0;
         }
     }
+}
+
+double UDPRechargeProbabilistic::getEmax(bool activeOnly, ProbabilisticKnowledge_Type scope) {
+    int numberNodes = this->getParentModule()->getVectorSize();
+    //double max = 0;
+    double max = sb->getBatteryLevelAbs();
+    if (scope == GLOBAL_KNOWLEDGE) {
+        for (int j = 0; j < numberNodes; j++) {
+            power::SimpleBattery *hostjsb = check_and_cast<power::SimpleBattery *>(this->getParentModule()->getParentModule()->getSubmodule("host", j)->getSubmodule("battery"));
+
+            if (activeOnly && hostjsb->isCharging()) continue;
+
+            if (hostjsb->getBatteryLevelAbs() > max){
+                max = hostjsb->getBatteryLevelAbs();
+            }
+        }
+    }
+    else if (scope == LOCAL_KNOWLEDGE){
+        if (sb->isCharging()){
+            for (auto it = neighBackupWhenRecharging.begin(); it != neighBackupWhenRecharging.end(); it++) {
+                nodeInfo_t *act = &(it->second);
+                double actBatt = act->batteryLevelAbs;
+                if (actBatt > max) {
+                    max = actBatt;
+                }
+            }
+
+        }
+        else {
+            for (auto it = neigh.begin(); it != neigh.end(); it++) {
+                nodeInfo_t *act = &(it->second);
+                double actBatt = act->batteryLevelAbs;
+                if (actBatt > max) {
+                    max = actBatt;
+                }
+            }
+        }
+    }
+    else if (scope == PERSONAL_KNOWLEDGE){
+        return sb->getBatteryLevelAbs();
+    }
+    else {
+        error("Wrong knowledge scope");
+    }
+
+    return max;
+}
+
+double UDPRechargeProbabilistic::getEmin(bool activeOnly, ProbabilisticKnowledge_Type scope) {
+    int numberNodes = this->getParentModule()->getVectorSize();
+    //double min = 1000000000;
+    double min = sb->getBatteryLevelAbs();
+    if (scope == GLOBAL_KNOWLEDGE) {
+        for (int j = 0; j < numberNodes; j++) {
+            power::SimpleBattery *hostjsb = check_and_cast<power::SimpleBattery *>(this->getParentModule()->getParentModule()->getSubmodule("host", j)->getSubmodule("battery"));
+
+            if (activeOnly && hostjsb->isCharging()) continue;
+
+            if (hostjsb->getBatteryLevelAbs() < min){
+                min = hostjsb->getBatteryLevelAbs();
+            }
+        }
+    }
+    else if (scope == LOCAL_KNOWLEDGE){
+        if (sb->isCharging()){
+            for (auto it = neighBackupWhenRecharging.begin(); it != neighBackupWhenRecharging.end(); it++) {
+                nodeInfo_t *act = &(it->second);
+                double actBatt = act->batteryLevelAbs;
+                if (actBatt < min) {
+                    min = actBatt;
+                }
+            }
+        }
+        else {
+            for (auto it = neigh.begin(); it != neigh.end(); it++) {
+                nodeInfo_t *act = &(it->second);
+                double actBatt = act->batteryLevelAbs;
+                if (actBatt < min) {
+                    min = actBatt;
+                }
+            }
+        }
+    }
+    else if (scope == PERSONAL_KNOWLEDGE){
+        return sb->getBatteryLevelAbs();
+    }
+    else {
+        error("Wrong knowledge scope");
+    }
+
+    return min;
 }
 
 } /* namespace inet */

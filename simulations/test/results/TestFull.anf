@@ -17,8 +17,15 @@
       <items xsi:type="scave:Add" filterPattern="EnergyVal AND run(TestBaseSTIMULUS-0-20170117-15:08:32-21422) " type="VECTOR"/>
       <items xsi:type="scave:LineChart" name="Battery" lineNameFormat=""/>
     </datasets>
+    <datasets name="batteryEnd">
+      <items xsi:type="scave:Add" filterPattern="FINALENERGY"/>
+      <items xsi:type="scave:BarChart" name="Final energy"/>
+    </datasets>
+    <datasets name="batteryEndVector">
+      <items xsi:type="scave:Add" filterPattern="EnergyVal AND attr:SN(1) AND attr:CF(20) AND attr:DF(100)  AND attr:FH(100) AND attr:NO(&quot;10*(1)&quot;) AND attr:RT(20) " type="VECTOR"/>
+    </datasets>
   </datasets>
   <chartSheets>
-    <chartSheets name="default" charts="//@datasets/@datasets.0/@items.1 //@datasets/@datasets.1/@items.1 //@datasets/@datasets.2/@items.1"/>
+    <chartSheets name="default" charts="//@datasets/@datasets.0/@items.1 //@datasets/@datasets.1/@items.1 //@datasets/@datasets.2/@items.1 //@datasets/@datasets.3/@items.1"/>
   </chartSheets>
 </scave:Analysis>

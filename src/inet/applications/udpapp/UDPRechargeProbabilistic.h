@@ -29,11 +29,22 @@ namespace inet {
 
 class INET_API UDPRechargeProbabilistic : public UDPRechargeBasic {
 
+public:
+
+    typedef enum {
+        PERSONAL_KNOWLEDGE,
+        LOCAL_KNOWLEDGE,
+        GLOBAL_KNOWLEDGE
+    } ProbabilisticKnowledge_Type;
+
 protected:
     virtual void initialize(int stage) override;
     virtual void handleMessageWhenUp(cMessage *msg) override;
 
     virtual double calculateStaticDischargeProbability(void);
+
+    double getEmax(bool activeOnly, ProbabilisticKnowledge_Type scope);
+    double getEmin(bool activeOnly, ProbabilisticKnowledge_Type scope);
 
 public:
     virtual ~UDPRechargeProbabilistic();
@@ -45,6 +56,7 @@ public:
 protected:
     bool useDischargeProbability;
     int chargeSlots;
+    ProbabilisticKnowledge_Type probKnowledgeType;
 
     int countRechargeSlot;
 };

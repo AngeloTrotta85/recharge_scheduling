@@ -21,6 +21,7 @@ simple UDPRechargeProbabilistic extends UDPRechargeBasic
     parameters:
         bool useDischargeProbability = default(false);	// if true, use (1/chargeSlots) as probability of discharging
         int chargeSlots = default(1);					// number of recharging slots
+        string probKnowledgeType @enum("LOCAL_KNOWLEDGE", "GLOBAL_KNOWLEDGE", "PERSONAL_KNOWLEDGE") = default("PERSONAL_KNOWLEDGE");
         
         @display("i=block/app");
         @class(UDPRechargeProbabilistic);

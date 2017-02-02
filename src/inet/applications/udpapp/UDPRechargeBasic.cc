@@ -95,15 +95,35 @@ void UDPRechargeBasic::finish(void) {
     if (myAppAddr == 0) {
 
         int numberNodes = this->getParentModule()->getVectorSize();
-
+        double maxEnergy = 0.0;
         double sumEnergy = 0.0;
+        double meanEnergy, varEnergy;
+
         for (int i = 0; i < numberNodes; i++) {
             power::SimpleBattery *battN = check_and_cast<power::SimpleBattery *>(this->getParentModule()->getParentModule()->getSubmodule("host", i)->getSubmodule("battery"));
-            sumEnergy += battN->getBatteryLevelAbs();
+            double actE = battN->getBatteryLevelAbs();
+            sumEnergy += actE;
+
+            if (maxEnergy < actE) maxEnergy = actE;
         }
-        recordScalar("FINALENERGY", sumEnergy);
+        meanEnergy = sumEnergy / ((double)numberNodes);
+
+        double sumVar = 0.0;
+        for (int i = 0; i < numberNodes; i++) {
+            power::SimpleBattery *battN = check_and_cast<power::SimpleBattery *>(this->getParentModule()->getParentModule()->getSubmodule("host", i)->getSubmodule("battery"));
+            double actE = battN->getBatteryLevelAbs();
+            sumVar += pow(actE - meanEnergy, 2.0);
+        }
+        varEnergy = sumVar / (((double) numberNodes) - 1.0);
+
+        recordScalar("FINALENERGYSUM", sumEnergy);
+        recordScalar("FINALENERGYMEAN", meanEnergy);
+        recordScalar("FINALENERGYVAR", varEnergy);
+        recordScalar("FINALENERGYMAX", maxEnergy);
         recordScalar("LIFETIME", simTime());
     }
+
+    recordScalar("FINAL_BATTERY", sb->getBatteryLevelAbs());
 
     recordScalar("FAILED_ATTEMPT_COUNT", failedAttemptCount);
     recordScalar("FAILED_ATTEMPT_FREQ", ((double)failedAttemptCount)/simTime().dbl());
@@ -462,10 +482,6 @@ bool UDPRechargeBasic::checkDischarge(void) {
 
 void UDPRechargeBasic::make5secStats(void) {
 
-}
-
-void UDPRechargeBasic::make1secStats(void) {
-
     if (myAppAddr == 0) {
         int nnodesActive = 0;
         int nnodesRecharging = 0;
@@ -498,6 +514,10 @@ void UDPRechargeBasic::make1secStats(void) {
     }
 
     energyVector.record(sb->getBatteryLevelAbs());
+
+}
+
+void UDPRechargeBasic::make1secStats(void) {
 }
 
 } /* namespace inet */

@@ -28,8 +28,8 @@ void UDPRechargeGameTheory::initialize(int stage)
     UDPRechargeBasic::initialize(stage);
 
     if (stage == INITSTAGE_LOCAL) {
-        variableC = par("variableC").boolValue();
-        variableP = par("variableP").boolValue();
+        //variableC = par("variableC").boolValue();
+        //variableP = par("variableP").boolValue();
         linearIncreaseFactor = par("linearIncreaseFactor");
         constDischargeProb = par("constDischargeProb");
         exponential_dischargeProb_decay = par("exponential_dischargeProb_decay");
@@ -39,9 +39,18 @@ void UDPRechargeGameTheory::initialize(int stage)
         std::string gameTheoryKnowledgeType_str = par("gameTheoryKnowledgeType").stdstringValue();
         if (gameTheoryKnowledgeType_str.compare("LOCAL_KNOWLEDGE") == 0) {
             gameTheoryKnowledgeType = LOCAL_KNOWLEDGE;
+            variableC = true;
+            variableP = true;
         }
         else if (gameTheoryKnowledgeType_str.compare("GLOBAL_KNOWLEDGE") == 0) {
             gameTheoryKnowledgeType = GLOBAL_KNOWLEDGE;
+            variableC = true;
+            variableP = true;
+        }
+        else if (gameTheoryKnowledgeType_str.compare("PERSONAL_KNOWLEDGE") == 0) {
+            gameTheoryKnowledgeType = PERSONAL_KNOWLEDGE;
+            variableC = false;
+            variableP = true;
         }
         else {
             error("Wrong \"gameTheoryKnowledgeType\" parameter");
@@ -139,7 +148,8 @@ double UDPRechargeGameTheory::calculateRechargeProb(void){
                 }
                 else if (gameTheoryKnowledgeType == LOCAL_KNOWLEDGE) {
                     // use mine
-                    dischargeP = calculateDischargeProb();
+                    //dischargeP = calculateDischargeProb();
+                    dischargeP = estimateDischargeProb();
                 }
                 else {
                     error("Wrong knowledge scope");
@@ -212,10 +222,13 @@ double UDPRechargeGameTheory::calculateRechargeProb(void){
             ris = 1.0 - s;
         }
         else {
-            double c = (getGamma()+getTheta()) / (getAlpha() + getBeta());
+            //double c = (getGamma()+getTheta()) / (getAlpha() + getBeta());
             //if (variableP){
             //    c = c / constDischargeProb;
             //}
+            //s = pow(c, 1.0 / (((double) numberNodes) - 1.0));
+
+            double c = (1.0 - getGameTheoryC()) / (estimateDischargeProb());
             s = pow(c, 1.0 / (((double) numberNodes) - 1.0));
 
             ris = 1.0 - s;
@@ -225,6 +238,10 @@ double UDPRechargeGameTheory::calculateRechargeProb(void){
     }
 }
 
+double UDPRechargeGameTheory::estimateDischargeProb(void) {
+    return (1.0 / calculateEstimatedTimeInRecharging());
+}
+
 double UDPRechargeGameTheory::calculateEstimatedTimeInRecharging(void) {
     double estimatedTimeInRecharging, energyToUse, timeCalcNum, timeCalcDen1, timeCalcDen2, gPLUSt;
     int numberNodes = this->getParentModule()->getVectorSize();
@@ -232,13 +249,13 @@ double UDPRechargeGameTheory::calculateEstimatedTimeInRecharging(void) {
     switch (dischargeProbEnergyToUse) {
     case ENERGYMIN:
     default:
-        energyToUse = getEmin(false, GLOBAL_KNOWLEDGE);
+        energyToUse = getEmin(false, gameTheoryKnowledgeType);
         break;
     case ENERGYMAX:
-        energyToUse = getEmax(false, GLOBAL_KNOWLEDGE);
+        energyToUse = getEmax(false, gameTheoryKnowledgeType);
         break;
     case ENERGYAVG:
-        energyToUse = getEavg(false, GLOBAL_KNOWLEDGE);
+        energyToUse = getEavg(false, gameTheoryKnowledgeType);
         break;
     }
 
@@ -596,6 +613,9 @@ double UDPRechargeGameTheory::getEavg(bool activeOnly, GameTheoryKnowledge_Type 
             nn = neigh.size() + 1;
         }
     }
+    else if (scope == PERSONAL_KNOWLEDGE){
+        return sb->getBatteryLevelAbs();
+    }
     else {
         error("Wrong knowledge scope");
     }
@@ -639,6 +659,9 @@ double UDPRechargeGameTheory::getEmax(bool activeOnly, GameTheoryKnowledge_Type 
             }
         }
     }
+    else if (scope == PERSONAL_KNOWLEDGE){
+        return sb->getBatteryLevelAbs();
+    }
     else {
         error("Wrong knowledge scope");
     }
@@ -680,6 +703,9 @@ double UDPRechargeGameTheory::getEmin(bool activeOnly, GameTheoryKnowledge_Type 
                 }
             }
         }
+    }
+    else if (scope == PERSONAL_KNOWLEDGE){
+        return sb->getBatteryLevelAbs();
     }
     else {
         error("Wrong knowledge scope");
