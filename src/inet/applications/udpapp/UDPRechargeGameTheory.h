@@ -44,7 +44,8 @@ public:
 
     typedef enum {
         LINEAR_P,
-        LINEAR_T
+        LINEAR_T,
+        NEW1
     } VarPConstant_Type;
 
     typedef enum {
@@ -63,6 +64,7 @@ protected:
     virtual double estimateDischargeProb(void);
     virtual double calculateEstimatedTimeInRecharging(void);
     virtual double calculateTimePassedRatioFromEstimated(void);
+    virtual double calculateTimePassedRatioFromEstimatedNoLimit(void);
 
     virtual double calculateUTplusFail(void);
     virtual double calculateUTplusOk(void);

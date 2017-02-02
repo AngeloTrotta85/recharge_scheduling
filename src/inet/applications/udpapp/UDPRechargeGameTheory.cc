@@ -88,6 +88,9 @@ void UDPRechargeGameTheory::initialize(int stage)
         else if (constPType.compare("LINEAR_T") == 0) {
             constant_P_type = LINEAR_T;
         }
+        else if (constPType.compare("NEW1") == 0) {
+            constant_P_type = NEW1;
+        }
         else {
             error("Wrong \"varPConstantType\" parameter");
         }
@@ -270,6 +273,24 @@ double UDPRechargeGameTheory::calculateEstimatedTimeInRecharging(void) {
     return estimatedTimeInRecharging;
 }
 
+double UDPRechargeGameTheory::calculateTimePassedRatioFromEstimatedNoLimit(void) {
+    double ris = 0.0;
+
+    if (sb->isCharging()) {
+        double estimatedTimeInRecharging = calculateEstimatedTimeInRecharging();
+        double timeInCharge = (simTime() - startRecharge).dbl();
+
+        estimatedTimeInRecharging = estimatedTimeInRecharging * checkRechargeTimer;
+
+        //fprintf(stderr, "timeInCharge: %lf and estimatedTimeInRecharging = %lf\n", timeInCharge, estimatedTimeInRecharging); fflush(stderr);
+
+        ris = timeInCharge / estimatedTimeInRecharging;
+    }
+
+    return ris;
+
+}
+
 double UDPRechargeGameTheory::calculateTimePassedRatioFromEstimated(void) {
     double ris = 0.0;
 
@@ -314,10 +335,10 @@ double UDPRechargeGameTheory::calculateDischargeProb(void){
                 if (gameTheoryKnowledgeType == GLOBAL_KNOWLEDGE) {
                     for (int j = 0; j < numberNodes; j++) {
                         UDPRechargeGameTheory *hostj = check_and_cast<UDPRechargeGameTheory *>(this->getParentModule()->getParentModule()->getSubmodule("host", j)->getSubmodule("udpApp", 0));
-                        //power::SimpleBattery *battN = check_and_cast<power::SimpleBattery *>(this->getParentModule()->getParentModule()->getSubmodule("host", j)->getSubmodule("battery"));
+                        power::SimpleBattery *battN = check_and_cast<power::SimpleBattery *>(this->getParentModule()->getParentModule()->getSubmodule("host", j)->getSubmodule("battery"));
 
-                        //if (!battN->isCharging()) {
-                        {
+                        if (!battN->isCharging()) {
+                        //{
                             // TAKE ONLY ACTIVE NODES
                             double hostC = hostj->getGameTheoryC();
                             long double ppp = (1.0 - hostC) / probCi;
@@ -351,6 +372,9 @@ double UDPRechargeGameTheory::calculateDischargeProb(void){
                         }
                     }
                 }
+                else if (gameTheoryKnowledgeType == PERSONAL_KNOWLEDGE) {
+                    //TODO CALCOLARE!!!!!
+                }
                 else {
                     error("Wrong knowledge scope");
                 }
@@ -369,6 +393,9 @@ double UDPRechargeGameTheory::calculateDischargeProb(void){
                     else {
                         nmeno1SquareRoot = powl(produttoria, 1.0 / ((long double) neigh.size()));
                     }
+                }
+                else if (gameTheoryKnowledgeType == PERSONAL_KNOWLEDGE) {
+                    //TODO CALCOLARE!!!!!
                 }
                 else {
                     error("Wrong knowledge scope");
@@ -872,6 +899,9 @@ double UDPRechargeGameTheory::calculateUPplusZero(void) {
         case LINEAR_T:
             valUPplusZero = (-a-t)*(1.0 + tr);
             break;
+        case NEW1:
+            valUPplusZero = (-a-t);
+            break;
         }
     }
     else {
@@ -905,6 +935,9 @@ double UDPRechargeGameTheory::calculateUPplusMore(void) {
             break;
         case LINEAR_T:
             valUPplusMore = (-a-t)*(tr)+(b*(1.0-tr));
+            break;
+        case NEW1:
+            valUPplusMore = (1.0 + calculateTimePassedRatioFromEstimatedNoLimit());
             break;
         }
     }
@@ -940,6 +973,9 @@ double UDPRechargeGameTheory::calculateUPminusZero(void) {
         case LINEAR_T:
             valUPminusZero = (b);//*(1.0 + tr);
             break;
+        case NEW1:
+            valUPminusZero = (b);//*(1.0 + tr);
+            break;
         }
     }
     else {
@@ -971,6 +1007,9 @@ double UDPRechargeGameTheory::calculateUPminusMore(void) {
             break;
         case LINEAR_T:
             valUPminusMore = 0;//(b * tr)-(numberNodesInSimulation * t * 3);
+            break;
+        case NEW1:
+            valUPminusMore = (1.0 - calculateTimePassedRatioFromEstimatedNoLimit());//(b * tr)-(numberNodesInSimulation * t * 3);
             break;
         }
     }
