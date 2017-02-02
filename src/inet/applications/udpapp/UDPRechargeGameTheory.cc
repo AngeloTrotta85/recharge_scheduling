@@ -307,7 +307,6 @@ double UDPRechargeGameTheory::calculateDischargeProb(void){
                             produttoria = produttoria * ppp;
 
                             fprintf(stderr, "HC:%lf;TMP:%Lf;DIV:%Lf      ", hostC, produttoria, ppp);
-
                             //fprintf(stderr, "%Lf ", ppp);
                         }
 
