@@ -171,7 +171,7 @@ double UDPRechargeGameTheory::calculateRechargeProb(void){
                     // use mine
                     //dischargeP = calculateDischargeProb();
                     dischargeP = estimateDischargeProb();
-                    fprintf(stderr, "Estimated Discharge Prob: %Lf \n", dischargeP);fflush(stderr);
+                    //fprintf(stderr, "Estimated Discharge Prob: %Lf \n", dischargeP);fflush(stderr);
                 }
                 else {
                     error("Wrong knowledge scope");
@@ -208,11 +208,11 @@ double UDPRechargeGameTheory::calculateRechargeProb(void){
                         long double ppp = (1.0 - hostC) / unomenoCi;
                         produttoria = produttoria * ppp;
 
-                        fprintf(stderr, "ppp: %Lf (hostC: %lf) (unomenoCi: %lf)", ppp, hostC, unomenoCi);
+                        //fprintf(stderr, "ppp: %Lf (hostC: %lf) (unomenoCi: %lf)", ppp, hostC, unomenoCi);
                     }
-                    fprintf(stderr, "\n");fflush(stderr);
+                    //fprintf(stderr, "\n");fflush(stderr);
 
-                    fprintf(stderr, "Produttoria after neigh check: %Lf (unomenoCi: %lf)\n", produttoria, unomenoCi);fflush(stderr);
+                    //fprintf(stderr, "Produttoria after neigh check: %Lf (unomenoCi: %lf)\n", produttoria, unomenoCi);fflush(stderr);
                 }
                 else {
                     error("Wrong knowledge scope");
@@ -235,9 +235,9 @@ double UDPRechargeGameTheory::calculateRechargeProb(void){
                 }
                 else if (gameTheoryKnowledgeType == LOCAL_KNOWLEDGE){
                     if (filter_neigh.size() > 0) {
-                        fprintf(stderr, "Produttoria alla fine: %Lf \n", produttoria);fflush(stderr);
+                        //fprintf(stderr, "Produttoria alla fine: %Lf \n", produttoria);fflush(stderr);
                         nmeno1SquareRoot = powl(produttoria, 1.0 / ((long double) filter_neigh.size()));
-                        fprintf(stderr, "Risultato: %lf (neigh size: %d)\n\n", nmeno1SquareRoot, ((int)filter_neigh.size()));fflush(stderr);
+                        //fprintf(stderr, "Risultato: %lf (neigh size: %d)\n\n", nmeno1SquareRoot, ((int)filter_neigh.size()));fflush(stderr);
                     }
                     else {
                         double c = (1.0 - getGameTheoryC()) / (estimateDischargeProb());
@@ -905,7 +905,12 @@ double UDPRechargeGameTheory::calculateUTminusFree(void) {
             valUTminusFree = -a;
             break;
         case LINEARINCREASE2:
-            valUTminusFree = (-a) * (kappaMeno + (e * linearIncreaseFactor));
+            if (kappaMeno > 0){
+                valUTminusFree = (-a) * (kappaMeno + (e * linearIncreaseFactor));
+            }
+            else {
+                valUTminusFree = -a;
+            }
             break;
         case LINEARINCREASECONSISTENT:
             valUTminusFree = -a;

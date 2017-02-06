@@ -23,7 +23,7 @@
       <items xsi:type="scave:LineChart" name="response" lineNameFormat=""/>
     </datasets>
     <datasets name="Recharge Len">
-      <items xsi:type="scave:Add" filterPattern="TimeOfRechargeVector AND attr:NGT(false)" type="VECTOR"/>
+      <items xsi:type="scave:Add" filterPattern="TimeOfRechargeVector AND attr:FH(20) " type="VECTOR"/>
       <items xsi:type="scave:Apply" operation="timewinavg">
         <params name="windowSize" value="60"/>
       </items>
@@ -46,7 +46,7 @@
       <items xsi:type="scave:LineChart" name="Discharge" lineNameFormat=""/>
     </datasets>
     <datasets name="HYPO-discharge">
-      <items xsi:type="scave:Add" filterPattern="HypotheticalDischargeProbVector" type="VECTOR"/>
+      <items xsi:type="scave:Add" filterPattern="HypotheticalDischargeProbVector AND attr:FH(20) " type="VECTOR"/>
       <items xsi:type="scave:Apply" operation="aggregator">
         <params name="function" value="average"/>
         <groupBy>measurement</groupBy>
@@ -54,7 +54,7 @@
       <items xsi:type="scave:LineChart" name="hypo-discharge" lineNameFormat=""/>
     </datasets>
     <datasets name="HYPO-recharge">
-      <items xsi:type="scave:Add" filterPattern="HypotheticalResponseVector" type="VECTOR"/>
+      <items xsi:type="scave:Add" filterPattern="HypotheticalResponseVector AND attr:FH(20) " type="VECTOR"/>
       <items xsi:type="scave:Apply" operation="aggregator">
         <params name="function" value="average"/>
         <groupBy>measurement</groupBy>
@@ -62,7 +62,7 @@
       <items xsi:type="scave:LineChart" name="hypo-response" lineNameFormat=""/>
     </datasets>
     <datasets name="EstimateDischarge">
-      <items xsi:type="scave:Add" filterPattern="EstimateDischargeProbVector" type="VECTOR"/>
+      <items xsi:type="scave:Add" filterPattern="EstimateDischargeProbVector AND attr:FH(20) " type="VECTOR"/>
       <items xsi:type="scave:Apply" operation="aggregator">
         <params name="function" value="average"/>
         <groupBy>measurement</groupBy>
@@ -70,7 +70,7 @@
       <items xsi:type="scave:LineChart" name="estimateDischarge" lineNameFormat=""/>
     </datasets>
     <datasets name="EstimateTimeCharge">
-      <items xsi:type="scave:Add" filterPattern="EstimatedTimeInRechargingVector" type="VECTOR"/>
+      <items xsi:type="scave:Add" filterPattern="EstimatedTimeInRechargingVector AND attr:FH(20) " type="VECTOR"/>
       <items xsi:type="scave:Apply" operation="aggregator">
         <params name="function" value="average"/>
         <groupBy>measurement</groupBy>
@@ -78,7 +78,7 @@
       <items xsi:type="scave:LineChart" name="estimateTimeInCharge" lineNameFormat=""/>
     </datasets>
     <datasets name="FullDegree">
-      <items xsi:type="scave:Add" filterPattern="FullDegreeVal" type="VECTOR"/>
+      <items xsi:type="scave:Add" filterPattern="FullDegreeVal AND attr:FH(20) " type="VECTOR"/>
       <items xsi:type="scave:Apply" operation="aggregator">
         <params name="function" value="average"/>
         <groupBy>measurement</groupBy>
@@ -86,7 +86,7 @@
       <items xsi:type="scave:LineChart" name="FullDegree" lineNameFormat=""/>
     </datasets>
     <datasets name="Degree">
-      <items xsi:type="scave:Add" filterPattern="DegreeVal" type="VECTOR"/>
+      <items xsi:type="scave:Add" filterPattern="DegreeVal AND attr:FH(20) " type="VECTOR"/>
       <items xsi:type="scave:Apply" operation="aggregator">
         <params name="function" value="average"/>
         <groupBy>measurement</groupBy>
