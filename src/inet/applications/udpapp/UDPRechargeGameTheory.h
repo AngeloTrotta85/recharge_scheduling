@@ -39,6 +39,7 @@ public:
 
     typedef enum {
         LINEARINCREASE,
+        LINEARINCREASE2,
         LINEARINCREASECONSISTENT
     } VarTConstant_Type;
 
@@ -107,6 +108,8 @@ private:
     double exponential_dischargeProb_decay;
     double temp_factorProbDischarge;
     bool useNewGameTheoryDischargeProb;
+    double kappaMeno;
+    double kappaPiu;
 
     DischargeProbEnergyToUse_Type dischargeProbEnergyToUse;
     GameTheoryKnowledge_Type gameTheoryKnowledgeType;

@@ -145,6 +145,7 @@ void UDPRechargeBasic::handleMessageWhenUp(cMessage *msg) {
 
                 //stop the node
                 neigh.clear();
+                filter_neigh.clear();
                 //mob->clearVirtualSprings();
                 mob->clearVirtualSpringsAndsetPosition(rebornPos);
 
@@ -190,6 +191,7 @@ void UDPRechargeBasic::handleMessageWhenUp(cMessage *msg) {
 
         //stop the node
         neigh.clear();
+        filter_neigh.clear();
         //mob->clearVirtualSprings();
         mob->clearVirtualSpringsAndsetPosition(rebornPos);
 
@@ -299,6 +301,8 @@ void UDPRechargeBasic::processPacket(cPacket *pk)
                 //fprintf(stderr, "%s\n", ss.str().c_str());fflush(stderr);
                 EV << ss.str() << endl;
             }
+
+            getFilteredNeigh(filter_neigh);
 
             updateVirtualForces();
 
@@ -418,7 +422,8 @@ void UDPRechargeBasic::updateVirtualForces(void) {
 }
 
 void UDPRechargeBasic::updateNeighbourhood(void) {
-    bool removed;
+    bool removed, removedAtLeastOne;
+    removedAtLeastOne = false;
     do {
         removed = false;
         for (auto it = neigh.begin(); it != neigh.end(); it++) {
@@ -433,10 +438,15 @@ void UDPRechargeBasic::updateNeighbourhood(void) {
 
                 neigh.erase(it);
                 removed = true;
+                removedAtLeastOne = true;
                 break;
             }
         }
     } while(removed);
+
+    if (removedAtLeastOne) {
+        getFilteredNeigh(filter_neigh);
+    }
 }
 
 void UDPRechargeBasic::getFilteredNeigh(std::map<int, nodeInfo_t> &filteredNeigh){
@@ -511,7 +521,7 @@ void UDPRechargeBasic::make5secStats(void) {
     }
 
 
-    degreeVector.record(calculateNodeDegree());
+    degreeVector.record((double) filter_neigh.size());
     fulldegreeVector.record((double) neigh.size());
     failedAttemptVector.record(failedAttemptCount);
     if (sb->isCharging()) {
