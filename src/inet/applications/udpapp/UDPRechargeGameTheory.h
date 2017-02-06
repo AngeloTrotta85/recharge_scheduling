@@ -45,7 +45,8 @@ public:
     typedef enum {
         LINEAR_P,
         LINEAR_T,
-        NEW1
+        NEW1,
+        NEW2
     } VarPConstant_Type;
 
     typedef enum {
@@ -96,6 +97,8 @@ public:
     double getEmax(bool activeOnly, GameTheoryKnowledge_Type scope);
     double getEmin(bool activeOnly, GameTheoryKnowledge_Type scope);
 
+    virtual void make5secStats(void);
+
 private:
     bool variableC;
     bool variableP;
@@ -109,6 +112,9 @@ private:
     GameTheoryKnowledge_Type gameTheoryKnowledgeType;
     VarTConstant_Type constant_T_type;
     VarPConstant_Type constant_P_type;
+
+    cOutVector estimateDischargeProbVector;
+    cOutVector estimatedTimeInRechargingVector;
 };
 
 } /* namespace inet */

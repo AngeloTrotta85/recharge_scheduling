@@ -126,9 +126,14 @@ protected:
     cOutVector rechargingNodesVector;
     cOutVector responseVector;
     cOutVector degreeVector;
+    cOutVector fulldegreeVector;
     cOutVector energyVector;
     cOutVector failedAttemptVector;
     cOutVector dischargeProbVector;
+    cOutVector timeOfRechargeVector;
+
+    cOutVector hypotheticalDischargeProbVector;
+    cOutVector hypotheticalResponseVector;
 };
 
 } /* namespace inet */

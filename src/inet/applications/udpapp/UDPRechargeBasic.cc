@@ -68,9 +68,13 @@ void UDPRechargeBasic::initialize(int stage)
         rechargingNodesVector.setName("rechargingNodes");
         responseVector.setName("ResponseVal");
         degreeVector.setName("DegreeVal");
+        fulldegreeVector.setName("FullDegreeVal");
         energyVector.setName("EnergyVal");
         failedAttemptVector.setName("FailedAttemptVal");
         dischargeProbVector.setName("DischargeProbVal");
+        timeOfRechargeVector.setName("TimeOfRechargeVector");
+        hypotheticalDischargeProbVector.setName("HypotheticalDischargeProbVector");
+        hypotheticalResponseVector.setName("HypotheticalResponseVector");
 
         goToCharge = new cMessage("goToCharge");
 
@@ -145,6 +149,9 @@ void UDPRechargeBasic::handleMessageWhenUp(cMessage *msg) {
                 mob->clearVirtualSpringsAndsetPosition(rebornPos);
 
                 sb->setState(power::SimpleBattery::DISCHARGING);
+
+                //STATS
+                timeOfRechargeVector.record(simTime() - startRecharge);
 
                 // reschedule now autoMsgRecharge to check now if return to recharge
                 scheduleAt(simTime(), autoMsgRecharge);
@@ -465,7 +472,7 @@ int UDPRechargeBasic::calculateNodeDegree(void) {
 }
 
 double UDPRechargeBasic::calculateRechargeProb(void){
-    return 0.25;
+    return 0.0;
 }
 
 double UDPRechargeBasic::calculateDischargeProb(void){
@@ -505,6 +512,7 @@ void UDPRechargeBasic::make5secStats(void) {
 
 
     degreeVector.record(calculateNodeDegree());
+    fulldegreeVector.record((double) neigh.size());
     failedAttemptVector.record(failedAttemptCount);
     if (sb->isCharging()) {
         dischargeProbVector.record(calculateDischargeProb());
@@ -512,6 +520,8 @@ void UDPRechargeBasic::make5secStats(void) {
     else {
         responseVector.record(calculateRechargeProb());
     }
+    hypotheticalDischargeProbVector.record(calculateDischargeProb());
+    hypotheticalResponseVector.record(calculateRechargeProb());
 
     energyVector.record(sb->getBatteryLevelAbs());
 

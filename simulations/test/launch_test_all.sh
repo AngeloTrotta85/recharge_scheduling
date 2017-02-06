@@ -17,9 +17,17 @@ fi
 for i in $(seq ${NPARALLEL})
 do
 		#./launch_test.sh ${i} ${NPARALLEL} "TestBaseANALYTICAL TestBaseROUNDROBIN TestBasePROBABILISTIC TestBaseSTIMULUS TestBaseGAMETHEORY" /tmp/logTMP &
+		
 		#./launch_test.sh ${i} ${NPARALLEL} "TestFullANALYTICAL TestFullROUNDROBIN TestFullPROBABILISTIC TestFullSTIMULUS TestFullGAMETHEORY" /media/angelo/BigLinux/Documents/OmnetSimulations/recharge_scheduler/TestFullLog &
-        #./launch_test.sh ${i} ${NPARALLEL} "TestFullANALYTICAL TestFullROUNDROBIN" /media/angelo/BigLinux/Documents/OmnetSimulations/recharge_scheduler/TestFullLog &
-        ./launch_test.sh ${i} ${NPARALLEL} "TestFullANALYTICAL TestFullROUNDROBIN TestFullSTIMULUS TestFullGAMETHEORY TestFullPROBABILISTIC" /media/angelo/BigLinux/Documents/OmnetSimulations/recharge_scheduler/TestFullLog &
+        
+        #./launch_test.sh ${i} ${NPARALLEL} "TestFullGAMETHEORY2" /media/angelo/BigLinux/Documents/OmnetSimulations/recharge_scheduler/TestFullLog &
+        
+        #./launch_test.sh ${i} ${NPARALLEL} "TestFullANALYTICAL TestFullROUNDROBIN TestFullSTIMULUS TestFullGAMETHEORY TestFullPROBABILISTIC" /media/angelo/BigLinux/Documents/OmnetSimulations/recharge_scheduler/TestFullLog &
+        
+        #./launch_test.sh ${i} ${NPARALLEL} "TestFullCentrANALYTICAL TestFullCentrROUNDROBIN TestFullCentrNORECHARGE" /media/angelo/BigLinux/Documents/OmnetSimulations/recharge_scheduler/TestFullLog &
+        ./launch_test.sh ${i} ${NPARALLEL} "TestFullDistrPROBABILISTIC TestFullDistrSTIMULUS TestFullDistrGAMETHEORY" /media/angelo/BigLinux/Documents/OmnetSimulations/recharge_scheduler/TestFullLog &
+
+
 	#sleep 1
 done
 

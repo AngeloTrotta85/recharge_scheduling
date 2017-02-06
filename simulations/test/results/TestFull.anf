@@ -1,31 +1,84 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scave:Analysis xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:scave="http://www.omnetpp.org/omnetpp/scave">
   <inputs>
-    <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFull*/*.vec"/>
-    <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFull*/*.sca"/>
+    <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFullDistrGAMETHEORY/*.vec"/>
+    <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFullDistrGAMETHEORY/*.sca"/>
+    <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFullCentrNO*/*.sca"/>
+    <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFullCentrANA*/*.sca"/>
   </inputs>
   <datasets>
     <datasets name="LIFETIME">
-      <items xsi:type="scave:Add" filterPattern="LIFETIME"/>
-      <items xsi:type="scave:BarChart" name="LIFETIME"/>
+      <items xsi:type="scave:Add" filterPattern="LIFETIME and attr:FH(20) "/>
+      <items xsi:type="scave:BarChart" name="LIFETIME">
+        <barFields>experiment</barFields>
+      </items>
     </datasets>
     <datasets name="Response">
-      <items xsi:type="scave:Add" filterPattern="ResponseVal AND run(TestBaseSTIMULUS-0-20170117-15:08:32-21422) " type="VECTOR"/>
+      <items xsi:type="scave:Add" filterPattern="ResponseVal AND attr:FH(20) " type="VECTOR"/>
       <items xsi:type="scave:LineChart" name="Response" lineNameFormat=""/>
+      <items xsi:type="scave:Apply" operation="aggregator">
+        <params name="function" value="average"/>
+        <groupBy>measurement</groupBy>
+      </items>
+      <items xsi:type="scave:LineChart" name="response" lineNameFormat=""/>
     </datasets>
-    <datasets name="BATTERY">
-      <items xsi:type="scave:Add" filterPattern="EnergyVal AND run(TestBaseSTIMULUS-0-20170117-15:08:32-21422) " type="VECTOR"/>
-      <items xsi:type="scave:LineChart" name="Battery" lineNameFormat=""/>
+    <datasets name="Recharge Len">
+      <items xsi:type="scave:Add" filterPattern="TimeOfRechargeVector AND attr:NGT(false)" type="VECTOR"/>
+      <items xsi:type="scave:Apply" operation="timewinavg">
+        <params name="windowSize" value="60"/>
+      </items>
+      <items xsi:type="scave:LineChart" name="rl" lineNameFormat=""/>
+      <items xsi:type="scave:Apply" operation="aggregator">
+        <params name="function" value="average"/>
+        <groupBy>measurement</groupBy>
+      </items>
+      <items xsi:type="scave:LineChart" name="rechargeLen" lineNameFormat=""/>
     </datasets>
-    <datasets name="batteryEnd">
-      <items xsi:type="scave:Add" filterPattern="FINALENERGY"/>
-      <items xsi:type="scave:BarChart" name="Final energy"/>
+    <datasets name="Discharge">
+      <items xsi:type="scave:Add" filterPattern="DischargeProbVal AND attr:FH(20) " type="VECTOR"/>
+      <items xsi:type="scave:Apply" operation="timewinavg">
+        <params name="windowSize" value="30"/>
+      </items>
+      <items xsi:type="scave:Apply" operation="aggregator">
+        <params name="function" value="average"/>
+        <groupBy>measurement</groupBy>
+      </items>
+      <items xsi:type="scave:LineChart" name="Discharge" lineNameFormat=""/>
     </datasets>
-    <datasets name="batteryEndVector">
-      <items xsi:type="scave:Add" filterPattern="EnergyVal AND attr:SN(1) AND attr:CF(20) AND attr:DF(100)  AND attr:FH(100) AND attr:NO(&quot;10*(1)&quot;) AND attr:RT(20) " type="VECTOR"/>
+    <datasets name="HYPO-discharge">
+      <items xsi:type="scave:Add" filterPattern="HypotheticalDischargeProbVector" type="VECTOR"/>
+      <items xsi:type="scave:Apply" operation="aggregator">
+        <params name="function" value="average"/>
+        <groupBy>measurement</groupBy>
+      </items>
+      <items xsi:type="scave:LineChart" name="hypo-discharge" lineNameFormat=""/>
+    </datasets>
+    <datasets name="HYPO-recharge">
+      <items xsi:type="scave:Add" filterPattern="HypotheticalResponseVector" type="VECTOR"/>
+      <items xsi:type="scave:Apply" operation="aggregator">
+        <params name="function" value="average"/>
+        <groupBy>measurement</groupBy>
+      </items>
+      <items xsi:type="scave:LineChart" name="hypo-response" lineNameFormat=""/>
+    </datasets>
+    <datasets name="EstimateDischarge">
+      <items xsi:type="scave:Add" filterPattern="EstimateDischargeProbVector" type="VECTOR"/>
+      <items xsi:type="scave:Apply" operation="aggregator">
+        <params name="function" value="average"/>
+        <groupBy>measurement</groupBy>
+      </items>
+      <items xsi:type="scave:LineChart" name="estimateDischarge" lineNameFormat=""/>
+    </datasets>
+    <datasets name="EstimateTimeCharge">
+      <items xsi:type="scave:Add" filterPattern="EstimatedTimeInRechargingVector" type="VECTOR"/>
+      <items xsi:type="scave:Apply" operation="aggregator">
+        <params name="function" value="average"/>
+        <groupBy>measurement</groupBy>
+      </items>
+      <items xsi:type="scave:LineChart" name="estimateTimeInCharge" lineNameFormat=""/>
     </datasets>
   </datasets>
   <chartSheets>
-    <chartSheets name="default" charts="//@datasets/@datasets.0/@items.1 //@datasets/@datasets.1/@items.1 //@datasets/@datasets.2/@items.1 //@datasets/@datasets.3/@items.1"/>
+    <chartSheets name="default" charts="//@datasets/@datasets.0/@items.1 //@datasets/@datasets.1/@items.1 //@datasets/@datasets.2/@items.4 //@datasets/@datasets.2/@items.2 //@datasets/@datasets.1/@items.3 //@datasets/@datasets.3/@items.3 //@datasets/@datasets.4/@items.2 //@datasets/@datasets.5/@items.2 //@datasets/@datasets.6/@items.2 //@datasets/@datasets.7/@items.2"/>
   </chartSheets>
 </scave:Analysis>

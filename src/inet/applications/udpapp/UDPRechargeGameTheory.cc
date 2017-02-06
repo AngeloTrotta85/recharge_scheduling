@@ -36,6 +36,9 @@ void UDPRechargeGameTheory::initialize(int stage)
         temp_factorProbDischarge = par("temp_factorProbDischarge");
         useNewGameTheoryDischargeProb = par("useNewGameTheoryDischargeProb").boolValue();
 
+        estimateDischargeProbVector.setName("EstimateDischargeProbVector");
+        estimatedTimeInRechargingVector.setName("EstimatedTimeInRechargingVector");
+
         std::string gameTheoryKnowledgeType_str = par("gameTheoryKnowledgeType").stdstringValue();
         if (gameTheoryKnowledgeType_str.compare("LOCAL_KNOWLEDGE") == 0) {
             gameTheoryKnowledgeType = LOCAL_KNOWLEDGE;
@@ -91,7 +94,11 @@ void UDPRechargeGameTheory::initialize(int stage)
         else if (constPType.compare("NEW1") == 0) {
             constant_P_type = NEW1;
         }
+        else if (constPType.compare("NEW2") == 0) {
+            constant_P_type = NEW2;
+        }
         else {
+            fprintf(stderr, "varPConstantType: %s\n", constPType.c_str());fflush(stderr);
             error("Wrong \"varPConstantType\" parameter");
         }
     }
@@ -122,6 +129,12 @@ void UDPRechargeGameTheory::handleMessageWhenUp(cMessage *msg) {
     }
 }
 
+void UDPRechargeGameTheory::make5secStats(void) {
+    UDPRechargeBasic::make5secStats();
+
+    estimateDischargeProbVector.record(estimateDischargeProb());
+    estimatedTimeInRechargingVector.record(calculateEstimatedTimeInRecharging());
+}
 
 
 double UDPRechargeGameTheory::calculateRechargeProb(void){
@@ -242,7 +255,9 @@ double UDPRechargeGameTheory::calculateRechargeProb(void){
 }
 
 double UDPRechargeGameTheory::estimateDischargeProb(void) {
-    return (1.0 / calculateEstimatedTimeInRecharging());
+    double ris = 1.0 / calculateEstimatedTimeInRecharging();
+    if (ris > 1.0) ris = 1.0;
+    return ris;
 }
 
 double UDPRechargeGameTheory::calculateEstimatedTimeInRecharging(void) {
@@ -373,7 +388,7 @@ double UDPRechargeGameTheory::calculateDischargeProb(void){
                     }
                 }
                 else if (gameTheoryKnowledgeType == PERSONAL_KNOWLEDGE) {
-                    //TODO CALCOLARE!!!!!
+                    produttoria = powl(getGameTheoryC()/probCi, numberNodes - 1.0);
                 }
                 else {
                     error("Wrong knowledge scope");
@@ -395,7 +410,7 @@ double UDPRechargeGameTheory::calculateDischargeProb(void){
                     }
                 }
                 else if (gameTheoryKnowledgeType == PERSONAL_KNOWLEDGE) {
-                    //TODO CALCOLARE!!!!!
+                    nmeno1SquareRoot = powl(produttoria, 1.0 / (((long double) numberNodes) - 1.0));
                 }
                 else {
                     error("Wrong knowledge scope");
@@ -902,6 +917,9 @@ double UDPRechargeGameTheory::calculateUPplusZero(void) {
         case NEW1:
             valUPplusZero = (-a-t);
             break;
+        case NEW2:
+            valUPplusZero = 0 - calculateTimePassedRatioFromEstimatedNoLimit();
+            break;
         }
     }
     else {
@@ -938,6 +956,9 @@ double UDPRechargeGameTheory::calculateUPplusMore(void) {
             break;
         case NEW1:
             valUPplusMore = (1.0 + calculateTimePassedRatioFromEstimatedNoLimit());
+            break;
+        case NEW2:
+            valUPplusMore = (2.0 + calculateTimePassedRatioFromEstimatedNoLimit());
             break;
         }
     }
@@ -976,6 +997,9 @@ double UDPRechargeGameTheory::calculateUPminusZero(void) {
         case NEW1:
             valUPminusZero = (b);//*(1.0 + tr);
             break;
+        case NEW2:
+            valUPminusZero = (2.0 + calculateTimePassedRatioFromEstimatedNoLimit());
+            break;
         }
     }
     else {
@@ -1009,6 +1033,9 @@ double UDPRechargeGameTheory::calculateUPminusMore(void) {
             valUPminusMore = 0;//(b * tr)-(numberNodesInSimulation * t * 3);
             break;
         case NEW1:
+            valUPminusMore = (1.0 - calculateTimePassedRatioFromEstimatedNoLimit());//(b * tr)-(numberNodesInSimulation * t * 3);
+            break;
+        case NEW2:
             valUPminusMore = (1.0 - calculateTimePassedRatioFromEstimatedNoLimit());//(b * tr)-(numberNodesInSimulation * t * 3);
             break;
         }
