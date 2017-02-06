@@ -86,7 +86,7 @@ void UDPRechargeGameTheory::initialize(int stage)
             constant_T_type = LINEARINCREASECONSISTENT;
         }
         else {
-            error("Wrong \"varConstantType\" parameter");
+            error("Wrong \"varConstantType\" parameter: %s", constType.c_str());
         }
 
         std::string constPType = par("varPConstantType").stdstringValue();
@@ -797,7 +797,6 @@ double UDPRechargeGameTheory::calculateUTplusFail(void) {
             valUTplusFail = (-a-g-t) * (1.0 + (e * linearIncreaseFactor));
             break;
         case LINEARINCREASE2:
-        default:
             valUTplusFail = (-a-g-t) * (kappaPiu + (e * linearIncreaseFactor));
             break;
         case LINEARINCREASECONSISTENT:
@@ -834,7 +833,6 @@ double UDPRechargeGameTheory::calculateUTplusOk(void) {
             valUTplusOk = b-g-t;
             break;
         case LINEARINCREASE2:
-        default:
             valUTplusOk = b-g-t;
             break;
         case LINEARINCREASECONSISTENT:
@@ -871,7 +869,6 @@ double UDPRechargeGameTheory::calculateUTminusBusy(void) {
             valUTminusBusy = -a;
             break;
         case LINEARINCREASE2:
-        default:
             valUTminusBusy = -a;
             break;
         case LINEARINCREASECONSISTENT:
@@ -908,7 +905,6 @@ double UDPRechargeGameTheory::calculateUTminusFree(void) {
             valUTminusFree = -a;
             break;
         case LINEARINCREASE2:
-        default:
             valUTminusFree = (-a) * (kappaMeno + (e * linearIncreaseFactor));
             break;
         case LINEARINCREASECONSISTENT:
