@@ -107,6 +107,7 @@ protected:
     int failedAttemptCount;
     double inRechargingTime;
     simtime_t startRecharge;
+    simtime_t lastSawInRecharge;
     int numberNodesInSimulation;
 
     // messages

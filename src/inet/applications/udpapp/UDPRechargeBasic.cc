@@ -63,6 +63,7 @@ void UDPRechargeBasic::initialize(int stage)
         failedAttemptCount = 0;
         inRechargingTime = 0;
         startRecharge = simTime();
+        lastSawInRecharge = simTime();
 
         activeNodesVector.setName("activeNodes");
         rechargingNodesVector.setName("rechargingNodes");
@@ -151,6 +152,8 @@ void UDPRechargeBasic::handleMessageWhenUp(cMessage *msg) {
 
                 sb->setState(power::SimpleBattery::DISCHARGING);
 
+                lastSawInRecharge = simTime();
+
                 //STATS
                 timeOfRechargeVector.record(simTime() - startRecharge);
 
@@ -185,6 +188,8 @@ void UDPRechargeBasic::handleMessageWhenUp(cMessage *msg) {
         else {
             rechargeLostAccess++;
             failedAttemptCount++;
+
+            lastSawInRecharge = simTime();
 
             sb->setDoubleSwapPenality();
         }
@@ -264,6 +269,7 @@ void UDPRechargeBasic::processPacket(cPacket *pk)
                 if (neigh.count(aPkt->getAppAddr()) != 0) {
                     neigh.erase(aPkt->getAppAddr());
                 }
+                lastSawInRecharge = simTime();
             }
             else {
 

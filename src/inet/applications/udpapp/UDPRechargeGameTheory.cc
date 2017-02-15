@@ -102,9 +102,24 @@ void UDPRechargeGameTheory::initialize(int stage)
         else if (constPType.compare("NEW2") == 0) {
             constant_P_type = NEW2;
         }
+        else if (constPType.compare("NEW3") == 0) {
+            constant_P_type = NEW3;
+        }
         else {
             fprintf(stderr, "varPConstantType: %s\n", constPType.c_str());fflush(stderr);
             error("Wrong \"varPConstantType\" parameter");
+        }
+
+        std::string dischargeEType = par("dischargeEstimationType").stdstringValue();
+        if (dischargeEType.compare("ONE_OVER") == 0) {
+            dischargeEstimationType = ONE_OVER;
+        }
+        else if (dischargeEType.compare("QUADRATIC_EST") == 0) {
+            dischargeEstimationType = QUADRATIC_EST;
+        }
+        else {
+            fprintf(stderr, "dischargeEstimationType: %s\n", dischargeEType.c_str());fflush(stderr);
+            error("Wrong \"dischargeEstimationType\" parameter");
         }
     }
     else if (stage == INITSTAGE_LAST) {
@@ -274,8 +289,38 @@ double UDPRechargeGameTheory::calculateRechargeProb(void){
 }
 
 double UDPRechargeGameTheory::estimateDischargeProb(void) {
-    double ris = 1.0 / calculateEstimatedTimeInRecharging();
+    double ris, timeInCharge, estimatedTimeInRecharging;
+
+    if (gameTheoryKnowledgeType != LOCAL_KNOWLEDGE){
+        switch (dischargeEstimationType) {
+        case ONE_OVER:
+        default:
+            ris = 1.0 / calculateEstimatedTimeInRecharging();
+            break;
+        case QUADRATIC_EST:
+            estimatedTimeInRecharging = calculateEstimatedTimeInRecharging();
+
+            timeInCharge = (simTime() - lastSawInRecharge).dbl();
+
+            estimatedTimeInRecharging = estimatedTimeInRecharging * checkRechargeTimer;
+
+            //fprintf(stderr, "timeInCharge: %lf and estimatedTimeInRecharging = %lf\n", timeInCharge, estimatedTimeInRecharging); fflush(stderr);
+
+            if (timeInCharge >= estimatedTimeInRecharging){
+                ris = 1.0;
+            }
+            else {
+                ris = pow(timeInCharge / estimatedTimeInRecharging, exponential_dischargeProb_decay);
+            }
+            break;
+        }
+    }
+    else {
+        ris = 1.0 / calculateEstimatedTimeInRecharging();
+    }
+
     if (ris > 1.0) ris = 1.0;
+    if (ris < 0.0) ris = 0.0;
     return ris;
 }
 
@@ -956,6 +1001,9 @@ double UDPRechargeGameTheory::calculateUPplusZero(void) {
         case NEW2:
             valUPplusZero = 0 - calculateTimePassedRatioFromEstimatedNoLimit();
             break;
+        case NEW3:
+            valUPplusZero = ((-a * numberNodesInSimulation) - t);
+            break;
         }
     }
     else {
@@ -996,6 +1044,9 @@ double UDPRechargeGameTheory::calculateUPplusMore(void) {
         case NEW2:
             valUPplusMore = (2.0 + calculateTimePassedRatioFromEstimatedNoLimit());
             break;
+        case NEW3:
+            valUPplusMore = (-a * (numberNodesInSimulation - 1.0)) + b - t;
+            break;
         }
     }
     else {
@@ -1010,7 +1061,7 @@ double UDPRechargeGameTheory::calculateUPminusZero(void) {
     //double tr = 1 - calculateTimePassedRatioFromEstimated();
     //double eMAX = getEmax(false, gameTheoryKnowledgeType);
     //double eMIN = getEmin(false, gameTheoryKnowledgeType);
-    //double a = getAlpha();
+    double a = getAlpha();
     double b = getBeta();
     //double t = getTheta();
     //double g = getGamma();
@@ -1036,6 +1087,9 @@ double UDPRechargeGameTheory::calculateUPminusZero(void) {
         case NEW2:
             valUPminusZero = (2.0 + calculateTimePassedRatioFromEstimatedNoLimit());
             break;
+        case NEW3:
+            valUPminusZero = (-a * (numberNodesInSimulation - 1.0)) + b;
+            break;
         }
     }
     else {
@@ -1050,8 +1104,10 @@ double UDPRechargeGameTheory::calculateUPminusMore(void) {
     //double tr = 1 - calculateTimePassedRatioFromEstimated();
     double eMAX = getEmax(false, gameTheoryKnowledgeType);
     double eMIN = getEmin(false, gameTheoryKnowledgeType);
+    double a = getAlpha();
     double b = getBeta();
     double t = getTheta();
+    double g = getGamma();
     double myE = sb->getBatteryLevelAbs();
 
     double e = 1;
@@ -1073,6 +1129,9 @@ double UDPRechargeGameTheory::calculateUPminusMore(void) {
             break;
         case NEW2:
             valUPminusMore = (1.0 - calculateTimePassedRatioFromEstimatedNoLimit());//(b * tr)-(numberNodesInSimulation * t * 3);
+            break;
+        case NEW3:
+            valUPminusMore = (((-a-g) * (numberNodesInSimulation - 1.0)) + b) * (2.0 - e);
             break;
         }
     }

@@ -47,7 +47,8 @@ public:
         LINEAR_P,
         LINEAR_T,
         NEW1,
-        NEW2
+        NEW2,
+        NEW3
     } VarPConstant_Type;
 
     typedef enum {
@@ -55,6 +56,11 @@ public:
         ENERGYMAX,
         ENERGYAVG
     } DischargeProbEnergyToUse_Type;
+
+    typedef enum {
+        ONE_OVER,
+        QUADRATIC_EST
+    } DischargeEstimation_Type;
 
 protected:
     virtual void initialize(int stage) override;
@@ -115,6 +121,7 @@ private:
     GameTheoryKnowledge_Type gameTheoryKnowledgeType;
     VarTConstant_Type constant_T_type;
     VarPConstant_Type constant_P_type;
+    DischargeEstimation_Type dischargeEstimationType;
 
     cOutVector estimateDischargeProbVector;
     cOutVector estimatedTimeInRechargingVector;
