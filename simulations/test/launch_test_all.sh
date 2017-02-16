@@ -21,7 +21,7 @@ do
         #./launch_test.sh ${i} ${NPARALLEL} "TestFullDistrPROBABILISTIC TestFullDistrSTIMULUS TestFullDistrGAMETHEORY" /media/angelo/BigLinux/Documents/OmnetSimulations/recharge_scheduler/TestFullLog &
         #./launch_test.sh ${i} ${NPARALLEL} "TestFullCentrANALYTICAL TestFullCentrROUNDROBIN TestFullCentrNORECHARGE TestFullDistrPROBABILISTIC TestFullDistrSTIMULUS TestFullDistrGAMETHEORY" /media/angelo/BigLinux/Documents/OmnetSimulations/recharge_scheduler/TestFullLog &
         
-        ./launch_test.sh ${i} ${NPARALLEL} "TestOnlyGT" /media/angelo/BigLinux/Documents/OmnetSimulations/recharge_scheduler/TestFullLog &
+        ./launch_test.sh ${i} ${NPARALLEL} "TestOnlyGT" /media/angelo/BigLinux/Documents/OmnetSimulations/recharge_scheduler/TestLog &
 
 
 	#sleep 1

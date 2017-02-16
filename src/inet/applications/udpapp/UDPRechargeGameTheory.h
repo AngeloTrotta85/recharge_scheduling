@@ -48,7 +48,10 @@ public:
         LINEAR_T,
         NEW1,
         NEW2,
-        NEW3
+        NEW3,
+        NEW4,
+        NEW5,
+        NEW6
     } VarPConstant_Type;
 
     typedef enum {
@@ -70,8 +73,8 @@ protected:
     double getGameTheoryC_LinearIncreaseConsistent(void);
 
     virtual double estimateDischargeProb(void);
-    virtual double calculateEstimatedTimeInRecharging(void);
-    virtual double calculateTimePassedRatioFromEstimated(void);
+    virtual double calculateEstimatedTimeInRecharging(DischargeProbEnergyToUse_Type etu);
+    virtual double calculateTimePassedRatioFromEstimated(DischargeProbEnergyToUse_Type etu);
     virtual double calculateTimePassedRatioFromEstimatedNoLimit(void);
 
     virtual double calculateUTplusFail(void);
@@ -89,6 +92,8 @@ public:
 
     virtual double calculateRechargeProb(void);
     virtual double calculateDischargeProb(void);
+
+    virtual double calculateMyDischargeProb(GameTheoryKnowledge_Type gtk);
 
     virtual double getGameTheoryC(void) override;
     virtual double getGameTheoryCNew(void);
@@ -116,6 +121,8 @@ private:
     bool useNewGameTheoryDischargeProb;
     double kappaMeno;
     double kappaPiu;
+
+    double bonus;
 
     DischargeProbEnergyToUse_Type dischargeProbEnergyToUse;
     GameTheoryKnowledge_Type gameTheoryKnowledgeType;

@@ -6,17 +6,14 @@
   </inputs>
   <datasets>
     <datasets name="LIFETIME">
-      <items xsi:type="scave:Add" filterPattern="LIFETIME and attr:FH(20) AND attr:RT(20) "/>
+      <items xsi:type="scave:Add" filterPattern="LIFETIME"/>
       <items xsi:type="scave:BarChart" name="LIFETIME">
         <barFields>experiment</barFields>
       </items>
     </datasets>
     <datasets name="Response">
-      <items xsi:type="scave:Add" filterPattern="ResponseVal AND attr:FH(20) " type="VECTOR"/>
+      <items xsi:type="scave:Add" filterPattern="ResponseVal AND attr:NO(15) " type="VECTOR"/>
       <items xsi:type="scave:LineChart" name="Response" lineNameFormat=""/>
-      <items xsi:type="scave:Apply" operation="timewinavg">
-        <params name="windowSize" value="30"/>
-      </items>
       <items xsi:type="scave:Apply" operation="aggregator">
         <params name="function" value="average"/>
         <groupBy>measurement</groupBy>
@@ -24,10 +21,7 @@
       <items xsi:type="scave:LineChart" name="response" lineNameFormat=""/>
     </datasets>
     <datasets name="Recharge Len">
-      <items xsi:type="scave:Add" filterPattern="TimeOfRechargeVector AND attr:FH(20) " type="VECTOR"/>
-      <items xsi:type="scave:Apply" operation="timewinavg">
-        <params name="windowSize" value="30"/>
-      </items>
+      <items xsi:type="scave:Add" filterPattern="TimeOfRechargeVector" type="VECTOR"/>
       <items xsi:type="scave:LineChart" name="rl" lineNameFormat=""/>
       <items xsi:type="scave:Apply" operation="aggregator">
         <params name="function" value="average"/>
@@ -36,10 +30,7 @@
       <items xsi:type="scave:LineChart" name="rechargeLen" lineNameFormat=""/>
     </datasets>
     <datasets name="Discharge">
-      <items xsi:type="scave:Add" filterPattern="DischargeProbVal AND attr:FH(20) " type="VECTOR"/>
-      <items xsi:type="scave:Apply" operation="timewinavg">
-        <params name="windowSize" value="30"/>
-      </items>
+      <items xsi:type="scave:Add" filterPattern="DischargeProbVal" type="VECTOR"/>
       <items xsi:type="scave:Apply" operation="aggregator">
         <params name="function" value="average"/>
         <groupBy>measurement</groupBy>
@@ -121,8 +112,12 @@
       </items>
       <items xsi:type="scave:LineChart" name="stationOccupation" lineNameFormat=""/>
     </datasets>
+    <datasets name="SingleRunBattery">
+      <items xsi:type="scave:Add" filterPattern="EnergyVal AND run(TestOnlyGT-15-*) " type="VECTOR"/>
+      <items xsi:type="scave:LineChart" name="SingleRunBattery" lineNameFormat=""/>
+    </datasets>
   </datasets>
   <chartSheets>
-    <chartSheets name="default" charts="//@datasets/@datasets.0/@items.1 //@datasets/@datasets.1/@items.1 //@datasets/@datasets.2/@items.4 //@datasets/@datasets.2/@items.2 //@datasets/@datasets.1/@items.4 //@datasets/@datasets.3/@items.3 //@datasets/@datasets.4/@items.2 //@datasets/@datasets.5/@items.2 //@datasets/@datasets.6/@items.2 //@datasets/@datasets.7/@items.2 //@datasets/@datasets.8/@items.2 //@datasets/@datasets.9/@items.2 //@datasets/@datasets.10/@items.2 //@datasets/@datasets.11/@items.2 //@datasets/@datasets.12/@items.3"/>
+    <chartSheets name="default" charts="//@datasets/@datasets.0/@items.1 //@datasets/@datasets.1/@items.1 //@datasets/@datasets.2/@items.3 //@datasets/@datasets.2/@items.1 //@datasets/@datasets.1/@items.3 //@datasets/@datasets.3/@items.2 //@datasets/@datasets.4/@items.2 //@datasets/@datasets.5/@items.2 //@datasets/@datasets.6/@items.2 //@datasets/@datasets.7/@items.2 //@datasets/@datasets.8/@items.2 //@datasets/@datasets.9/@items.2 //@datasets/@datasets.10/@items.2 //@datasets/@datasets.11/@items.2 //@datasets/@datasets.12/@items.3 //@datasets/@datasets.13/@items.1"/>
   </chartSheets>
 </scave:Analysis>
