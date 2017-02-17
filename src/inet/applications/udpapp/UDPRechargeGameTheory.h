@@ -72,7 +72,7 @@ protected:
     double getGameTheoryC_LinearIncrease(void);
     double getGameTheoryC_LinearIncreaseConsistent(void);
 
-    virtual double estimateDischargeProb(void);
+    //virtual double estimateDischargeProb(void);
     virtual double calculateEstimatedTimeInRecharging(DischargeProbEnergyToUse_Type etu);
     virtual double calculateTimePassedRatioFromEstimated(DischargeProbEnergyToUse_Type etu);
     virtual double calculateTimePassedRatioFromEstimatedNoLimit(void);

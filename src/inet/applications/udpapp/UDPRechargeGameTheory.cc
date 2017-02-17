@@ -174,7 +174,7 @@ void UDPRechargeGameTheory::handleMessageWhenUp(cMessage *msg) {
 void UDPRechargeGameTheory::make5secStats(void) {
     UDPRechargeBasic::make5secStats();
 
-    estimateDischargeProbVector.record(estimateDischargeProb());
+    estimateDischargeProbVector.record(calculateMyDischargeProb(gameTheoryKnowledgeType));
     estimatedTimeInRechargingVector.record(calculateEstimatedTimeInRecharging(dischargeProbEnergyToUse));
 }
 
@@ -207,7 +207,7 @@ double UDPRechargeGameTheory::calculateRechargeProb(void){
                 else if (gameTheoryKnowledgeType == LOCAL_KNOWLEDGE) {
                     // use mine
                     //dischargeP = calculateDischargeProb();
-                    dischargeP = estimateDischargeProb();
+                    dischargeP = calculateMyDischargeProb(gameTheoryKnowledgeType);
                     //fprintf(stderr, "Estimated Discharge Prob: %Lf \n", dischargeP);fflush(stderr);
                 }
                 else {
@@ -277,7 +277,7 @@ double UDPRechargeGameTheory::calculateRechargeProb(void){
                         //fprintf(stderr, "Risultato: %lf (neigh size: %d)\n\n", nmeno1SquareRoot, ((int)filter_neigh.size()));fflush(stderr);
                     }
                     else {
-                        double c = (1.0 - getGameTheoryC()) / (estimateDischargeProb());
+                        double c = (1.0 - getGameTheoryC()) / (calculateMyDischargeProb(gameTheoryKnowledgeType));
                         nmeno1SquareRoot = pow(c, 1.0 / (((double) numberNodes) - 1.0));
                     }
                 }
@@ -300,7 +300,7 @@ double UDPRechargeGameTheory::calculateRechargeProb(void){
             //}
             //s = pow(c, 1.0 / (((double) numberNodes) - 1.0));
 
-            double c = (1.0 - getGameTheoryC()) / (estimateDischargeProb());
+            double c = (1.0 - getGameTheoryC()) / (calculateMyDischargeProb(gameTheoryKnowledgeType));
             s = pow(c, 1.0 / (((double) numberNodes) - 1.0));
 
             ris = 1.0 - s;
@@ -310,6 +310,7 @@ double UDPRechargeGameTheory::calculateRechargeProb(void){
     }
 }
 
+/*
 double UDPRechargeGameTheory::estimateDischargeProb(void) {
     double ris, timeInCharge, estimatedTimeInRecharging;
 
@@ -345,6 +346,7 @@ double UDPRechargeGameTheory::estimateDischargeProb(void) {
     if (ris < 0.0) ris = 0.0;
     return ris;
 }
+*/
 
 double UDPRechargeGameTheory::calculateEstimatedTimeInRecharging(DischargeProbEnergyToUse_Type etu) {
     double estimatedTimeInRecharging, energyToUse, timeCalcNum, timeCalcDen1, timeCalcDen2, gPLUSt;
