@@ -224,7 +224,6 @@ double UDPRechargeGameTheory::calculateRechargeProb(void){
         return 0.0;
     }
     else {
-        int numberNodes = this->getParentModule()->getVectorSize();
         double ris, s;
 
         if (variableC) {
@@ -235,12 +234,14 @@ double UDPRechargeGameTheory::calculateRechargeProb(void){
 
             if (variableP){
                 if (gameTheoryKnowledgeType == GLOBAL_KNOWLEDGE) {
-                    for (int j = 0; j < numberNodes; j++) {
+                    for (int j = 0; j < numberNodesInSimulation; j++) {
                         UDPRechargeGameTheory *hostj = check_and_cast<UDPRechargeGameTheory *>(this->getParentModule()->getParentModule()->getSubmodule("host", j)->getSubmodule("udpApp", 0));
                         power::SimpleBattery *battN = check_and_cast<power::SimpleBattery *>(this->getParentModule()->getParentModule()->getSubmodule("host", j)->getSubmodule("battery"));
 
                         if (battN->isCharging()) {
                             dischargeP = hostj->calculateDischargeProb();
+
+                            break;
                         }
                     }
                 }
@@ -262,12 +263,12 @@ double UDPRechargeGameTheory::calculateRechargeProb(void){
             }
             else {
                 if (gameTheoryKnowledgeType == GLOBAL_KNOWLEDGE) {
-                    for (int j = 0; j < numberNodes; j++) {
+                    for (int j = 0; j < numberNodesInSimulation; j++) {
                         UDPRechargeGameTheory *hostj = check_and_cast<UDPRechargeGameTheory *>(this->getParentModule()->getParentModule()->getSubmodule("host", j)->getSubmodule("udpApp", 0));
-                        power::SimpleBattery *battN = check_and_cast<power::SimpleBattery *>(this->getParentModule()->getParentModule()->getSubmodule("host", j)->getSubmodule("battery"));
+                        //power::SimpleBattery *battN = check_and_cast<power::SimpleBattery *>(this->getParentModule()->getParentModule()->getSubmodule("host", j)->getSubmodule("battery"));
 
-                        if (!battN->isCharging()) {
-                            // TAKE ONLY ACTIVE NODES
+                        //if (!battN->isCharging()) {   // TAKE ONLY ACTIVE NODES
+                        {
                             double hostC = hostj->getGameTheoryC();
                             long double ppp = (1.0 - hostC) / unomenoCi;
                             produttoria = produttoria * ppp;
@@ -303,12 +304,13 @@ double UDPRechargeGameTheory::calculateRechargeProb(void){
                 }
 
                 if (gameTheoryKnowledgeType == GLOBAL_KNOWLEDGE) {
-                    if (dischargeP > 0) {
-                        nmeno1SquareRoot = powl(produttoria, 1.0 / (((long double) numberNodes) - 2.0));
-                    }
-                    else{
-                        nmeno1SquareRoot = powl(produttoria, 1.0 / (((long double) numberNodes) - 1.0));
-                    }
+                    //if (dischargeP > 0) {
+                    //    nmeno1SquareRoot = powl(produttoria, 1.0 / (((long double) numberNodesInSimulation) - 2.0));
+                    //}
+                    //else{
+                    //    nmeno1SquareRoot = powl(produttoria, 1.0 / (((long double) numberNodesInSimulation) - 1.0));
+                    //}
+                    nmeno1SquareRoot = powl(produttoria, 1.0 / (((long double) numberNodesInSimulation) - 1.0));
                 }
                 else if (gameTheoryKnowledgeType == LOCAL_KNOWLEDGE){
                     if (filter_neigh.size() > 0) {
@@ -318,7 +320,7 @@ double UDPRechargeGameTheory::calculateRechargeProb(void){
                     }
                     else {
                         double c = (1.0 - getGameTheoryC()) / (calculateMyDischargeProb(gameTheoryKnowledgeType));
-                        nmeno1SquareRoot = pow(c, 1.0 / (((double) numberNodes) - 1.0));
+                        nmeno1SquareRoot = pow(c, 1.0 / (((double) numberNodesInSimulation) - 1.0));
                     }
                 }
                 else {
@@ -341,7 +343,7 @@ double UDPRechargeGameTheory::calculateRechargeProb(void){
             //s = pow(c, 1.0 / (((double) numberNodes) - 1.0));
 
             double c = (1.0 - getGameTheoryC()) / (calculateMyDischargeProb(gameTheoryKnowledgeType));
-            s = pow(c, 1.0 / (((double) numberNodes) - 1.0));
+            s = pow(c, 1.0 / (((double) numberNodesInSimulation) - 1.0));
 
             ris = 1.0 - s;
         }
@@ -897,7 +899,7 @@ double UDPRechargeGameTheory::calculateUTplusFail(double energyToUse) {
     double t = getTheta();
     double g = getGamma();
     //double e = (((myE - eMIN) / (eMAX - eMIN)) * (1.0 - dicountminLINEAR4)) + 1.0;
-    double e = 1;
+    double e = 0;
     if ((eMAX - eMIN) != 0) {
         e = (eMAX - energyToUse) / (eMAX - eMIN);
     }
@@ -937,7 +939,7 @@ double UDPRechargeGameTheory::calculateUTplusOk(double energyToUse) {
     double t = getTheta();
     double g = getGamma();
     //double e = (((energyToUse - eMIN) / (eMAX - eMIN)) * (1.0 - dicountminLINEAR4)) + 1.0;
-    //double e = 1;
+    //double e = 0;
     //if ((eMAX - eMIN) != 0) {
     //    e = (eMAX - energyToUse) / (eMAX - eMIN);
     //}
@@ -975,7 +977,7 @@ double UDPRechargeGameTheory::calculateUTminusBusy(double energyToUse) {
     //double t = getTheta();
     //double g = getGamma();
     //double e = (((energyToUse - eMIN) / (eMAX - eMIN)) * (1.0 - dicountminLINEAR4)) + 1.0;
-    //double e = 1;
+    //double e = 0;
     //if ((eMAX - eMIN) != 0) {
     //    e = (eMAX - energyToUse) / (eMAX - eMIN);
     //}
@@ -1014,7 +1016,7 @@ double UDPRechargeGameTheory::calculateUTminusFree(double energyToUse) {
     //double g = getGamma();
     //double myE = sb->getBatteryLevelAbs();
     //double e = (((energyToUse - eMIN) / (eMAX - eMIN)) * (1.0 - dicountminLINEAR4)) + 1.0;
-    double e = 1;
+    double e = 0;
     if ((eMAX - eMIN) != 0) {
         e = (eMAX - energyToUse) / (eMAX - eMIN);
     }
@@ -1082,11 +1084,7 @@ double UDPRechargeGameTheory::calculateUPplusZero(void) {
             valUPplusZero = (-a * numberNodesInSimulation) - t;// + (1.0 * a * r);
             break;
         case NEW4:
-            valUPplusZero = ( -(numberNodesInSimulation) * pow(r, exponential_dischargeProb_decay));
-            break;
         case NEW5:
-            valUPplusZero = ( -(numberNodesInSimulation) * pow(r, exponential_dischargeProb_decay));
-            break;
         case NEW6:
             valUPplusZero = ( -(numberNodesInSimulation) * pow(r, exponential_dischargeProb_decay));
             break;
@@ -1140,7 +1138,7 @@ double UDPRechargeGameTheory::calculateUPplusMore(void) {
             valUPplusMore = 1.0;
             break;
         case NEW5:
-            valUPplusMore = 1.0 + (3.0 * pow(1.0 - r, 2.0));
+            valUPplusMore = 1.0 + (1.0 * pow(1.0 - r, 2.0));
             break;
         case NEW6:
             valUPplusMore = 1.0 + (numberNodesInSimulation * pow(1.0 - r, 2.0));
