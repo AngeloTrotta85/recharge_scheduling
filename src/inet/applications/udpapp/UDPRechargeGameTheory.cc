@@ -150,11 +150,16 @@ void UDPRechargeGameTheory::initialize(int stage)
 }
 
 void UDPRechargeGameTheory::handleMessageWhenUp(cMessage *msg) {
+    std::map<int, nodeInfo_t> filter_neigh_copy;
+
     if (msg == autoMsgRecharge) {
 
     }
     else if (msg == goToCharge) {
-
+        for (auto it = filter_neigh.begin(); it != filter_neigh.end(); it++) {
+            nodeInfo_t actBkp = it->second;
+            filter_neigh_copy[it->first] = actBkp;
+        }
     }
 
     UDPRechargeBasic::handleMessageWhenUp(msg);
@@ -163,7 +168,7 @@ void UDPRechargeGameTheory::handleMessageWhenUp(cMessage *msg) {
         if (sb->isCharging()) {
             // make neigh backup
             neighBackupWhenRecharging.clear();
-            for (auto it = filter_neigh.begin(); it != filter_neigh.end(); it++) {
+            for (auto it = filter_neigh_copy.begin(); it != filter_neigh_copy.end(); it++) {
                 nodeInfo_t actBkp = it->second;
                 neighBackupWhenRecharging[it->first] = actBkp;
             }
