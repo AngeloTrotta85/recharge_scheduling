@@ -270,9 +270,9 @@ void UDPRechargeBasic::processPacket(cPacket *pk)
                 if (neigh.count(aPkt->getAppAddr()) != 0) {
                     neigh.erase(aPkt->getAppAddr());
                 }
-                if (saveNeighboursMsgs) {
-                    lastSawInRecharge = simTime();
-                }
+                //if (saveNeighboursMsgs) {
+                //    lastSawInRecharge = simTime();
+                //}
             }
             else {
 

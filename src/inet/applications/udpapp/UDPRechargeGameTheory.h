@@ -78,22 +78,28 @@ protected:
     virtual double calculateTimePassedRatioFromEstimatedNoLimit(void);
 
     virtual double calculateUTplusFail(void);
+    virtual double calculateUTplusFail(double energyToUse);
     virtual double calculateUTplusOk(void);
+    virtual double calculateUTplusOk(double energyToUse);
     virtual double calculateUTminusBusy(void);
+    virtual double calculateUTminusBusy(double energyToUse);
     virtual double calculateUTminusFree(void);
+    virtual double calculateUTminusFree(double energyToUse);
 
     virtual double calculateUPplusZero(void);
     virtual double calculateUPplusMore(void);
     virtual double calculateUPminusZero(void);
     virtual double calculateUPminusMore(void);
 
+    virtual void estimateAndUpdateNeighBackup(void);
+    virtual double estimateLocalCWhenCharging(double oldEnergy);
+    virtual double calculateMyDischargeProb(GameTheoryKnowledge_Type gtk);
+
 public:
     virtual ~UDPRechargeGameTheory();
 
     virtual double calculateRechargeProb(void);
     virtual double calculateDischargeProb(void);
-
-    virtual double calculateMyDischargeProb(GameTheoryKnowledge_Type gtk);
 
     virtual double getGameTheoryC(void) override;
     virtual double getGameTheoryCNew(void);

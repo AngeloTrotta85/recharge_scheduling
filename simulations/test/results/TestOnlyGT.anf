@@ -30,7 +30,7 @@
       <items xsi:type="scave:LineChart" name="rechargeLen" lineNameFormat=""/>
     </datasets>
     <datasets name="Discharge">
-      <items xsi:type="scave:Add" filterPattern="DischargeProbVal" type="VECTOR"/>
+      <items xsi:type="scave:Add" filterPattern="DischargeProbVal AND attr:KN(LOCAL_KNOWLEDGE) " type="VECTOR"/>
       <items xsi:type="scave:Apply" operation="aggregator">
         <params name="function" value="average"/>
         <groupBy>measurement</groupBy>
