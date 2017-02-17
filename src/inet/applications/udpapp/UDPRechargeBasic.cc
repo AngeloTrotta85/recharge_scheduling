@@ -64,6 +64,7 @@ void UDPRechargeBasic::initialize(int stage)
         inRechargingTime = 0;
         startRecharge = simTime();
         lastSawInRecharge = simTime();
+        saveNeighboursMsgs = true;
 
         activeNodesVector.setName("activeNodes");
         rechargingNodesVector.setName("rechargingNodes");
@@ -269,7 +270,9 @@ void UDPRechargeBasic::processPacket(cPacket *pk)
                 if (neigh.count(aPkt->getAppAddr()) != 0) {
                     neigh.erase(aPkt->getAppAddr());
                 }
-                lastSawInRecharge = simTime();
+                if (saveNeighboursMsgs) {
+                    lastSawInRecharge = simTime();
+                }
             }
             else {
 
@@ -295,13 +298,16 @@ void UDPRechargeBasic::processPacket(cPacket *pk)
 
                 node->timestamp = simTime();
 
-                node->batteryLevelAbs = aPkt->getBatteryLevelAbs();
-                node->batteryLevelPerc = aPkt->getBatteryLevelPerc();
-                node->coveragePercentage = aPkt->getCoveragePercentage();
-                node->leftLifetime = aPkt->getLeftLifetime();
-                node->nodeDegree = aPkt->getNodeDegree();
-                node->inRechargeT = aPkt->getInRecharge();
-                node->gameTheoryC = aPkt->getGameTheoryC();
+                if (saveNeighboursMsgs) {
+
+                    node->batteryLevelAbs = aPkt->getBatteryLevelAbs();
+                    node->batteryLevelPerc = aPkt->getBatteryLevelPerc();
+                    node->coveragePercentage = aPkt->getCoveragePercentage();
+                    node->leftLifetime = aPkt->getLeftLifetime();
+                    node->nodeDegree = aPkt->getNodeDegree();
+                    node->inRechargeT = aPkt->getInRecharge();
+                    node->gameTheoryC = aPkt->getGameTheoryC();
+                }
 
                 ss << node->appAddr << ". NEIG.SIZE: " << neigh.size();
                 //fprintf(stderr, "%s\n", ss.str().c_str());fflush(stderr);

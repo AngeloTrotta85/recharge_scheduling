@@ -110,6 +110,8 @@ protected:
     simtime_t lastSawInRecharge;
     int numberNodesInSimulation;
 
+    bool saveNeighboursMsgs;
+
     // messages
     cMessage *autoMsgRecharge = nullptr;
     cMessage *goToCharge = nullptr;
