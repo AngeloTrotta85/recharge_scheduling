@@ -345,6 +345,9 @@ double UDPRechargeGameTheory::calculateRechargeProb(void){
             double c = (1.0 - getGameTheoryC()) / (calculateMyDischargeProb(gameTheoryKnowledgeType));
             s = pow(c, 1.0 / (((double) numberNodesInSimulation) - 1.0));
 
+            if (s > 1) s = 1;
+            if (s < 0) s = 0;
+
             ris = 1.0 - s;
         }
 
