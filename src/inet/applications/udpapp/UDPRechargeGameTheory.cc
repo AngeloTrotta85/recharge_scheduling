@@ -168,7 +168,11 @@ void UDPRechargeGameTheory::handleMessageWhenUp(cMessage *msg) {
 
     UDPRechargeBasic::handleMessageWhenUp(msg);
 
-    if (msg == goToCharge) {
+    if (msg == autoMsgRecharge) {
+        cancelEvent(autoMsgRecharge);
+        scheduleAt(simTime() + checkRechargeTimer, autoMsgRecharge);
+    }
+    else if (msg == goToCharge) {
         if (sb->isCharging()) {
             // make neigh backup
             neighBackupWhenRecharging.clear();
@@ -176,6 +180,12 @@ void UDPRechargeGameTheory::handleMessageWhenUp(cMessage *msg) {
                 nodeInfo_t actBkp = it->second;
                 neighBackupWhenRecharging[it->first] = actBkp;
             }
+
+            //fprintf(stderr, "NEIGH BACKUP made\n");
+            //for (auto it = neighBackupWhenRecharging.begin(); it != neighBackupWhenRecharging.end(); it++) {
+            //    nodeInfo_t actBkp = it->second;
+            //    fprintf(stderr, "Neigh %d with %lf energy\n", actBkp.appAddr, actBkp.batteryLevelAbs);
+            //}
         }
     }
 }
@@ -502,13 +512,24 @@ double UDPRechargeGameTheory::calculateMyDischargeProb(GameTheoryKnowledge_Type 
             }
             else if (gtk == LOCAL_KNOWLEDGE) {
                 if (sb->isCharging()) {
+                    fprintf(stderr, "Sixe of my neighBackupWhenRecharging: %d\n", (int)neighBackupWhenRecharging.size());fflush(stderr);
                     for (auto it = neighBackupWhenRecharging.begin(); it != neighBackupWhenRecharging.end(); it++) {
                         nodeInfo_t *act = &(it->second);
 
                         double hostC = act->gameTheoryC;
                         long double ppp = (1.0 - hostC) / probCi;
                         produttoria = produttoria * ppp;
+
+                        {
+                            UDPRechargeGameTheory *hostACT = check_and_cast<UDPRechargeGameTheory *>(this->getParentModule()->getParentModule()->getSubmodule("host", act->appAddr)->getSubmodule("udpApp", 0));
+                            power::SimpleBattery *battACT = check_and_cast<power::SimpleBattery *>(this->getParentModule()->getParentModule()->getSubmodule("host", act->appAddr)->getSubmodule("battery"));
+                            double hostC = hostACT->getGameTheoryC();
+
+                            fprintf(stderr, "[%lf] Actual(%d) C estimation: %lf, Real: %lf [%lf]\n", simTime().dbl(), act->appAddr, act->gameTheoryC, hostC, act->gameTheoryC - hostC);fflush(stderr);
+                            fprintf(stderr, "[%lf] Actual(%d) Energy estimation: %lf, Real: %lf [%lf]\n", simTime().dbl(), act->appAddr, act->batteryLevelAbs, battACT->getBatteryLevelAbs(), act->batteryLevelAbs - battACT->getBatteryLevelAbs());fflush(stderr);
+                        }
                     }
+                    fprintf(stderr, "\n");fflush(stderr);
 
                 }
                 else {
@@ -550,7 +571,7 @@ double UDPRechargeGameTheory::calculateMyDischargeProb(GameTheoryKnowledge_Type 
                 error("Wrong knowledge scope");
             }
 
-            fprintf(stderr, "RIS:%Lf \n\n", nmeno1SquareRoot);
+            //fprintf(stderr, "RIS:%Lf \n\n", nmeno1SquareRoot);
 
             ris = nmeno1SquareRoot;
         }

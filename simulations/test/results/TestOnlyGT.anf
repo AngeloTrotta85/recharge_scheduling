@@ -102,7 +102,7 @@
       <items xsi:type="scave:LineChart" name="Battery" lineNameFormat=""/>
     </datasets>
     <datasets name="UseOfStation">
-      <items xsi:type="scave:Add" filterPattern="rechargingNodes AND attr:FH(20) " type="VECTOR"/>
+      <items xsi:type="scave:Add" filterPattern="rechargingNodes" type="VECTOR"/>
       <items xsi:type="scave:Apply" operation="timewinavg">
         <params name="windowSize" value="30"/>
       </items>
