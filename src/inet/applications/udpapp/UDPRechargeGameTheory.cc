@@ -512,7 +512,7 @@ double UDPRechargeGameTheory::calculateMyDischargeProb(GameTheoryKnowledge_Type 
             }
             else if (gtk == LOCAL_KNOWLEDGE) {
                 if (sb->isCharging()) {
-                    fprintf(stderr, "Sixe of my neighBackupWhenRecharging: %d\n", (int)neighBackupWhenRecharging.size());fflush(stderr);
+                    //fprintf(stderr, "Sixe of my neighBackupWhenRecharging: %d\n", (int)neighBackupWhenRecharging.size());fflush(stderr);
                     for (auto it = neighBackupWhenRecharging.begin(); it != neighBackupWhenRecharging.end(); it++) {
                         nodeInfo_t *act = &(it->second);
 
@@ -520,16 +520,16 @@ double UDPRechargeGameTheory::calculateMyDischargeProb(GameTheoryKnowledge_Type 
                         long double ppp = (1.0 - hostC) / probCi;
                         produttoria = produttoria * ppp;
 
-                        {
+                        /*{
                             UDPRechargeGameTheory *hostACT = check_and_cast<UDPRechargeGameTheory *>(this->getParentModule()->getParentModule()->getSubmodule("host", act->appAddr)->getSubmodule("udpApp", 0));
                             power::SimpleBattery *battACT = check_and_cast<power::SimpleBattery *>(this->getParentModule()->getParentModule()->getSubmodule("host", act->appAddr)->getSubmodule("battery"));
                             double hostC = hostACT->getGameTheoryC();
 
                             fprintf(stderr, "[%lf] Actual(%d) C estimation: %lf, Real: %lf [%lf]\n", simTime().dbl(), act->appAddr, act->gameTheoryC, hostC, act->gameTheoryC - hostC);fflush(stderr);
                             fprintf(stderr, "[%lf] Actual(%d) Energy estimation: %lf, Real: %lf [%lf]\n", simTime().dbl(), act->appAddr, act->batteryLevelAbs, battACT->getBatteryLevelAbs(), act->batteryLevelAbs - battACT->getBatteryLevelAbs());fflush(stderr);
-                        }
+                        }*/
                     }
-                    fprintf(stderr, "\n");fflush(stderr);
+                    //fprintf(stderr, "\n");fflush(stderr);
 
                 }
                 else {
@@ -1162,7 +1162,7 @@ double UDPRechargeGameTheory::calculateUPplusMore(void) {
             valUPplusMore = 1.0;
             break;
         case NEW5:
-            valUPplusMore = 1.0 + (1.0 * pow(1.0 - r, 2.0));
+            valUPplusMore = 1.0 + pow(1.0 - r, 2.0);
             break;
         case NEW6:
             valUPplusMore = 1.0 + (numberNodesInSimulation * pow(1.0 - r, 2.0));
