@@ -86,7 +86,7 @@
       <items xsi:type="scave:LineChart" name="Degree" lineNameFormat=""/>
     </datasets>
     <datasets name="Tentativi">
-      <items xsi:type="scave:Add" filterPattern="FailedAttemptVal and attr:FH(20) " type="VECTOR"/>
+      <items xsi:type="scave:Add" filterPattern="FailedAttemptVal" type="VECTOR"/>
       <items xsi:type="scave:Apply" operation="aggregator">
         <params name="function" value="average"/>
         <groupBy>measurement</groupBy>

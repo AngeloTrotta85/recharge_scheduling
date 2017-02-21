@@ -193,7 +193,12 @@ void UDPRechargeGameTheory::handleMessageWhenUp(cMessage *msg) {
 void UDPRechargeGameTheory::make5secStats(void) {
     UDPRechargeBasic::make5secStats();
 
-    estimateDischargeProbVector.record(calculateMyDischargeProb(gameTheoryKnowledgeType));
+    if (gameTheoryKnowledgeType == LOCAL_KNOWLEDGE) {
+        estimateDischargeProbVector.record(estimateDischargeProb_LOCAL());
+    }
+    else {
+        estimateDischargeProbVector.record(calculateMyDischargeProb(gameTheoryKnowledgeType));
+    }
     estimatedTimeInRechargingVector.record(calculateEstimatedTimeInRecharging(dischargeProbEnergyToUse));
 }
 
@@ -263,7 +268,8 @@ double UDPRechargeGameTheory::calculateRechargeProb(void){
                 else if (gameTheoryKnowledgeType == LOCAL_KNOWLEDGE) {
                     // use mine
                     //dischargeP = calculateDischargeProb();
-                    dischargeP = calculateMyDischargeProb(gameTheoryKnowledgeType);
+                    //dischargeP = calculateMyDischargeProb(gameTheoryKnowledgeType);
+                    dischargeP = estimateDischargeProb_LOCAL();
                     //fprintf(stderr, "Estimated Discharge Prob: %Lf \n", dischargeP);fflush(stderr);
                 }
                 else {
@@ -368,6 +374,27 @@ double UDPRechargeGameTheory::calculateRechargeProb(void){
 
         return ris;
     }
+}
+
+double UDPRechargeGameTheory::estimateDischargeProb_LOCAL(void) {
+    double ris = 1;
+
+    /***************************************************************************************************/
+    ris = calculateMyDischargeProb(PERSONAL_KNOWLEDGE);
+
+    /*if (exponential_dischargeProb_decay == 0) {
+        double estimatedTimeInRecharging = calculateEstimatedTimeInRecharging(dischargeProbEnergyToUse);
+        estimatedTimeInRecharging = estimatedTimeInRecharging / temp_factorProbDischarge;
+        ris = 1.0 / estimatedTimeInRecharging;
+    }
+    else {
+        ris = calculateTimePassedRatioFromEstimated(dischargeProbEnergyToUse);
+    }*/
+
+    /***************************************************************************************************/
+
+
+    return ris;
 }
 
 /*
