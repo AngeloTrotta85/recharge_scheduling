@@ -542,7 +542,7 @@ double UDPRechargeGameTheory::calculateMyDischargeProb(GameTheoryKnowledge_Type 
                 //fprintf(stderr, "\n");fflush(stderr);
             }
             else if (gtk == LOCAL_KNOWLEDGE) {
-                if (sb->isCharging()) {
+                if (sb->isCharging() && rechargeIsolation) {
                     if (neighBackupWhenRecharging.size() > 0) {
                         //fprintf(stderr, "Sixe of my neighBackupWhenRecharging: %d\n", (int)neighBackupWhenRecharging.size());fflush(stderr);
                         for (auto it = neighBackupWhenRecharging.begin(); it != neighBackupWhenRecharging.end(); it++) {
@@ -569,12 +569,17 @@ double UDPRechargeGameTheory::calculateMyDischargeProb(GameTheoryKnowledge_Type 
 
                 }
                 else {
-                    for (auto it = filter_neigh.begin(); it != filter_neigh.end(); it++) {
-                        nodeInfo_t *act = &(it->second);
+                    if (filter_neigh.size() > 0) {
+                        for (auto it = filter_neigh.begin(); it != filter_neigh.end(); it++) {
+                            nodeInfo_t *act = &(it->second);
 
-                        double hostC = act->gameTheoryC;
-                        long double ppp = (1.0 - hostC) / probCi;
-                        produttoria = produttoria * ppp;
+                            double hostC = act->gameTheoryC;
+                            long double ppp = (1.0 - hostC) / probCi;
+                            produttoria = produttoria * ppp;
+                        }
+                    }
+                    else {// DO LIKE PERSONAL_KNOWLEDGE
+                        produttoria = powl(getGameTheoryC(energyToUse)/probCi, numberNodesInSimulation - 1.0);
                     }
                 }
             }
@@ -593,7 +598,7 @@ double UDPRechargeGameTheory::calculateMyDischargeProb(GameTheoryKnowledge_Type 
                 nmeno1SquareRoot = powl(produttoria, 1.0 / (((long double) numberNodesInSimulation) - 1.0));
             }
             else if (gtk == LOCAL_KNOWLEDGE){
-                if (sb->isCharging()) {
+                if (sb->isCharging() && rechargeIsolation) {
                     if (neighBackupWhenRecharging.size() > 0) {
                         nmeno1SquareRoot = powl(produttoria, 1.0 / ((long double) neighBackupWhenRecharging.size()));
                     }
@@ -602,7 +607,12 @@ double UDPRechargeGameTheory::calculateMyDischargeProb(GameTheoryKnowledge_Type 
                     }
                 }
                 else {
-                    nmeno1SquareRoot = powl(produttoria, 1.0 / ((long double) filter_neigh.size()));
+                    if (filter_neigh.size() > 0) {
+                        nmeno1SquareRoot = powl(produttoria, 1.0 / ((long double) filter_neigh.size()));
+                    }
+                    else {  // DO LIKE PERSONAL_KNOWLEDGE
+                        nmeno1SquareRoot = powl(produttoria, 1.0 / (((long double) numberNodesInSimulation) - 1.0));
+                    }
                 }
             }
             else if (gtk == PERSONAL_KNOWLEDGE) {
