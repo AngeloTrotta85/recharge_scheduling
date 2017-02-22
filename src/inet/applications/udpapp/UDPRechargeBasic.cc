@@ -54,6 +54,7 @@ void UDPRechargeBasic::initialize(int stage)
         sensorRadious = par("sensorRadious");
         chargingStationNumber = par("chargingStationNumber");
         activateVirtualForceMovements = par("activateVirtualForceMovements").boolValue();
+        rechargeIsolation = par("rechargeIsolation").boolValue();
 
         double rx = (mob->getConstraintAreaMax().x - mob->getConstraintAreaMin().x) / 2.0;
         double ry = (mob->getConstraintAreaMax().y - mob->getConstraintAreaMin().y) / 2.0;
@@ -146,8 +147,10 @@ void UDPRechargeBasic::handleMessageWhenUp(cMessage *msg) {
             if (stopCharging) {
 
                 //stop the node
-                neigh.clear();
-                filter_neigh.clear();
+                if (rechargeIsolation) {
+                    neigh.clear();
+                    filter_neigh.clear();
+                }
                 //mob->clearVirtualSprings();
                 mob->clearVirtualSpringsAndsetPosition(rebornPos);
 
@@ -196,8 +199,10 @@ void UDPRechargeBasic::handleMessageWhenUp(cMessage *msg) {
         }
 
         //stop the node
-        neigh.clear();
-        filter_neigh.clear();
+        if (rechargeIsolation) {
+            neigh.clear();
+            filter_neigh.clear();
+        }
         //mob->clearVirtualSprings();
         mob->clearVirtualSpringsAndsetPosition(rebornPos);
 
@@ -257,7 +262,7 @@ bool UDPRechargeBasic::checkRechargingStationFree(void) {
 void UDPRechargeBasic::processPacket(cPacket *pk)
 {
     //EV << "RECEIVED PACKET: " << pk->getName() << endl;
-    if (sb->getState() == power::SimpleBattery::DISCHARGING) {
+    if ((sb->getState() == power::SimpleBattery::DISCHARGING) || (!rechargeIsolation)) {
         ApplicationPacketRecharge *aPkt = check_and_cast<ApplicationPacketRecharge *> (pk);
         if (myAddr != aPkt->getAddr()) {
 
@@ -307,6 +312,8 @@ void UDPRechargeBasic::processPacket(cPacket *pk)
                     node->nodeDegree = aPkt->getNodeDegree();
                     node->inRechargeT = aPkt->getInRecharge();
                     node->gameTheoryC = aPkt->getGameTheoryC();
+                    node->gameTheoryPC = aPkt->getGameTheoryPC();
+                    node->recharging = aPkt->getRecharging();
                 }
 
                 ss << node->appAddr << ". NEIG.SIZE: " << neigh.size();
@@ -316,7 +323,9 @@ void UDPRechargeBasic::processPacket(cPacket *pk)
 
             getFilteredNeigh(filter_neigh);
 
-            updateVirtualForces();
+            if (sb->getState() == power::SimpleBattery::DISCHARGING) {
+                updateVirtualForces();
+            }
 
             EV << "[" << myAppAddr << "] - NEW PACKET arrived. Neigh size: " << neigh.size() << endl;
         }
@@ -347,6 +356,8 @@ ApplicationPacketRecharge *UDPRechargeBasic::generatePktToSend(const char *name,
     payload->setInRecharge(inRechargingTime);
     payload->setGoingToRechargeTime(calculateRechargeTime());
     payload->setGameTheoryC(getGameTheoryC());
+    payload->setGameTheoryPC(getGameTheoryPC());
+    payload->setRecharging(sb->getState() == power::SimpleBattery::CHARGING);
 
     return payload;
 }
@@ -366,7 +377,7 @@ void UDPRechargeBasic::sendRechargeMessage(void) {
 
 void UDPRechargeBasic::sendPacket()
 {
-    if (sb->getState() == power::SimpleBattery::DISCHARGING) {
+    if ((sb->getState() == power::SimpleBattery::DISCHARGING) || (!rechargeIsolation)) {
         std::ostringstream str;
         str << packetName << "-" << numSent;
 
@@ -408,19 +419,21 @@ void UDPRechargeBasic::updateVirtualForces(void) {
 
         for (auto it = neigh.begin(); it != neigh.end(); it++) {
             nodeInfo_t *act = &(it->second);
-            double preferredDistance = calculateInterDistance(sensorRadious);
+            if (!act->recharging) {
+                double preferredDistance = calculateInterDistance(sensorRadious);
 
-            double distance = act->pos.distance(myPos);
-            double springDispl = preferredDistance - distance;
+                double distance = act->pos.distance(myPos);
+                double springDispl = preferredDistance - distance;
 
-            Coord uVec = Coord(1, 1);
-            if (distance == 0)  uVec = Coord(dblrand(), dblrand());
-            else  uVec = act->pos - myPos;
-            uVec.normalize();
+                Coord uVec = Coord(1, 1);
+                if (distance == 0)  uVec = Coord(dblrand(), dblrand());
+                else  uVec = act->pos - myPos;
+                uVec.normalize();
 
-            //EV << "Setting force with displacement: " << springDispl << " (distance: " << distance << ")" << endl;
-            //fprintf(stderr, "[%d] - adding force with displacement %lf\n", myAppAddr, springDispl);fflush(stderr);
-            mob->addVirtualSpring(uVec, preferredDistance, springDispl);
+                //EV << "Setting force with displacement: " << springDispl << " (distance: " << distance << ")" << endl;
+                //fprintf(stderr, "[%d] - adding force with displacement %lf\n", myAppAddr, springDispl);fflush(stderr);
+                mob->addVirtualSpring(uVec, preferredDistance, springDispl);
+            }
         }
 
         // add the force towards the center rebornPos
@@ -465,15 +478,26 @@ void UDPRechargeBasic::getFilteredNeigh(std::map<int, nodeInfo_t> &filteredNeigh
     std::list<VirtualSpringMobility::NodeBasicInfo> nodesToFilter;
     std::list<VirtualSpringMobility::NodeBasicInfo> nodeFiltered;
 
+    VirtualSpringMobility::NodeBasicInfo recharginginfo;
+    recharginginfo.id = -1;
+
     filteredNeigh.clear();
 
     for (auto it = neigh.begin(); it != neigh.end(); it++) {
-        VirtualSpringMobility::NodeBasicInfo newinfo;
-        newinfo.id = it->first;
-        newinfo.position = it->second.pos;
-        nodesToFilter.push_back(newinfo);
+        if (it->second.recharging) {
+            recharginginfo.id = it->first;
+        }
+        else {
+            VirtualSpringMobility::NodeBasicInfo newinfo;
+            newinfo.id = it->first;
+            newinfo.position = it->second.pos;
+            nodesToFilter.push_back(newinfo);
+        }
     }
     mob->filterNodeListAcuteAngleTest(nodesToFilter, nodeFiltered);
+    if (recharginginfo.id >= 0) {
+        nodeFiltered.push_back(recharginginfo);
+    }
 
     for (auto it = neigh.begin(); it != neigh.end(); it++) {
         nodeInfo_t *act = &(it->second);

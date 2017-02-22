@@ -36,7 +36,9 @@ packet ApplicationPacketRecharge {
     double leftLifetime;  
     int nodeDegree;
     bool goingToRecharge;
+    bool recharging;
     double goingToRechargeTime;
     double inRecharge;
     double gameTheoryC;
+    double gameTheoryPC;
 }

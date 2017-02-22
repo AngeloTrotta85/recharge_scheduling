@@ -51,6 +51,8 @@ public:
         int nodeDegree;
         double inRechargeT;
         double gameTheoryC;
+        double gameTheoryPC;
+        bool recharging;
     } nodeInfo_t;
 
 protected:
@@ -87,6 +89,7 @@ public:
     virtual ~UDPRechargeBasic();
 
     virtual double getGameTheoryC(void) {return 0;}
+    virtual double getGameTheoryPC(void) {return 0;}
 
     virtual double calculateRechargeProb(void);
     virtual double calculateDischargeProb(void);
@@ -109,7 +112,7 @@ protected:
     simtime_t startRecharge;
     simtime_t lastSawInRecharge;
     int numberNodesInSimulation;
-
+    bool rechargeIsolation;
     bool saveNeighboursMsgs;
 
     // messages

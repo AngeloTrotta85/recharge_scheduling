@@ -378,21 +378,16 @@ double UDPRechargeGameTheory::calculateRechargeProb(void){
 
 double UDPRechargeGameTheory::estimateDischargeProb_LOCAL(void) {
     double ris = 1;
+    bool e2use = sb->getBatteryLevelAbs();
 
-    /***************************************************************************************************/
-    ris = calculateMyDischargeProb(PERSONAL_KNOWLEDGE);
-
-    /*if (exponential_dischargeProb_decay == 0) {
-        double estimatedTimeInRecharging = calculateEstimatedTimeInRecharging(dischargeProbEnergyToUse);
-        estimatedTimeInRecharging = estimatedTimeInRecharging / temp_factorProbDischarge;
-        ris = 1.0 / estimatedTimeInRecharging;
+    for (auto it = filter_neigh.begin(); it != filter_neigh.end(); it++) {
+        nodeInfo_t *act = &(it->second);
+        if (act->recharging) {
+            e2use = act->batteryLevelAbs;
+        }
     }
-    else {
-        ris = calculateTimePassedRatioFromEstimated(dischargeProbEnergyToUse);
-    }*/
 
-    /***************************************************************************************************/
-
+    ris = calculateMyDischargeProb(PERSONAL_KNOWLEDGE, e2use);
 
     return ris;
 }
@@ -511,13 +506,17 @@ double UDPRechargeGameTheory::calculateTimePassedRatioFromEstimated(DischargePro
 }
 
 double UDPRechargeGameTheory::calculateMyDischargeProb(GameTheoryKnowledge_Type gtk){
+    return calculateMyDischargeProb(gtk, sb->getBatteryLevelAbs());
+}
+
+double UDPRechargeGameTheory::calculateMyDischargeProb(GameTheoryKnowledge_Type gtk, double energyToUse){
     double ris;
     if (variableP) {
 
         if (useNewGameTheoryDischargeProb) {
             long double nmeno1SquareRoot;
             long double produttoria = 1.0;
-            long double probCi = getGameTheoryProbC();
+            long double probCi = getGameTheoryProbC(energyToUse);
 
             //fprintf(stderr, "upMenoMore:%lf < upPiuMore:%lf - upPiuZero:%lf < upMenoZero:%lf\n",
             //        calculateUPminusMore(),calculateUPplusMore(),calculateUPplusZero(),calculateUPminusZero());
@@ -565,7 +564,7 @@ double UDPRechargeGameTheory::calculateMyDischargeProb(GameTheoryKnowledge_Type 
                         //fprintf(stderr, "\n");fflush(stderr);
                     }
                     else {  // DO LIKE PERSONAL_KNOWLEDGE
-                        produttoria = powl(getGameTheoryC()/probCi, numberNodesInSimulation - 1.0);
+                        produttoria = powl(getGameTheoryC(energyToUse)/probCi, numberNodesInSimulation - 1.0);
                     }
 
                 }
@@ -580,7 +579,7 @@ double UDPRechargeGameTheory::calculateMyDischargeProb(GameTheoryKnowledge_Type 
                 }
             }
             else if (gtk == PERSONAL_KNOWLEDGE) {
-                produttoria = powl(getGameTheoryC()/probCi, numberNodesInSimulation - 1.0);
+                produttoria = powl(getGameTheoryC(energyToUse)/probCi, numberNodesInSimulation - 1.0);
             }
             else {
                 error("Wrong knowledge scope");
@@ -661,11 +660,14 @@ double UDPRechargeGameTheory::calculateDischargeProb(void){
     }
 }
 
-
 double UDPRechargeGameTheory::getGameTheoryC(void) {
+    return getGameTheoryC(sb->getBatteryLevelAbs());
+}
+
+double UDPRechargeGameTheory::getGameTheoryC(double energyToUse) {
     double ris = 0;
 
-    ris = getGameTheoryCNew();
+    ris = getGameTheoryCNew(energyToUse);
     /*
     if (variableC) {
         switch (constant_T_type) {
@@ -696,13 +698,17 @@ double UDPRechargeGameTheory::getGameTheoryC(void) {
 }
 
 double UDPRechargeGameTheory::getGameTheoryCNew(void) {
+    return getGameTheoryCNew(sb->getBatteryLevelAbs());
+}
+
+double UDPRechargeGameTheory::getGameTheoryCNew(double energyToUse) {
     double utMenoFree, utMenoBusy, utPiuOk, utPiuFail;
     double ris = 0;
 
-    utMenoFree = calculateUTminusFree();
-    utMenoBusy = calculateUTminusBusy();
-    utPiuOk = calculateUTplusOk();
-    utPiuFail = calculateUTplusFail();
+    utMenoFree = calculateUTminusFree(energyToUse);
+    utMenoBusy = calculateUTminusBusy(energyToUse);
+    utPiuOk = calculateUTplusOk(energyToUse);
+    utPiuFail = calculateUTplusFail(energyToUse);
 
     ris = (utMenoFree - utPiuOk) / (utPiuFail - utPiuOk + utMenoFree - utMenoBusy);
 
@@ -713,13 +719,17 @@ double UDPRechargeGameTheory::getGameTheoryCNew(void) {
 }
 
 double UDPRechargeGameTheory::getGameTheoryProbC(void) {
+    return getGameTheoryProbC(sb->getBatteryLevelAbs());
+}
+
+double UDPRechargeGameTheory::getGameTheoryProbC(double energyToUse) {
     double upMenoZero, upMenoMore, upPiuZero, upPiuMore;
     double ris = 0;
 
-    upMenoZero = calculateUPminusZero();
-    upMenoMore = calculateUPminusMore();
-    upPiuZero = calculateUPplusZero();
-    upPiuMore = calculateUPplusMore();
+    upMenoZero = calculateUPminusZero(energyToUse);
+    upMenoMore = calculateUPminusMore(energyToUse);
+    upPiuZero = calculateUPplusZero(energyToUse);
+    upPiuMore = calculateUPplusMore(energyToUse);
 
     ris = (upMenoMore - upPiuMore) / (upPiuZero - upPiuMore + upMenoMore - upMenoZero);
 
@@ -836,7 +846,7 @@ double UDPRechargeGameTheory::getEavg(bool activeOnly, GameTheoryKnowledge_Type 
     }
     else if (scope == LOCAL_KNOWLEDGE){
         sum = sb->getBatteryLevelAbs();
-        if (sb->isCharging()){
+        if ((sb->isCharging()) && (rechargeIsolation)){
             for (auto it = neighBackupWhenRecharging.begin(); it != neighBackupWhenRecharging.end(); it++) {
                 nodeInfo_t *act = &(it->second);
                 sum += act->batteryLevelAbs;
@@ -877,7 +887,7 @@ double UDPRechargeGameTheory::getEmax(bool activeOnly, GameTheoryKnowledge_Type 
         }
     }
     else if (scope == LOCAL_KNOWLEDGE){
-        if (sb->isCharging()){
+        if ((sb->isCharging()) && (rechargeIsolation)){
             for (auto it = neighBackupWhenRecharging.begin(); it != neighBackupWhenRecharging.end(); it++) {
                 nodeInfo_t *act = &(it->second);
                 double actBatt = act->batteryLevelAbs;
@@ -923,7 +933,7 @@ double UDPRechargeGameTheory::getEmin(bool activeOnly, GameTheoryKnowledge_Type 
         }
     }
     else if (scope == LOCAL_KNOWLEDGE){
-        if (sb->isCharging()){
+        if ((sb->isCharging()) && (rechargeIsolation)){
             for (auto it = neighBackupWhenRecharging.begin(); it != neighBackupWhenRecharging.end(); it++) {
                 nodeInfo_t *act = &(it->second);
                 double actBatt = act->batteryLevelAbs;
@@ -1113,8 +1123,11 @@ double UDPRechargeGameTheory::calculateUTminusFree(double energyToUse) {
     return valUTminusFree;
 }
 
-
 double UDPRechargeGameTheory::calculateUPplusZero(void) {
+    return calculateUPplusZero(sb->getBatteryLevelAbs());
+}
+
+double UDPRechargeGameTheory::calculateUPplusZero(double energyToUse) {
     double valUPplusZero = 0;
     double tr = 1 - calculateTimePassedRatioFromEstimated(ENERGYMIN);
     double r = calculateTimePassedRatioFromEstimated(ENERGYMIN);
@@ -1124,11 +1137,11 @@ double UDPRechargeGameTheory::calculateUPplusZero(void) {
     //double b = getBeta();
     double t = getTheta();
     //double g = getGamma();
-    double myE = sb->getBatteryLevelAbs();
+    //double myE = sb->getBatteryLevelAbs();
 
     double e = 1;
     if ((eMAX - eMIN) != 0) {
-        e = (eMAX - myE) / (eMAX - eMIN);
+        e = (eMAX - energyToUse) / (eMAX - eMIN);
     }
 
     if (variableP) {
@@ -1164,6 +1177,10 @@ double UDPRechargeGameTheory::calculateUPplusZero(void) {
 }
 
 double UDPRechargeGameTheory::calculateUPplusMore(void) {
+    return calculateUPplusMore(sb->getBatteryLevelAbs());
+}
+
+double UDPRechargeGameTheory::calculateUPplusMore(double energyToUse) {
     double valUPplusMore = 0;
     double tr = 1 - calculateTimePassedRatioFromEstimated(ENERGYMIN);
     double r = calculateTimePassedRatioFromEstimated(ENERGYMIN);
@@ -1173,11 +1190,11 @@ double UDPRechargeGameTheory::calculateUPplusMore(void) {
     double b = getBeta();
     double t = getTheta();
     double g = getGamma();
-    double myE = sb->getBatteryLevelAbs();
+    //double myE = sb->getBatteryLevelAbs();
 
     double e = 1;
     if ((eMAX - eMIN) != 0) {
-        e = (eMAX - myE) / (eMAX - eMIN);
+        e = (eMAX - energyToUse) / (eMAX - eMIN);
     }
 
     if (variableP) {
@@ -1219,6 +1236,10 @@ double UDPRechargeGameTheory::calculateUPplusMore(void) {
 }
 
 double UDPRechargeGameTheory::calculateUPminusZero(void) {
+    return calculateUPminusZero(sb->getBatteryLevelAbs());
+}
+
+double UDPRechargeGameTheory::calculateUPminusZero(double energyToUse) {
     double valUPminusZero = 0;
     //double tr = 1 - calculateTimePassedRatioFromEstimated();
     //double r = calculateTimePassedRatioFromEstimated();
@@ -1232,7 +1253,7 @@ double UDPRechargeGameTheory::calculateUPminusZero(void) {
 
     //double e = 1;
     //if ((eMAX - eMIN) != 0) {
-    //    e = (eMAX - myE) / (eMAX - eMIN);
+    //    e = (eMAX - energyToUse) / (eMAX - eMIN);
     //}
 
     if (variableP) {
@@ -1272,6 +1293,10 @@ double UDPRechargeGameTheory::calculateUPminusZero(void) {
 }
 
 double UDPRechargeGameTheory::calculateUPminusMore(void) {
+    return calculateUPminusMore(sb->getBatteryLevelAbs());
+}
+
+double UDPRechargeGameTheory::calculateUPminusMore(double energyToUse) {
     double valUPminusMore = 0;
     //double tr = 1 - calculateTimePassedRatioFromEstimated();
     double r = calculateTimePassedRatioFromEstimated(ENERGYMIN);
@@ -1281,11 +1306,11 @@ double UDPRechargeGameTheory::calculateUPminusMore(void) {
     double b = getBeta();
     double t = getTheta();
     double g = getGamma();
-    double myE = sb->getBatteryLevelAbs();
+    //double myE = sb->getBatteryLevelAbs();
 
     double e = 1;
     if ((eMAX - eMIN) != 0) {
-        e = (eMAX - myE) / (eMAX - eMIN);
+        e = (eMAX - energyToUse) / (eMAX - eMIN);
     }
 
     if (variableP) {

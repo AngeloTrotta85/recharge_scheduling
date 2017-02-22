@@ -28,6 +28,7 @@ simple UDPRechargeBasic extends UDPBasicApp
         int chargingStationNumber = default(3);
         
         bool activateVirtualForceMovements = default(true);
+        bool rechargeIsolation = default(true);
                 
         
         @display("i=block/app");

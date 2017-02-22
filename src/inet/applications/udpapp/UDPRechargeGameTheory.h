@@ -88,13 +88,18 @@ protected:
     virtual double calculateUTminusFree(double energyToUse);
 
     virtual double calculateUPplusZero(void);
+    virtual double calculateUPplusZero(double energyToUse);
     virtual double calculateUPplusMore(void);
+    virtual double calculateUPplusMore(double energyToUse);
     virtual double calculateUPminusZero(void);
+    virtual double calculateUPminusZero(double energyToUse);
     virtual double calculateUPminusMore(void);
+    virtual double calculateUPminusMore(double energyToUse);
 
     virtual void estimateAndUpdateNeighBackup(void);
     virtual double estimateLocalCWhenCharging(double oldEnergy);
     virtual double calculateMyDischargeProb(GameTheoryKnowledge_Type gtk);
+    virtual double calculateMyDischargeProb(GameTheoryKnowledge_Type gtk, double energyToUse);
 
 public:
     virtual ~UDPRechargeGameTheory();
@@ -102,9 +107,12 @@ public:
     virtual double calculateRechargeProb(void);
     virtual double calculateDischargeProb(void);
 
+    virtual double getGameTheoryC(double energyToUse);
     virtual double getGameTheoryC(void) override;
     virtual double getGameTheoryCNew(void);
+    virtual double getGameTheoryCNew(double energyToUse);
     virtual double getGameTheoryProbC(void);
+    virtual double getGameTheoryProbC(double energyToUse);
 
     double getTheta(void);
     double getGamma(void);
