@@ -40,6 +40,7 @@ public:
     typedef enum {
         LINEARINCREASE,
         LINEARINCREASE2,
+        LINEARINCREASE3,
         LINEARINCREASECONSISTENT
     } VarTConstant_Type;
 

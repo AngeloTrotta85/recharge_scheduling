@@ -76,6 +76,9 @@ void UDPRechargeGameTheory::initialize(int stage)
         else if (constType.compare("LINEARINCREASE2") == 0) {
             constant_T_type = LINEARINCREASE2;
         }
+        else if (constType.compare("LINEARINCREASE3") == 0) {
+            constant_T_type = LINEARINCREASE3;
+        }
         else if (constType.compare("LINEARINCREASECONSISTENT") == 0) {
             constant_T_type = LINEARINCREASECONSISTENT;
         }
@@ -999,13 +1002,21 @@ double UDPRechargeGameTheory::calculateUTplusFail(double energyToUse) {
         case LINEARINCREASE2:
             valUTplusFail = (-a-g-t) * (kappaPiu + (e * linearIncreaseFactor));
             break;
+        case LINEARINCREASE3:
+            valUTplusFail = (-a-g-t) * (kappaPiu + (e * linearIncreaseFactor));
+            break;
         case LINEARINCREASECONSISTENT:
             valUTplusFail = (-a-g-t) * (1.0 + log((e + 1.0)/(1.0 - e)));;
             break;
         }
     }
     else {
-        valUTplusFail = (-a-g-t);
+        if (constant_T_type == LINEARINCREASE3){
+            valUTplusFail = (-a-g-t) * 2.0;
+        }
+        else {
+            valUTplusFail = (-a-g-t);
+        }
     }
 
     return valUTplusFail;
@@ -1039,13 +1050,21 @@ double UDPRechargeGameTheory::calculateUTplusOk(double energyToUse) {
         case LINEARINCREASE2:
             valUTplusOk = b-g-t;
             break;
+        case LINEARINCREASE3:
+            valUTplusOk = b-g;
+            break;
         case LINEARINCREASECONSISTENT:
             valUTplusOk = b-g-t;
             break;
         }
     }
     else {
-        valUTplusOk = b-g-t;
+        if (constant_T_type == LINEARINCREASE3){
+            valUTplusOk = b-g;
+        }
+        else {
+            valUTplusOk = b-g-t;
+        }
     }
 
     return valUTplusOk;
@@ -1077,13 +1096,21 @@ double UDPRechargeGameTheory::calculateUTminusBusy(double energyToUse) {
         case LINEARINCREASE2:
             valUTminusBusy = -a;
             break;
+        case LINEARINCREASE3:
+            valUTminusBusy = 0;
+            break;
         case LINEARINCREASECONSISTENT:
             valUTminusBusy = -a;
             break;
         }
     }
     else {
-        valUTminusBusy = -a;
+        if (constant_T_type == LINEARINCREASE3){
+            valUTminusBusy = 0;
+        }
+        else {
+            valUTminusBusy = -a;
+        }
     }
 
     return valUTminusBusy;
@@ -1121,13 +1148,21 @@ double UDPRechargeGameTheory::calculateUTminusFree(double energyToUse) {
                 valUTminusFree = -a;
             }
             break;
+        case LINEARINCREASE3:
+            valUTminusFree = 0;
+            break;
         case LINEARINCREASECONSISTENT:
             valUTminusFree = -a;
             break;
         }
     }
     else {
-        valUTminusFree = -a;
+        if (constant_T_type == LINEARINCREASE3){
+            valUTminusFree = 0;
+        }
+        else {
+            valUTminusFree = -a;
+        }
     }
 
     return valUTminusFree;

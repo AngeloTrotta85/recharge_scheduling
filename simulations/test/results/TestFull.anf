@@ -12,7 +12,7 @@
   </inputs>
   <datasets>
     <datasets name="LIFETIME">
-      <items xsi:type="scave:Add" filterPattern="LIFETIME and attr:FH(20) AND attr:RT(20) "/>
+      <items xsi:type="scave:Add" filterPattern="LIFETIME and attr:FH(5) AND attr:RT(20) "/>
       <items xsi:type="scave:BarChart" name="LIFETIME">
         <barFields>experiment</barFields>
       </items>
@@ -117,7 +117,7 @@
       <items xsi:type="scave:LineChart" name="Battery" lineNameFormat=""/>
     </datasets>
     <datasets name="UseOfStation">
-      <items xsi:type="scave:Add" filterPattern="rechargingNodes AND attr:FH(20) " type="VECTOR"/>
+      <items xsi:type="scave:Add" filterPattern="rechargingNodes AND attr:FH(0) " type="VECTOR"/>
       <items xsi:type="scave:Apply" operation="timewinavg">
         <params name="windowSize" value="30"/>
       </items>
