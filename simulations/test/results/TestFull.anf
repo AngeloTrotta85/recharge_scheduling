@@ -12,7 +12,7 @@
   </inputs>
   <datasets>
     <datasets name="LIFETIME">
-      <items xsi:type="scave:Add" filterPattern="LIFETIME and attr:FH(5) AND attr:RT(20) "/>
+      <items xsi:type="scave:Add" filterPattern="LIFETIME and attr:FH(50) AND attr:RT(20) "/>
       <items xsi:type="scave:BarChart" name="LIFETIME">
         <barFields>experiment</barFields>
       </items>

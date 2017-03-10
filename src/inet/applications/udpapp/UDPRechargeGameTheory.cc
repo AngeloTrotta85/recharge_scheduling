@@ -226,9 +226,10 @@ void UDPRechargeGameTheory::estimateAndUpdateNeighBackup(void){
 
     double a = getAlpha();
     double g = getGamma();
+    double t = getTheta();
     for (auto it = neighBackupWhenRecharging.begin(); it != neighBackupWhenRecharging.end(); it++) {
         nodeInfo_t *actBkp = &(it->second);
-        actBkp->batteryLevelAbs = actBkp->batteryLevelAbs - a - g;
+        actBkp->batteryLevelAbs = actBkp->batteryLevelAbs - a - g - t;
     }
     for (auto it = neighBackupWhenRecharging.begin(); it != neighBackupWhenRecharging.end(); it++) {
         nodeInfo_t *actBkp = &(it->second);
@@ -517,45 +518,53 @@ double UDPRechargeGameTheory::calculateMyDischargeProb(GameTheoryKnowledge_Type 
     if (variableP) {
 
         if (useNewGameTheoryDischargeProb) {
-            long double nmeno1SquareRoot;
-            long double produttoria = 1.0;
-            long double probCi = getGameTheoryProbC(energyToUse);
-
-            //fprintf(stderr, "upMenoMore:%lf < upPiuMore:%lf - upPiuZero:%lf < upMenoZero:%lf\n",
-            //        calculateUPminusMore(),calculateUPplusMore(),calculateUPplusZero(),calculateUPminusZero());
-            //fprintf(stderr, "probCi: %Lf \n", probCi);
-
-            if (gtk == GLOBAL_KNOWLEDGE) {
-                for (int j = 0; j < numberNodesInSimulation; j++) {
-                    UDPRechargeGameTheory *hostj = check_and_cast<UDPRechargeGameTheory *>(this->getParentModule()->getParentModule()->getSubmodule("host", j)->getSubmodule("udpApp", 0));
-                    power::SimpleBattery *battN = check_and_cast<power::SimpleBattery *>(this->getParentModule()->getParentModule()->getSubmodule("host", j)->getSubmodule("battery"));
-
-                    if (!battN->isCharging()) {
-                        //{
-                        // TAKE ONLY ACTIVE NODES
-                        double hostC = hostj->getGameTheoryC();
-                        long double ppp = (1.0 - hostC) / probCi;
-                        produttoria = produttoria * ppp;
-
-                        //fprintf(stderr, "HC:%lf;TMP:%Lf;DIV:%Lf      ", hostC, produttoria, ppp);
-                        //fprintf(stderr, "%Lf ", ppp);
-                    }
-
-                }
-                //fprintf(stderr, "\n");fflush(stderr);
+            if (gtk == PERSONAL_KNOWLEDGE) {
+                long double probCi = getGameTheoryProbC(energyToUse);
+                long double myCi = getGameTheoryC(energyToUse);
+                long double nuav = numberNodesInSimulation;
+                long double den = powl(probCi, (nuav - 2.0) / (nuav - 1.0));
+                ris = (1.0 - myCi) / den;
             }
-            else if (gtk == LOCAL_KNOWLEDGE) {
-                if (sb->isCharging() && rechargeIsolation) {
-                    if (neighBackupWhenRecharging.size() > 0) {
-                        //fprintf(stderr, "Sixe of my neighBackupWhenRecharging: %d\n", (int)neighBackupWhenRecharging.size());fflush(stderr);
-                        for (auto it = neighBackupWhenRecharging.begin(); it != neighBackupWhenRecharging.end(); it++) {
-                            nodeInfo_t *act = &(it->second);
+            else {
+                long double nmeno1SquareRoot;
+                long double produttoria = 1.0;
+                long double probCi = getGameTheoryProbC(energyToUse);
 
-                            double hostC = act->gameTheoryC;
+                //fprintf(stderr, "upMenoMore:%lf < upPiuMore:%lf - upPiuZero:%lf < upMenoZero:%lf\n",
+                //        calculateUPminusMore(),calculateUPplusMore(),calculateUPplusZero(),calculateUPminusZero());
+                //fprintf(stderr, "probCi: %Lf \n", probCi);
+
+                if (gtk == GLOBAL_KNOWLEDGE) {
+                    for (int j = 0; j < numberNodesInSimulation; j++) {
+                        UDPRechargeGameTheory *hostj = check_and_cast<UDPRechargeGameTheory *>(this->getParentModule()->getParentModule()->getSubmodule("host", j)->getSubmodule("udpApp", 0));
+                        power::SimpleBattery *battN = check_and_cast<power::SimpleBattery *>(this->getParentModule()->getParentModule()->getSubmodule("host", j)->getSubmodule("battery"));
+
+                        if (!battN->isCharging()) {
+                            //{
+                            // TAKE ONLY ACTIVE NODES
+                            double hostC = hostj->getGameTheoryC();
                             long double ppp = (1.0 - hostC) / probCi;
                             produttoria = produttoria * ppp;
 
-                            /*{
+                            //fprintf(stderr, "HC:%lf;TMP:%Lf;DIV:%Lf      ", hostC, produttoria, ppp);
+                            //fprintf(stderr, "%Lf ", ppp);
+                        }
+
+                    }
+                    //fprintf(stderr, "\n");fflush(stderr);
+                }
+                else if (gtk == LOCAL_KNOWLEDGE) {
+                    if (sb->isCharging() && rechargeIsolation) {
+                        if (neighBackupWhenRecharging.size() > 0) {
+                            //fprintf(stderr, "Sixe of my neighBackupWhenRecharging: %d\n", (int)neighBackupWhenRecharging.size());fflush(stderr);
+                            for (auto it = neighBackupWhenRecharging.begin(); it != neighBackupWhenRecharging.end(); it++) {
+                                nodeInfo_t *act = &(it->second);
+
+                                double hostC = act->gameTheoryC;
+                                long double ppp = (1.0 - hostC) / probCi;
+                                produttoria = produttoria * ppp;
+
+                                /*{
                             UDPRechargeGameTheory *hostACT = check_and_cast<UDPRechargeGameTheory *>(this->getParentModule()->getParentModule()->getSubmodule("host", act->appAddr)->getSubmodule("udpApp", 0));
                             power::SimpleBattery *battACT = check_and_cast<power::SimpleBattery *>(this->getParentModule()->getParentModule()->getSubmodule("host", act->appAddr)->getSubmodule("battery"));
                             double hostC = hostACT->getGameTheoryC();
@@ -563,71 +572,72 @@ double UDPRechargeGameTheory::calculateMyDischargeProb(GameTheoryKnowledge_Type 
                             fprintf(stderr, "[%lf] Actual(%d) C estimation: %lf, Real: %lf [%lf]\n", simTime().dbl(), act->appAddr, act->gameTheoryC, hostC, act->gameTheoryC - hostC);fflush(stderr);
                             fprintf(stderr, "[%lf] Actual(%d) Energy estimation: %lf, Real: %lf [%lf]\n", simTime().dbl(), act->appAddr, act->batteryLevelAbs, battACT->getBatteryLevelAbs(), act->batteryLevelAbs - battACT->getBatteryLevelAbs());fflush(stderr);
                         }*/
+                            }
+                            //fprintf(stderr, "\n");fflush(stderr);
                         }
-                        //fprintf(stderr, "\n");fflush(stderr);
-                    }
-                    else {  // DO LIKE PERSONAL_KNOWLEDGE
-                        produttoria = powl(getGameTheoryC(energyToUse)/probCi, numberNodesInSimulation - 1.0);
-                    }
+                        else {  // DO LIKE PERSONAL_KNOWLEDGE
+                            produttoria = powl(getGameTheoryC(energyToUse)/probCi, numberNodesInSimulation - 1.0);
+                        }
 
+                    }
+                    else {
+                        if (filter_neigh.size() > 0) {
+                            for (auto it = filter_neigh.begin(); it != filter_neigh.end(); it++) {
+                                nodeInfo_t *act = &(it->second);
+
+                                double hostC = act->gameTheoryC;
+                                long double ppp = (1.0 - hostC) / probCi;
+                                produttoria = produttoria * ppp;
+                            }
+                        }
+                        else {// DO LIKE PERSONAL_KNOWLEDGE
+                            produttoria = powl(getGameTheoryC(energyToUse)/probCi, numberNodesInSimulation - 1.0);
+                        }
+                    }
+                }
+                else if (gtk == PERSONAL_KNOWLEDGE) {
+                    produttoria = powl(getGameTheoryC(energyToUse)/probCi, numberNodesInSimulation - 1.0);
                 }
                 else {
-                    if (filter_neigh.size() > 0) {
-                        for (auto it = filter_neigh.begin(); it != filter_neigh.end(); it++) {
-                            nodeInfo_t *act = &(it->second);
+                    error("Wrong knowledge scope");
+                }
 
-                            double hostC = act->gameTheoryC;
-                            long double ppp = (1.0 - hostC) / probCi;
-                            produttoria = produttoria * ppp;
+                //fprintf(stderr, "Prod:%Lf \n", produttoria);
+                produttoria = produttoria * probCi;
+                //fprintf(stderr, "Prod*CK:%Lf \n", produttoria);
+
+                if (gtk == GLOBAL_KNOWLEDGE) {
+                    nmeno1SquareRoot = powl(produttoria, 1.0 / (((long double) numberNodesInSimulation) - 1.0));
+                }
+                else if (gtk == LOCAL_KNOWLEDGE){
+                    if (sb->isCharging() && rechargeIsolation) {
+                        if (neighBackupWhenRecharging.size() > 0) {
+                            nmeno1SquareRoot = powl(produttoria, 1.0 / ((long double) neighBackupWhenRecharging.size()));
+                        }
+                        else {  // DO LIKE PERSONAL_KNOWLEDGE
+                            nmeno1SquareRoot = powl(produttoria, 1.0 / (((long double) numberNodesInSimulation) - 1.0));
                         }
                     }
-                    else {// DO LIKE PERSONAL_KNOWLEDGE
-                        produttoria = powl(getGameTheoryC(energyToUse)/probCi, numberNodesInSimulation - 1.0);
+                    else {
+                        if (filter_neigh.size() > 0) {
+                            nmeno1SquareRoot = powl(produttoria, 1.0 / ((long double) filter_neigh.size()));
+                        }
+                        else {  // DO LIKE PERSONAL_KNOWLEDGE
+                            nmeno1SquareRoot = powl(produttoria, 1.0 / (((long double) numberNodesInSimulation) - 1.0));
+                        }
                     }
                 }
-            }
-            else if (gtk == PERSONAL_KNOWLEDGE) {
-                produttoria = powl(getGameTheoryC(energyToUse)/probCi, numberNodesInSimulation - 1.0);
-            }
-            else {
-                error("Wrong knowledge scope");
-            }
-
-            //fprintf(stderr, "Prod:%Lf \n", produttoria);
-            produttoria = produttoria * probCi;
-            //fprintf(stderr, "Prod*CK:%Lf \n", produttoria);
-
-            if (gtk == GLOBAL_KNOWLEDGE) {
-                nmeno1SquareRoot = powl(produttoria, 1.0 / (((long double) numberNodesInSimulation) - 1.0));
-            }
-            else if (gtk == LOCAL_KNOWLEDGE){
-                if (sb->isCharging() && rechargeIsolation) {
-                    if (neighBackupWhenRecharging.size() > 0) {
-                        nmeno1SquareRoot = powl(produttoria, 1.0 / ((long double) neighBackupWhenRecharging.size()));
-                    }
-                    else {  // DO LIKE PERSONAL_KNOWLEDGE
-                        nmeno1SquareRoot = powl(produttoria, 1.0 / (((long double) numberNodesInSimulation) - 1.0));
-                    }
+                else if (gtk == PERSONAL_KNOWLEDGE) {
+                    nmeno1SquareRoot = powl(produttoria, 1.0 / (((long double) numberNodesInSimulation) - 1.0));
                 }
                 else {
-                    if (filter_neigh.size() > 0) {
-                        nmeno1SquareRoot = powl(produttoria, 1.0 / ((long double) filter_neigh.size()));
-                    }
-                    else {  // DO LIKE PERSONAL_KNOWLEDGE
-                        nmeno1SquareRoot = powl(produttoria, 1.0 / (((long double) numberNodesInSimulation) - 1.0));
-                    }
+                    error("Wrong knowledge scope");
                 }
-            }
-            else if (gtk == PERSONAL_KNOWLEDGE) {
-                nmeno1SquareRoot = powl(produttoria, 1.0 / (((long double) numberNodesInSimulation) - 1.0));
-            }
-            else {
-                error("Wrong knowledge scope");
-            }
 
-            //fprintf(stderr, "RIS:%Lf \n\n", nmeno1SquareRoot);
+                //fprintf(stderr, "RIS:%Lf \n\n", nmeno1SquareRoot);
 
-            ris = nmeno1SquareRoot;
+                ris = nmeno1SquareRoot;
+            }
         }
         else {
 
