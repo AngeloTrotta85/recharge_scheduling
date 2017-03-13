@@ -111,6 +111,18 @@ void UDPRechargeGameTheory::initialize(int stage)
         else if (constPType.compare("NEW6") == 0) {
             constant_P_type = NEW6;
         }
+        else if (constPType.compare("NEW7") == 0) {
+            constant_P_type = NEW7;
+        }
+        else if (constPType.compare("NEW8") == 0) {
+            constant_P_type = NEW8;
+        }
+        else if (constPType.compare("NEW9") == 0) {
+            constant_P_type = NEW9;
+        }
+        else if (constPType.compare("NEW10") == 0) {
+            constant_P_type = NEW10;
+        }
         else {
             fprintf(stderr, "varPConstantType: %s\n", constPType.c_str());fflush(stderr);
             error("Wrong \"varPConstantType\" parameter");
@@ -1193,6 +1205,19 @@ double UDPRechargeGameTheory::calculateUPplusZero(double energyToUse) {
     double t = getTheta();
     //double g = getGamma();
     //double myE = sb->getBatteryLevelAbs();
+    int numberofN = numberNodesInSimulation;
+
+    if (gameTheoryKnowledgeType == LOCAL_KNOWLEDGE) {
+        if ((sb->isCharging()) && (rechargeIsolation)){
+            numberofN = neighBackupWhenRecharging.size() + 1;
+        }
+        else {
+            numberofN = filter_neigh.size() + 1;
+        }
+    }
+    else if (gameTheoryKnowledgeType == PERSONAL_KNOWLEDGE) {
+        numberofN = 1;
+    }
 
     double e = 1;
     if ((eMAX - eMIN) != 0) {
@@ -1222,10 +1247,22 @@ double UDPRechargeGameTheory::calculateUPplusZero(double energyToUse) {
         case NEW6:
             valUPplusZero = ( -(numberNodesInSimulation) * pow(r, exponential_dischargeProb_decay));
             break;
+        case NEW7:
+            valUPplusZero = ( -((double) numberNodesInSimulation) * pow(r, exponential_dischargeProb_decay));
+            break;
+        case NEW8:
+            valUPplusZero = ( -((double) numberofN) * pow(r, exponential_dischargeProb_decay));
+            break;
+        case NEW9:
+            valUPplusZero = ( -((double) numberNodesInSimulation) * pow(r, exponential_dischargeProb_decay));
+            break;
+        case NEW10:
+            valUPplusZero = ( -((double) numberofN) * pow(r, exponential_dischargeProb_decay));
+            break;
         }
     }
     else {
-        valUPplusZero = ( -(numberNodesInSimulation) * pow(r, exponential_dischargeProb_decay));;
+        valUPplusZero = ( -((double) numberNodesInSimulation) * pow(r, exponential_dischargeProb_decay));;
     }
 
     return valUPplusZero;
@@ -1281,6 +1318,18 @@ double UDPRechargeGameTheory::calculateUPplusMore(double energyToUse) {
         case NEW6:
             valUPplusMore = 1.0 + (numberNodesInSimulation * pow(1.0 - r, 2.0));
             break;
+        case NEW7:
+            valUPplusMore = 1.0;
+            break;
+        case NEW8:
+            valUPplusMore = 1.0 + pow(1.0 - r, 2.0);
+            break;
+        case NEW9:
+            valUPplusMore = 1.0;
+            break;
+        case NEW10:
+            valUPplusMore = 1.0 + pow(1.0 - r, 2.0);
+            break;
         }
     }
     else {
@@ -1334,6 +1383,10 @@ double UDPRechargeGameTheory::calculateUPminusZero(double energyToUse) {
         case NEW4:
         case NEW5:
         case NEW6:
+        case NEW7:
+        case NEW8:
+        case NEW9:
+        case NEW10:
             //valUPminusZero = pow(1.0 - r, 2) * b;
             //valUPminusZero = 1.0 + pow(1.0 - r, 2);
             valUPminusZero = 0;
@@ -1391,6 +1444,10 @@ double UDPRechargeGameTheory::calculateUPminusMore(double energyToUse) {
         case NEW4:
         case NEW5:
         case NEW6:
+        case NEW7:
+        case NEW8:
+        case NEW9:
+        case NEW10:
             //valUPminusMore = (-a * pow(1.0 - r, 2)) - a;
             //valUPminusMore = pow(1.0 - r, 2);
             valUPminusMore = 0;

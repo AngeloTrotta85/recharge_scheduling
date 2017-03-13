@@ -52,7 +52,11 @@ public:
         NEW3,
         NEW4,
         NEW5,
-        NEW6
+        NEW6,
+        NEW7,
+        NEW8,
+        NEW9,
+        NEW10
     } VarPConstant_Type;
 
     typedef enum {
