@@ -35,6 +35,7 @@ void UDPRechargeGameTheory::initialize(int stage)
         exponential_dischargeProb_decay = par("exponential_dischargeProb_decay");
         temp_factorProbDischarge = par("temp_factorProbDischarge");
         useNewGameTheoryDischargeProb = par("useNewGameTheoryDischargeProb").boolValue();
+        useGlobalEstimationInLocal = par("useGlobalEstimationInLocal").boolValue();
         kappaMeno = par("kappaMeno");
         kappaPiu = par("kappaPiu");
 
@@ -325,6 +326,15 @@ double UDPRechargeGameTheory::calculateRechargeProb(void){
 
                         //fprintf(stderr, "ppp: %Lf (hostC: %lf) (unomenoCi: %lf)", ppp, hostC, unomenoCi);
                     }
+                    if (useGlobalEstimationInLocal) {
+                        int remaining = numberNodesInSimulation - filter_neigh.size();
+                        double eAVG = getEavg(false, gameTheoryKnowledgeType);
+                        for (int i = 0; i < remaining; i++) {
+                            double hostC = getGameTheoryCNew(eAVG);
+                            long double ppp = (1.0 - hostC) / unomenoCi;
+                            produttoria = produttoria * ppp;
+                        }
+                    }
                     //fprintf(stderr, "\n");fflush(stderr);
 
                     //fprintf(stderr, "Produttoria after neigh check: %Lf (unomenoCi: %lf)\n", produttoria, unomenoCi);fflush(stderr);
@@ -351,9 +361,14 @@ double UDPRechargeGameTheory::calculateRechargeProb(void){
                 }
                 else if (gameTheoryKnowledgeType == LOCAL_KNOWLEDGE){
                     if (filter_neigh.size() > 0) {
-                        //fprintf(stderr, "Produttoria alla fine: %Lf \n", produttoria);fflush(stderr);
-                        nmeno1SquareRoot = powl(produttoria, 1.0 / ((long double) filter_neigh.size()));
-                        //fprintf(stderr, "Risultato: %lf (neigh size: %d)\n\n", nmeno1SquareRoot, ((int)filter_neigh.size()));fflush(stderr);
+                        if (useGlobalEstimationInLocal) {
+                            nmeno1SquareRoot = powl(produttoria, 1.0 / (((long double) numberNodesInSimulation) - 1.0));
+                        }
+                        else {
+                            //fprintf(stderr, "Produttoria alla fine: %Lf \n", produttoria);fflush(stderr);
+                            nmeno1SquareRoot = powl(produttoria, 1.0 / ((long double) filter_neigh.size()));
+                            //fprintf(stderr, "Risultato: %lf (neigh size: %d)\n\n", nmeno1SquareRoot, ((int)filter_neigh.size()));fflush(stderr);
+                        }
                     }
                     else {
                         double c = (1.0 - getGameTheoryC()) / (calculateMyDischargeProb(gameTheoryKnowledgeType));
@@ -586,6 +601,15 @@ double UDPRechargeGameTheory::calculateMyDischargeProb(GameTheoryKnowledge_Type 
                         }*/
                             }
                             //fprintf(stderr, "\n");fflush(stderr);
+                            if (useGlobalEstimationInLocal) {
+                                int remaining = numberNodesInSimulation - neighBackupWhenRecharging.size();
+                                double eAVG = getEavg(false, gameTheoryKnowledgeType);
+                                for (int i = 0; i < remaining; i++) {
+                                    double hostC = getGameTheoryCNew(eAVG);
+                                    long double ppp = (1.0 - hostC) / probCi;
+                                    produttoria = produttoria * ppp;
+                                }
+                            }
                         }
                         else {  // DO LIKE PERSONAL_KNOWLEDGE
                             produttoria = powl(getGameTheoryC(energyToUse)/probCi, numberNodesInSimulation - 1.0);
@@ -600,6 +624,15 @@ double UDPRechargeGameTheory::calculateMyDischargeProb(GameTheoryKnowledge_Type 
                                 double hostC = act->gameTheoryC;
                                 long double ppp = (1.0 - hostC) / probCi;
                                 produttoria = produttoria * ppp;
+                            }
+                            if (useGlobalEstimationInLocal) {
+                                int remaining = numberNodesInSimulation - filter_neigh.size();
+                                double eAVG = getEavg(false, gameTheoryKnowledgeType);
+                                for (int i = 0; i < remaining; i++) {
+                                    double hostC = getGameTheoryCNew(eAVG);
+                                    long double ppp = (1.0 - hostC) / probCi;
+                                    produttoria = produttoria * ppp;
+                                }
                             }
                         }
                         else {// DO LIKE PERSONAL_KNOWLEDGE
@@ -624,7 +657,12 @@ double UDPRechargeGameTheory::calculateMyDischargeProb(GameTheoryKnowledge_Type 
                 else if (gtk == LOCAL_KNOWLEDGE){
                     if (sb->isCharging() && rechargeIsolation) {
                         if (neighBackupWhenRecharging.size() > 0) {
-                            nmeno1SquareRoot = powl(produttoria, 1.0 / ((long double) neighBackupWhenRecharging.size()));
+                            if (useGlobalEstimationInLocal) {
+                                nmeno1SquareRoot = powl(produttoria, 1.0 / (((long double) numberNodesInSimulation) - 1.0));
+                            }
+                            else {
+                                nmeno1SquareRoot = powl(produttoria, 1.0 / ((long double) neighBackupWhenRecharging.size()));
+                            }
                         }
                         else {  // DO LIKE PERSONAL_KNOWLEDGE
                             nmeno1SquareRoot = powl(produttoria, 1.0 / (((long double) numberNodesInSimulation) - 1.0));
@@ -632,7 +670,12 @@ double UDPRechargeGameTheory::calculateMyDischargeProb(GameTheoryKnowledge_Type 
                     }
                     else {
                         if (filter_neigh.size() > 0) {
-                            nmeno1SquareRoot = powl(produttoria, 1.0 / ((long double) filter_neigh.size()));
+                            if (useGlobalEstimationInLocal) {
+                                nmeno1SquareRoot = powl(produttoria, 1.0 / (((long double) numberNodesInSimulation) - 1.0));
+                            }
+                            else {
+                                nmeno1SquareRoot = powl(produttoria, 1.0 / ((long double) filter_neigh.size()));
+                            }
                         }
                         else {  // DO LIKE PERSONAL_KNOWLEDGE
                             nmeno1SquareRoot = powl(produttoria, 1.0 / (((long double) numberNodesInSimulation) - 1.0));

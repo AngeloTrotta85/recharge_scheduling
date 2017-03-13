@@ -141,6 +141,7 @@ private:
     bool useNewGameTheoryDischargeProb;
     double kappaMeno;
     double kappaPiu;
+    bool useGlobalEstimationInLocal;
 
     double bonus;
 
