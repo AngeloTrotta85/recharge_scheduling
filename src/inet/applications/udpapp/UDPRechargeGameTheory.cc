@@ -612,7 +612,7 @@ double UDPRechargeGameTheory::calculateMyDischargeProb(GameTheoryKnowledge_Type 
                             }
                         }
                         else {  // DO LIKE PERSONAL_KNOWLEDGE
-                            produttoria = powl(getGameTheoryC(energyToUse)/probCi, numberNodesInSimulation - 1.0);
+                            produttoria = powl((1.0 - getGameTheoryC(energyToUse))/probCi, numberNodesInSimulation - 1.0);
                         }
 
                     }
@@ -636,12 +636,12 @@ double UDPRechargeGameTheory::calculateMyDischargeProb(GameTheoryKnowledge_Type 
                             }
                         }
                         else {// DO LIKE PERSONAL_KNOWLEDGE
-                            produttoria = powl(getGameTheoryC(energyToUse)/probCi, numberNodesInSimulation - 1.0);
+                            produttoria = powl((1.0 - getGameTheoryC(energyToUse))/probCi, numberNodesInSimulation - 1.0);
                         }
                     }
                 }
                 else if (gtk == PERSONAL_KNOWLEDGE) {
-                    produttoria = powl(getGameTheoryC(energyToUse)/probCi, numberNodesInSimulation - 1.0);
+                    produttoria = powl((1.0 - getGameTheoryC(energyToUse))/probCi, numberNodesInSimulation - 1.0);
                 }
                 else {
                     error("Wrong knowledge scope");
@@ -1365,10 +1365,10 @@ double UDPRechargeGameTheory::calculateUPplusMore(double energyToUse) {
             valUPplusMore = 1.0;
             break;
         case NEW8:
-            valUPplusMore = 1.0 + pow(1.0 - r, 2.0);
+            valUPplusMore = 1.0;
             break;
         case NEW9:
-            valUPplusMore = 1.0;
+            valUPplusMore = 1.0 + pow(1.0 - r, 2.0);
             break;
         case NEW10:
             valUPplusMore = 1.0 + pow(1.0 - r, 2.0);
