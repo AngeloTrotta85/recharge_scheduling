@@ -12,13 +12,13 @@
   </inputs>
   <datasets>
     <datasets name="LIFETIME">
-      <items xsi:type="scave:Add" filterPattern="LIFETIME and attr:FH(50) AND attr:RT(20) "/>
+      <items xsi:type="scave:Add" filterPattern="LIFETIME and attr:FH(20) AND attr:RT(20) "/>
       <items xsi:type="scave:BarChart" name="LIFETIME">
         <barFields>experiment</barFields>
       </items>
     </datasets>
     <datasets name="Response">
-      <items xsi:type="scave:Add" filterPattern="ResponseVal AND attr:FH(50) " type="VECTOR"/>
+      <items xsi:type="scave:Add" filterPattern="ResponseVal AND attr:FH(20) " type="VECTOR"/>
       <items xsi:type="scave:LineChart" name="Response" lineNameFormat=""/>
       <items xsi:type="scave:Apply" operation="timewinavg">
         <params name="windowSize" value="30"/>
@@ -42,7 +42,7 @@
       <items xsi:type="scave:LineChart" name="rechargeLen" lineNameFormat=""/>
     </datasets>
     <datasets name="Discharge">
-      <items xsi:type="scave:Add" filterPattern="DischargeProbVal AND attr:FH(50) " type="VECTOR"/>
+      <items xsi:type="scave:Add" filterPattern="DischargeProbVal AND attr:FH(20) " type="VECTOR"/>
       <items xsi:type="scave:Apply" operation="timewinavg">
         <params name="windowSize" value="30"/>
       </items>

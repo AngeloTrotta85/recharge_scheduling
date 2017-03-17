@@ -36,6 +36,7 @@ void UDPRechargeGameTheory::initialize(int stage)
         temp_factorProbDischarge = par("temp_factorProbDischarge");
         useNewGameTheoryDischargeProb = par("useNewGameTheoryDischargeProb").boolValue();
         useGlobalEstimationInLocal = par("useGlobalEstimationInLocal").boolValue();
+        useEnergyAtRechargeInDicharging = par("useEnergyAtRechargeInDicharging").boolValue();
         kappaMeno = par("kappaMeno");
         kappaPiu = par("kappaPiu");
 
@@ -537,7 +538,13 @@ double UDPRechargeGameTheory::calculateTimePassedRatioFromEstimated(DischargePro
 }
 
 double UDPRechargeGameTheory::calculateMyDischargeProb(GameTheoryKnowledge_Type gtk){
-    return calculateMyDischargeProb(gtk, sb->getBatteryLevelAbs());
+    if ((sb->isCharging()) && (useEnergyAtRechargeInDicharging)){
+        return calculateMyDischargeProb(gtk, energyAtRecharge);
+    }
+    else {
+        return calculateMyDischargeProb(gtk, sb->getBatteryLevelAbs());
+    }
+    //return calculateMyDischargeProb(gtk, sb->getBatteryLevelAbs());
 }
 
 double UDPRechargeGameTheory::calculateMyDischargeProb(GameTheoryKnowledge_Type gtk, double energyToUse){
@@ -1326,7 +1333,6 @@ double UDPRechargeGameTheory::calculateUPplusMore(double energyToUse) {
     double t = getTheta();
     double g = getGamma();
     //double myE = sb->getBatteryLevelAbs();
-
     double e = 1;
     if ((eMAX - eMIN) != 0) {
         e = (eMAX - energyToUse) / (eMAX - eMIN);

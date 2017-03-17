@@ -142,6 +142,7 @@ private:
     double kappaMeno;
     double kappaPiu;
     bool useGlobalEstimationInLocal;
+    bool useEnergyAtRechargeInDicharging;
 
     double bonus;
 

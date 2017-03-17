@@ -32,6 +32,7 @@ simple UDPRechargeGameTheory extends UDPRechargeBasic
         double temp_factorProbDischarge = default(2.0);
         bool useNewGameTheoryDischargeProb = default(false);
         bool useGlobalEstimationInLocal = default(false);
+        bool useEnergyAtRechargeInDicharging = default(false);
         double kappaMeno = default(2);
         double kappaPiu = default(1);
         

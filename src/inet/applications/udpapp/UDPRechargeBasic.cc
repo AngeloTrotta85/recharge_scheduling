@@ -95,6 +95,7 @@ void UDPRechargeBasic::initialize(int stage)
         this->getParentModule()->getDisplayString().setTagArg("t", 0, myAddr.str().c_str());
 
         sb->setState(power::SimpleBattery::DISCHARGING);
+        energyAtRecharge = sb->getBatteryLevelAbs();
     }
 }
 
@@ -185,6 +186,8 @@ void UDPRechargeBasic::handleMessageWhenUp(cMessage *msg) {
 
             rechargeLostAccess = 0;
             startRecharge = simTime();
+
+            energyAtRecharge = sb->getBatteryLevelAbs();
 
             sb->setState(power::SimpleBattery::CHARGING);
 

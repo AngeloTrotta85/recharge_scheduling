@@ -114,6 +114,7 @@ protected:
     int numberNodesInSimulation;
     bool rechargeIsolation;
     bool saveNeighboursMsgs;
+    double energyAtRecharge;
 
     // messages
     cMessage *autoMsgRecharge = nullptr;
