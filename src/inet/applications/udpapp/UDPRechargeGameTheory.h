@@ -143,6 +143,8 @@ private:
     double kappaPiu;
     bool useGlobalEstimationInLocal;
     bool useEnergyAtRechargeInDicharging;
+    double personalConstantMultiplierC;
+    bool useReverseE;
 
     double bonus;
 

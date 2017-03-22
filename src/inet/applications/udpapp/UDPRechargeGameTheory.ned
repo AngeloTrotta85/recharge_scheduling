@@ -35,6 +35,8 @@ simple UDPRechargeGameTheory extends UDPRechargeBasic
         bool useEnergyAtRechargeInDicharging = default(false);
         double kappaMeno = default(2);
         double kappaPiu = default(1);
+        double personalConstantMultiplierC = default(1);
+        bool useReverseE = default(false);
         
         @display("i=block/app");
         @class(UDPRechargeGameTheory);

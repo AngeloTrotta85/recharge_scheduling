@@ -39,6 +39,7 @@ void UDPRechargeGameTheory::initialize(int stage)
         useEnergyAtRechargeInDicharging = par("useEnergyAtRechargeInDicharging").boolValue();
         kappaMeno = par("kappaMeno");
         kappaPiu = par("kappaPiu");
+        personalConstantMultiplierC = par("personalConstantMultiplierC");
 
         estimateDischargeProbVector.setName("EstimateDischargeProbVector");
         estimatedTimeInRechargingVector.setName("EstimatedTimeInRechargingVector");
@@ -558,6 +559,7 @@ double UDPRechargeGameTheory::calculateMyDischargeProb(GameTheoryKnowledge_Type 
                 long double nuav = numberNodesInSimulation;
                 long double den = powl(probCi, (nuav - 2.0) / (nuav - 1.0));
                 ris = (1.0 - myCi) / den;
+                //ris = ris * 2.0;
             }
             else {
                 long double nmeno1SquareRoot;
@@ -1064,6 +1066,9 @@ double UDPRechargeGameTheory::calculateUTplusFail(double energyToUse) {
     if ((eMAX - eMIN) != 0) {
         e = (eMAX - energyToUse) / (eMAX - eMIN);
     }
+    if (useReverseE){
+        e = 1.0 - e;
+    }
 
     if (variableC) {
         switch (constant_T_type) {
@@ -1087,7 +1092,28 @@ double UDPRechargeGameTheory::calculateUTplusFail(double energyToUse) {
             valUTplusFail = (-a-g-t) * 2.0;
         }
         else {
-            valUTplusFail = (-a-g-t);
+            /*if (personalConstantMultiplierC < 1) {
+                //e = (energyToUse >= sb->getInitialCapacity() ? 1 : energyToUse/sb->getInitialCapacity());;
+                //e = 1.0 - e;
+
+                //valUTplusFail = (-a-g-t) * (1.5 + (e * 0.5));
+                //valUTplusFail = (-a-g-t) * (kappaPiu + (e * linearIncreaseFactor));
+                //valUTplusFail = (-a-g-t) * (kappaPiu + e);
+
+                //valUTplusFail = (-a-g-t) * (personalConstantMultiplierC + (e * 0.5));
+                valUTplusFail = (-a-g-t) * personalConstantMultiplierC;
+            }
+            else {
+                valUTplusFail = (-a-g-t) * personalConstantMultiplierC;
+            }*/
+            e = (energyToUse >= sb->getInitialCapacity() ? 1 : energyToUse/sb->getInitialCapacity());
+            if (!useReverseE) {
+                e = 1.0 - e;
+            }
+
+            //valUTplusFail = (-a-g-t) * (1.0 + (e * 0.5));
+            //valUTplusFail = (-a-g-t) * (1.0 + (e*2.0));
+            valUTplusFail = (-a-g-t) * (kappaPiu + (e * linearIncreaseFactor));
         }
     }
 
@@ -1111,6 +1137,9 @@ double UDPRechargeGameTheory::calculateUTplusOk(double energyToUse) {
     //double e = 0;
     //if ((eMAX - eMIN) != 0) {
     //    e = (eMAX - energyToUse) / (eMAX - eMIN);
+    //}
+    //if (useReverseE){
+    //    e = 1.0 - e;
     //}
 
     if (variableC) {
@@ -1158,6 +1187,9 @@ double UDPRechargeGameTheory::calculateUTminusBusy(double energyToUse) {
     //if ((eMAX - eMIN) != 0) {
     //    e = (eMAX - energyToUse) / (eMAX - eMIN);
     //}
+    //if (useReverseE){
+    //    e = 1.0 - e;
+    //}
 
     if (variableC) {
         switch (constant_T_type) {
@@ -1204,6 +1236,9 @@ double UDPRechargeGameTheory::calculateUTminusFree(double energyToUse) {
     double e = 0;
     if ((eMAX - eMIN) != 0) {
         e = (eMAX - energyToUse) / (eMAX - eMIN);
+    }
+    if (useReverseE){
+        e = 1.0 - e;
     }
 
     if (variableC) {

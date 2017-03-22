@@ -1,16 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scave:Analysis xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:scave="http://www.omnetpp.org/omnetpp/scave">
   <inputs>
-    <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFullCentrNO*/*.sca"/>
-    <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFullCentrANA*/*.sca"/>
-    <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFullDistrGAMETHEORY/*.sca"/>
-    <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFullDistrGAMETHEORY/*.vec"/>
-    <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFullDistrSTIM*/*.vec"/>
-    <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFullDistrSTIM*/*.sca"/>
-    <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFullDistrPROB*/*.vec"/>
-    <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFullDistrPROB*/*.sca"/>
     <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFullDistrGAMETHEORY_PERSONAL/*.vec"/>
     <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFullDistrGAMETHEORY_PERSONAL/*.sca"/>
+    <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFullCentrANA*/*.sca"/>
+    <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFullCentrNO*/*.sca"/>
+    <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFullDistrPROBABILISTIC/*PERSONAL*.sca"/>
   </inputs>
   <datasets>
     <datasets name="LIFETIME">
@@ -22,9 +17,6 @@
     <datasets name="Response">
       <items xsi:type="scave:Add" filterPattern="ResponseVal AND attr:FH(20) " type="VECTOR"/>
       <items xsi:type="scave:LineChart" name="Response" lineNameFormat=""/>
-      <items xsi:type="scave:Apply" operation="timewinavg">
-        <params name="windowSize" value="30"/>
-      </items>
       <items xsi:type="scave:Apply" operation="aggregator">
         <params name="function" value="average"/>
         <groupBy>measurement</groupBy>
@@ -52,7 +44,9 @@
         <params name="function" value="average"/>
         <groupBy>measurement</groupBy>
       </items>
-      <items xsi:type="scave:LineChart" name="Discharge" lineNameFormat=""/>
+      <items xsi:type="scave:LineChart" name="Discharge" lineNameFormat="">
+        <properties name="Legend.Display" value="true"/>
+      </items>
     </datasets>
     <datasets name="HYPO-discharge">
       <items xsi:type="scave:Add" filterPattern="HypotheticalDischargeProbVector AND attr:FH(20) " type="VECTOR"/>
@@ -132,6 +126,6 @@
     </datasets>
   </datasets>
   <chartSheets>
-    <chartSheets name="default" charts="//@datasets/@datasets.0/@items.1 //@datasets/@datasets.1/@items.1 //@datasets/@datasets.2/@items.4 //@datasets/@datasets.2/@items.2 //@datasets/@datasets.1/@items.4 //@datasets/@datasets.3/@items.3 //@datasets/@datasets.4/@items.2 //@datasets/@datasets.5/@items.2 //@datasets/@datasets.6/@items.2 //@datasets/@datasets.7/@items.2 //@datasets/@datasets.8/@items.2 //@datasets/@datasets.9/@items.2 //@datasets/@datasets.10/@items.2 //@datasets/@datasets.11/@items.3 //@datasets/@datasets.12/@items.3 //@datasets/@datasets.11/@items.1"/>
+    <chartSheets name="default" charts="//@datasets/@datasets.0/@items.1 //@datasets/@datasets.1/@items.1 //@datasets/@datasets.2/@items.4 //@datasets/@datasets.2/@items.2 //@datasets/@datasets.1/@items.3 //@datasets/@datasets.3/@items.3 //@datasets/@datasets.4/@items.2 //@datasets/@datasets.5/@items.2 //@datasets/@datasets.6/@items.2 //@datasets/@datasets.7/@items.2 //@datasets/@datasets.8/@items.2 //@datasets/@datasets.9/@items.2 //@datasets/@datasets.10/@items.2 //@datasets/@datasets.11/@items.3 //@datasets/@datasets.12/@items.3 //@datasets/@datasets.11/@items.1"/>
   </chartSheets>
 </scave:Analysis>

@@ -88,6 +88,10 @@ public:
         return (dischargingFactor * time);
     }
 
+    double getInitialCapacity() const {
+        return initialCapacity;
+    }
+
     double getSwapLoose(void);
 
     double getFullCapacity() const {
