@@ -9,8 +9,6 @@
     <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFullDistrSTIM*/*.sca"/>
     <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFullDistrPROB*/*.vec"/>
     <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFullDistrPROB*/*.sca"/>
-    <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFullDistrGAMETHEORY_PERSONAL/*.vec"/>
-    <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFullDistrGAMETHEORY_PERSONAL/*.sca"/>
   </inputs>
   <datasets>
     <datasets name="LIFETIME">
@@ -111,7 +109,7 @@
       <items xsi:type="scave:LineChart" name="Attempts" lineNameFormat=""/>
     </datasets>
     <datasets name="Battery">
-      <items xsi:type="scave:Add" filterPattern="EnergyVal AND attr:FH(20) AND attr:KN(PERSONAL_KNOWLEDGE) AND run(TestFullDistrGAMETHEORY*)  " type="VECTOR"/>
+      <items xsi:type="scave:Add" filterPattern="EnergyVal AND attr:FH(20)" type="VECTOR"/>
       <items xsi:type="scave:LineChart" name="batteryFULL" lineNameFormat=""/>
       <items xsi:type="scave:Apply" operation="aggregator">
         <params name="function" value="average"/>
