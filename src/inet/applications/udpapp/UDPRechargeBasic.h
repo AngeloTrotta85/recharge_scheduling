@@ -136,6 +136,11 @@ protected:
     cOutVector degreeVector;
     cOutVector fulldegreeVector;
     cOutVector energyVector;
+    cOutVector energyVectorAllMean;
+    cOutVector energyVectorAllMin;
+    cOutVector energyVectorAllMax;
+    cOutVector energyVectorAllMaxMinDiff;
+    cOutVector energyVectorAllVar;
     cOutVector failedAttemptVector;
     cOutVector dischargeProbVector;
     cOutVector timeOfRechargeVector;

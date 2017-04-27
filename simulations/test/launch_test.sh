@@ -62,7 +62,8 @@ for cu in $CONFIGS_USER; do
 				
 				#echo "$COMM"
 				$COMM &>${FILE_PATH}
-				touch ${CHECK_PATH}
+				#touch ${CHECK_PATH}
+				mv ${FILE_PATH} ${CHECK_PATH}
 				
 				IDX=$((IDX+TOTAL_RUNS))				
 			done						

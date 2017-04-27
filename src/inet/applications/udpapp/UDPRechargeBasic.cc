@@ -73,6 +73,11 @@ void UDPRechargeBasic::initialize(int stage)
         degreeVector.setName("DegreeVal");
         fulldegreeVector.setName("FullDegreeVal");
         energyVector.setName("EnergyVal");
+        energyVectorAllMean.setName("EnergyVectorAllMean");
+        energyVectorAllMin.setName("EnergyVectorAllMin");
+        energyVectorAllMax.setName("EnergyVectorAllMax");
+        energyVectorAllMaxMinDiff.setName("energyVectorAllMaxMinDiff");
+        energyVectorAllVar.setName("EnergyVectorAllVar");
         failedAttemptVector.setName("FailedAttemptVal");
         dischargeProbVector.setName("DischargeProbVal");
         timeOfRechargeVector.setName("TimeOfRechargeVector");
@@ -541,11 +546,17 @@ void UDPRechargeBasic::make5secStats(void) {
     if (myAppAddr == 0) {
         int nnodesActive = 0;
         int nnodesRecharging = 0;
+        double sumEnergy = 0.0;
+        double maxEnergy = 0.0;
+        double minEnergy = 10000000000.0;
+        double sumVar = 0.0;
+        double meanEnergy, varEnergy;
 
         int numberNodes = this->getParentModule()->getVectorSize();
 
         for (int i = 0; i < numberNodes; i++) {
             power::SimpleBattery *battN = check_and_cast<power::SimpleBattery *>(this->getParentModule()->getParentModule()->getSubmodule("host", i)->getSubmodule("battery"));
+            double actE = battN->getBatteryLevelAbs();
 
             if (battN->isCharging()) {
                 nnodesRecharging++;
@@ -553,7 +564,24 @@ void UDPRechargeBasic::make5secStats(void) {
             else {
                 nnodesActive++;
             }
+
+            sumEnergy += actE;
+            if (maxEnergy < actE) maxEnergy = actE;
+            if (minEnergy > actE) minEnergy = actE;
         }
+        meanEnergy = sumEnergy / ((double)numberNodes);
+        energyVectorAllMean.record(meanEnergy);
+        energyVectorAllMin.record(minEnergy);
+        energyVectorAllMax.record(maxEnergy);
+        energyVectorAllMaxMinDiff.record(maxEnergy-minEnergy);
+
+        for (int i = 0; i < numberNodes; i++) {
+            power::SimpleBattery *battN = check_and_cast<power::SimpleBattery *>(this->getParentModule()->getParentModule()->getSubmodule("host", i)->getSubmodule("battery"));
+            double actE = battN->getBatteryLevelAbs();
+            sumVar += pow(actE - meanEnergy, 2.0);
+        }
+        varEnergy = sumVar / (((double) numberNodes) - 1.0);
+        energyVectorAllVar.record(varEnergy);
 
         activeNodesVector.record(nnodesActive);
         rechargingNodesVector.record(nnodesRecharging);

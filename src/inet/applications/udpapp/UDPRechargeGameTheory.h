@@ -41,6 +41,7 @@ public:
         LINEARINCREASE,
         LINEARINCREASE2,
         LINEARINCREASE3,
+        LINEARINCREASE4,
         LINEARINCREASECONSISTENT
     } VarTConstant_Type;
 
@@ -145,6 +146,7 @@ private:
     bool useEnergyAtRechargeInDicharging;
     double personalConstantMultiplierC;
     bool useReverseE;
+    double uTplusMultFactor;
 
     double bonus;
 

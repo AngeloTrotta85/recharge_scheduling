@@ -22,7 +22,7 @@ simple UDPRechargeGameTheory extends UDPRechargeBasic
         //bool variableC = default(true);
         //bool variableP = default(true);
         string gameTheoryKnowledgeType @enum("LOCAL_KNOWLEDGE", "GLOBAL_KNOWLEDGE", "PERSONAL_KNOWLEDGE") = default("GLOBAL_KNOWLEDGE");
-        string varConstantType @enum("LINEARINCREASE", "LINEARINCREASE2", "LINEARINCREASECONSISTENT") = default("LINEARINCREASE");
+        string varConstantType @enum("LINEARINCREASE", "LINEARINCREASE2", "LINEARINCREASE3", "LINEARINCREASE4", "LINEARINCREASECONSISTENT") = default("LINEARINCREASE");
         string varPConstantType @enum("LINEAR_P", "LINEAR_T", "NEW1", "NEW2", "NEW3", "NEW4", "NEW5", "NEW6", "NEW7", "NEW8", "NEW9", "NEW10") = default("LINEAR_P");
         string dischargeProbEnergyToUse @enum("ENERGYMIN", "ENERGYMAX", "ENERGYAVG") = default("ENERGYMIN");
         string dischargeEstimationType @enum("ONE_OVER", "QUADRATIC_EST") = default("ONE_OVER");
@@ -37,6 +37,7 @@ simple UDPRechargeGameTheory extends UDPRechargeBasic
         double kappaPiu = default(1);
         double personalConstantMultiplierC = default(1);
         bool useReverseE = default(false);
+        double uTplusMultFactor = default(1);
         
         @display("i=block/app");
         @class(UDPRechargeGameTheory);
