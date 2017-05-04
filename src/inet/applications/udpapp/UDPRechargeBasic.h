@@ -83,6 +83,8 @@ protected:
   virtual void make1secStats(void);
   virtual void make5secStats(void);
 
+  virtual double getFullCoverage(void);
+
 public:
 
     UDPRechargeBasic() {}
@@ -115,6 +117,11 @@ protected:
     bool rechargeIsolation;
     bool saveNeighboursMsgs;
     double energyAtRecharge;
+    bool makeCoverageLog;
+
+    double sumCoverageTot;
+    double sumCoverageRatioTot;
+    double countCoverage;
 
     // messages
     cMessage *autoMsgRecharge = nullptr;
@@ -144,6 +151,8 @@ protected:
     cOutVector failedAttemptVector;
     cOutVector dischargeProbVector;
     cOutVector timeOfRechargeVector;
+    cOutVector totalCoverageVector;
+    cOutVector totalCoverageRatioVector;
 
     cOutVector hypotheticalDischargeProbVector;
     cOutVector hypotheticalResponseVector;

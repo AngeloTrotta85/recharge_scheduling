@@ -55,6 +55,7 @@ void UDPRechargeBasic::initialize(int stage)
         chargingStationNumber = par("chargingStationNumber");
         activateVirtualForceMovements = par("activateVirtualForceMovements").boolValue();
         rechargeIsolation = par("rechargeIsolation").boolValue();
+        makeCoverageLog = par("makeCoverageLog").boolValue();
 
         double rx = (mob->getConstraintAreaMax().x - mob->getConstraintAreaMin().x) / 2.0;
         double ry = (mob->getConstraintAreaMax().y - mob->getConstraintAreaMin().y) / 2.0;
@@ -66,6 +67,7 @@ void UDPRechargeBasic::initialize(int stage)
         startRecharge = simTime();
         lastSawInRecharge = simTime();
         saveNeighboursMsgs = true;
+        sumCoverageTot = sumCoverageRatioTot = countCoverage = 0.0;
 
         activeNodesVector.setName("activeNodes");
         rechargingNodesVector.setName("rechargingNodes");
@@ -83,6 +85,8 @@ void UDPRechargeBasic::initialize(int stage)
         timeOfRechargeVector.setName("TimeOfRechargeVector");
         hypotheticalDischargeProbVector.setName("HypotheticalDischargeProbVector");
         hypotheticalResponseVector.setName("HypotheticalResponseVector");
+        totalCoverageVector.setName("totalCoverageVector");;
+        totalCoverageRatioVector.setName("totalCoverageRatioVector");
 
         goToCharge = new cMessage("goToCharge");
 
@@ -134,6 +138,11 @@ void UDPRechargeBasic::finish(void) {
         recordScalar("FINALENERGYVAR", varEnergy);
         recordScalar("FINALENERGYMAX", maxEnergy);
         recordScalar("LIFETIME", simTime());
+
+        if (countCoverage > 0) {
+            recordScalar("COVERAGE_AVERAGE", sumCoverageTot / countCoverage);
+            recordScalar("COVERAGE_RATIO_AVERAGE", sumCoverageRatioTot / countCoverage);
+        }
     }
 
     recordScalar("FINAL_BATTERY", sb->getBatteryLevelAbs());
@@ -585,6 +594,18 @@ void UDPRechargeBasic::make5secStats(void) {
 
         activeNodesVector.record(nnodesActive);
         rechargingNodesVector.record(nnodesRecharging);
+
+        if (makeCoverageLog){
+            double m2covered = getFullCoverage();
+            double fullArea = mob->getConstraintAreaMax().x * mob->getConstraintAreaMax().y;
+            double fullAreaRatio = m2covered/fullArea;
+            totalCoverageVector.record(m2covered);
+            totalCoverageRatioVector.record(fullAreaRatio);
+
+            sumCoverageTot += m2covered;
+            sumCoverageRatioTot += fullAreaRatio;
+            countCoverage += 1.0;
+        }
     }
 
 
@@ -607,4 +628,65 @@ void UDPRechargeBasic::make5secStats(void) {
 void UDPRechargeBasic::make1secStats(void) {
 }
 
+double UDPRechargeBasic::getFullCoverage(void) {
+
+    // create the groups
+    int activeNodes = 0;
+    double actArea = 0.0;
+    std::vector< std::vector<int> > matrixVal;
+
+    //Grow rows by matrixsideSize
+    matrixVal.resize(mob->getConstraintAreaMax().x);
+    for(int i = 0 ; i < (int)matrixVal.size() ; ++i) {
+        //Grow Columns by matrixsideSize
+        matrixVal[i].resize(mob->getConstraintAreaMax().y);
+        for(int j = 0 ; j < (int)matrixVal[i].size() ; ++j) {      //modify matrix
+            matrixVal[i][j] = false;
+        }
+    }
+
+    for (int i = 0; i < numberNodesInSimulation; i++) {
+        VirtualSpringMobility *mobN = check_and_cast<VirtualSpringMobility *>(this->getParentModule()->getParentModule()->getSubmodule("host", i)->getSubmodule("mobility"));
+        power::SimpleBattery *battN = check_and_cast<power::SimpleBattery *>(this->getParentModule()->getParentModule()->getSubmodule("host", i)->getSubmodule("battery"));
+
+        if (!(battN->isCharging())) {
+            activeNodes++;
+            for(int i = 0 ; i < (int)matrixVal.size() ; ++i) {
+                for(int j = 0 ; j < (int)matrixVal[i].size() ; ++j) {      //modify matrix
+                    Coord point = Coord(i,j);
+                    if(point.distance(mobN->getCurrentPosition()) <= sensorRadious) {
+                        if (matrixVal[i][j] == 0) {
+                            actArea += 1.0;
+                        }
+                        matrixVal[i][j]++;
+                    }
+                }
+            }
+        }
+    }
+    //printMatrix(matrixVal);
+
+    //double actArea = 0.0;
+    //for(int i = 0 ; i < (int)matrixVal.size() ; ++i) {
+    //    for(int j = 0 ; j < (int)matrixVal[i].size() ; ++j) {      //modify matrix
+    //        if (matrixVal[i][j] == true) {
+    //            actArea += 1.0;
+    //        }
+    //    }
+    //}
+    //double maxArea = ((double) numberNodesInSimulation) * ((sensorRadious*sensorRadious) * (3.0 / 2.0) * sqrt(3.0));
+    //double maxArea = ((double) numberNodesInSimulation) * ((sensorRadious*sensorRadious) * 2.598076211);
+    //double maxArea = ((double) (numberNodesInSimulation - chargingStationNumber)) * ((sensorRadious*sensorRadious) * 2.598076211);
+    //double maxArea = ((double) (activeNodes)) * ((sensorRadious*sensorRadious) * 2.598076211);
+
+    //double ratio = actArea / maxArea;
+
+    //if (ratio > 1.0) ratio = 1.0;
+
+    //return ratio;
+    return actArea;
+}
+
 } /* namespace inet */
+
+

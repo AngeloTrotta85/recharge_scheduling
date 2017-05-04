@@ -29,6 +29,7 @@ simple UDPRechargeBasic extends UDPBasicApp
         
         bool activateVirtualForceMovements = default(true);
         bool rechargeIsolation = default(true);
+        bool makeCoverageLog = default(false);
                 
         
         @display("i=block/app");

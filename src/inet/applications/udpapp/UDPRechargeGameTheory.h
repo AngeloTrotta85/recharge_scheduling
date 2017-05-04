@@ -42,6 +42,7 @@ public:
         LINEARINCREASE2,
         LINEARINCREASE3,
         LINEARINCREASE4,
+        LINEARINCREASE5,
         LINEARINCREASECONSISTENT
     } VarTConstant_Type;
 
@@ -57,7 +58,9 @@ public:
         NEW7,
         NEW8,
         NEW9,
-        NEW10
+        NEW10,
+        NEW11,
+        NEW12
     } VarPConstant_Type;
 
     typedef enum {
@@ -81,6 +84,7 @@ protected:
     //virtual double estimateDischargeProb(void);
     virtual double estimateDischargeProb_LOCAL(void);
     virtual double calculateEstimatedTimeInRecharging(DischargeProbEnergyToUse_Type etu);
+    virtual double calculateTimePassedRatioFromEstimatedNOBOUND(DischargeProbEnergyToUse_Type etu);
     virtual double calculateTimePassedRatioFromEstimated(DischargeProbEnergyToUse_Type etu);
     virtual double calculateTimePassedRatioFromEstimatedNoLimit(void);
 
@@ -147,7 +151,8 @@ private:
     double personalConstantMultiplierC;
     bool useReverseE;
     double uTplusMultFactor;
-
+    double coverageUtilityFactor;
+    bool useUnoPRprob;
     double bonus;
 
     DischargeProbEnergyToUse_Type dischargeProbEnergyToUse;
@@ -158,6 +163,9 @@ private:
 
     cOutVector estimateDischargeProbVector;
     cOutVector estimatedTimeInRechargingVector;
+
+    cOutVector prFactor;
+    cOutVector prValueFactor;
 };
 
 } /* namespace inet */
