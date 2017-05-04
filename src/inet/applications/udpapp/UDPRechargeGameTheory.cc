@@ -1177,8 +1177,8 @@ double UDPRechargeGameTheory::calculateUTplusFail(double energyToUse) {
             valUTplusFail = (-a-g-t) * 2.0;
         }
         else if (constant_T_type == LINEARINCREASE4){
-            //e = (energyToUse >= sb->getInitialCapacity() ? 1 : energyToUse/sb->getInitialCapacity());
-            //if (!useReverseE) {
+            //e = (energyToUse >= sb->getInitialCapacity() ? 1 : (sb->getInitialCapacity() - energyToUse)/sb->getInitialCapacity());
+            //if (useReverseE) {
             //    e = 1.0 - e;
             //}
 
@@ -1188,8 +1188,8 @@ double UDPRechargeGameTheory::calculateUTplusFail(double energyToUse) {
             valUTplusFail = (-a-g-t)-(a*coverageUtilityFactor);
         }
         else if (constant_T_type == LINEARINCREASE5){
-            e = (energyToUse >= sb->getInitialCapacity() ? 1 : energyToUse/sb->getInitialCapacity());
-            if (!useReverseE) {
+            e = (energyToUse >= sb->getInitialCapacity() ? 1 : (sb->getInitialCapacity() - energyToUse)/sb->getInitialCapacity());
+            if (useReverseE) {
                 e = 1.0 - e;
             }
             //valUTplusFail = (-a-g-t)-(a*coverageUtilityFactor);
@@ -1210,8 +1210,8 @@ double UDPRechargeGameTheory::calculateUTplusFail(double energyToUse) {
             else {
                 valUTplusFail = (-a-g-t) * personalConstantMultiplierC;
             }*/
-            e = (energyToUse >= sb->getInitialCapacity() ? 1 : energyToUse/sb->getInitialCapacity());
-            if (!useReverseE) {
+            e = (energyToUse >= sb->getInitialCapacity() ? 1 : (sb->getInitialCapacity() - energyToUse)/sb->getInitialCapacity());
+            if (useReverseE) {
                 e = 1.0 - e;
             }
 
@@ -1347,8 +1347,8 @@ double UDPRechargeGameTheory::calculateUTminusBusy(double energyToUse) {
             valUTminusBusy = 0;
         }
         else if (constant_T_type == LINEARINCREASE4){
-            //double e = (energyToUse >= sb->getInitialCapacity() ? 1 : energyToUse/sb->getInitialCapacity());
-            //if (!useReverseE) {
+            //e = (energyToUse >= sb->getInitialCapacity() ? 1 : (sb->getInitialCapacity() - energyToUse)/sb->getInitialCapacity());
+            //if (useReverseE) {
             //    e = 1.0 - e;
             //}
 
@@ -1359,8 +1359,8 @@ double UDPRechargeGameTheory::calculateUTminusBusy(double energyToUse) {
             valUTminusBusy = -a + (a*coverageUtilityFactor);
         }
         else {
-            //double e = (energyToUse >= sb->getInitialCapacity() ? 1 : energyToUse/sb->getInitialCapacity());
-            //if (!useReverseE) {
+            //e = (energyToUse >= sb->getInitialCapacity() ? 1 : (sb->getInitialCapacity() - energyToUse)/sb->getInitialCapacity());
+            //if (useReverseE) {
             //    e = 1.0 - e;
             //}
 
@@ -1440,15 +1440,15 @@ double UDPRechargeGameTheory::calculateUTminusFree(double energyToUse) {
             valUTminusFree = -a + (a*coverageUtilityFactor);
         }
         else if (constant_T_type == LINEARINCREASE5){
-            e = (energyToUse >= sb->getInitialCapacity() ? 1 : energyToUse/sb->getInitialCapacity());
-            if (!useReverseE) {
+            e = (energyToUse >= sb->getInitialCapacity() ? 1 : (sb->getInitialCapacity() - energyToUse)/sb->getInitialCapacity());
+            if (useReverseE) {
                 e = 1.0 - e;
             }
             valUTminusFree = ((-a) * (1.0 + (e * linearIncreaseFactor))) + (a*coverageUtilityFactor);
         }
         else {
-            e = (energyToUse >= sb->getInitialCapacity() ? 1 : energyToUse/sb->getInitialCapacity());
-            if (!useReverseE) {
+            e = (energyToUse >= sb->getInitialCapacity() ? 1 : (sb->getInitialCapacity() - energyToUse)/sb->getInitialCapacity());
+            if (useReverseE) {
                 e = 1.0 - e;
             }
 
