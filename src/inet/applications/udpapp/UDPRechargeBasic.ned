@@ -30,6 +30,8 @@ simple UDPRechargeBasic extends UDPBasicApp
         bool activateVirtualForceMovements = default(true);
         bool rechargeIsolation = default(true);
         bool makeCoverageLog = default(false);
+        bool makeCoverageMap = default(false);
+        string coverageMapFilename = default("/dev/null");
                 
         
         @display("i=block/app");

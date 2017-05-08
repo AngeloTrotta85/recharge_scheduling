@@ -83,7 +83,7 @@ protected:
   virtual void make1secStats(void);
   virtual void make5secStats(void);
 
-  virtual double getFullCoverage(void);
+  virtual double getFullCoverage(bool makeMap);
 
 public:
 
@@ -96,6 +96,9 @@ public:
     virtual double calculateRechargeProb(void);
     virtual double calculateDischargeProb(void);
 
+    double getLooseRechargingChance() const {
+        return looseRechargingChance;
+    }
 
 protected:
     L3Address myAddr;
@@ -118,14 +121,20 @@ protected:
     bool saveNeighboursMsgs;
     double energyAtRecharge;
     bool makeCoverageLog;
+    bool makeCoverageMap;
+    int coverageMapIdx;
+    std::string coverageMapFilename;
 
     double sumCoverageTot;
     double sumCoverageRatioTot;
     double countCoverage;
 
+    double looseRechargingChance;
+
     // messages
     cMessage *autoMsgRecharge = nullptr;
     cMessage *goToCharge = nullptr;
+    cMessage *backAfterLoose = nullptr;
     cMessage *stat1sec = nullptr;
     cMessage *stat5sec = nullptr;
 

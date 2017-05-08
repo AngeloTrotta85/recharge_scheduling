@@ -217,6 +217,7 @@ void UDPRechargeGameTheory::handleMessageWhenUp(cMessage *msg) {
                 neighBackupWhenRecharging[it->first] = actBkp;
             }
 
+
             //fprintf(stderr, "NEIGH BACKUP made\n");
             //for (auto it = neighBackupWhenRecharging.begin(); it != neighBackupWhenRecharging.end(); it++) {
             //    nodeInfo_t actBkp = it->second;

@@ -36,6 +36,7 @@ UDPRechargeBasic::~UDPRechargeBasic() {
     cancelAndDelete(stat1sec);
     cancelAndDelete(stat5sec);
     cancelAndDelete(goToCharge);
+    cancelAndDelete(backAfterLoose);
 }
 
 void UDPRechargeBasic::initialize(int stage)
@@ -56,6 +57,8 @@ void UDPRechargeBasic::initialize(int stage)
         activateVirtualForceMovements = par("activateVirtualForceMovements").boolValue();
         rechargeIsolation = par("rechargeIsolation").boolValue();
         makeCoverageLog = par("makeCoverageLog").boolValue();
+        makeCoverageMap = par("makeCoverageMap").boolValue();
+        coverageMapFilename = par("coverageMapFilename").stdstringValue();
 
         double rx = (mob->getConstraintAreaMax().x - mob->getConstraintAreaMin().x) / 2.0;
         double ry = (mob->getConstraintAreaMax().y - mob->getConstraintAreaMin().y) / 2.0;
@@ -68,6 +71,9 @@ void UDPRechargeBasic::initialize(int stage)
         lastSawInRecharge = simTime();
         saveNeighboursMsgs = true;
         sumCoverageTot = sumCoverageRatioTot = countCoverage = 0.0;
+        coverageMapIdx = 0;
+
+        looseRechargingChance = false;
 
         activeNodesVector.setName("activeNodes");
         rechargingNodesVector.setName("rechargingNodes");
@@ -89,6 +95,7 @@ void UDPRechargeBasic::initialize(int stage)
         totalCoverageRatioVector.setName("totalCoverageRatioVector");
 
         goToCharge = new cMessage("goToCharge");
+        backAfterLoose = new cMessage("backAfterLoose");
 
         stat1sec = new cMessage("stat1secMsg");
         scheduleAt(simTime(), stat1sec);
@@ -154,41 +161,51 @@ void UDPRechargeBasic::finish(void) {
 
 void UDPRechargeBasic::handleMessageWhenUp(cMessage *msg) {
     if (msg == autoMsgRecharge) {
-        if (sb->getState() == power::SimpleBattery::CHARGING){
-            bool stopCharging = checkDischarge();
 
-            inRechargingTime += checkRechargeTimer;
+        if(!(goToCharge->isScheduled())) {
 
-            if (stopCharging) {
+            if (sb->getState() == power::SimpleBattery::CHARGING){
+                bool stopCharging = checkDischarge();
 
-                //stop the node
-                if (rechargeIsolation) {
-                    neigh.clear();
-                    filter_neigh.clear();
+                inRechargingTime += checkRechargeTimer;
+
+                if (stopCharging) {
+
+                    //stop the node
+                    if (rechargeIsolation) {
+                        neigh.clear();
+                        filter_neigh.clear();
+                    }
+                    //mob->clearVirtualSprings();
+                    mob->clearVirtualSpringsAndsetPosition(rebornPos);
+
+                    sb->setState(power::SimpleBattery::DISCHARGING);
+
+                    lastSawInRecharge = simTime();
+
+                    //STATS
+                    timeOfRechargeVector.record(simTime() - startRecharge);
+
+                    // reschedule now autoMsgRecharge to check now if return to recharge
+                    scheduleAt(simTime(), autoMsgRecharge);
+                    return;
                 }
-                //mob->clearVirtualSprings();
-                mob->clearVirtualSpringsAndsetPosition(rebornPos);
-
-                sb->setState(power::SimpleBattery::DISCHARGING);
-
-                lastSawInRecharge = simTime();
-
-                //STATS
-                timeOfRechargeVector.record(simTime() - startRecharge);
-
-                // reschedule now autoMsgRecharge to check now if return to recharge
-                scheduleAt(simTime(), autoMsgRecharge);
-                return;
             }
-        }
-        else if (sb->getState() == power::SimpleBattery::DISCHARGING){
-            bool toCharge = checkRecharge();
+            else if (sb->getState() == power::SimpleBattery::DISCHARGING){
+                bool toCharge = checkRecharge();
 
-            if (toCharge) {
-                double backoff = calculateSendBackoff();
+                if (toCharge) {
+                    double backoff = calculateSendBackoff();
 
-                sendRechargeMessage();
-                scheduleAt(simTime() + backoff, goToCharge);
+                    sendRechargeMessage();
+                    scheduleAt(simTime() + backoff, goToCharge);
+
+                    /*double distReborn = rebornPos.distance(mob->getCurrentPosition());
+                    double secs = distReborn / mob->par("maxspeed").doubleValue();
+
+                    sendRechargeMessage();
+                    scheduleAt(simTime() + secs, goToCharge);*/
+                }
             }
         }
 
@@ -205,6 +222,9 @@ void UDPRechargeBasic::handleMessageWhenUp(cMessage *msg) {
 
             sb->setState(power::SimpleBattery::CHARGING);
 
+            //mob->clearVirtualSprings();
+            mob->clearVirtualSpringsAndsetPosition(rebornPos);
+
         }
         else {
             rechargeLostAccess++;
@@ -213,6 +233,20 @@ void UDPRechargeBasic::handleMessageWhenUp(cMessage *msg) {
             lastSawInRecharge = simTime();
 
             sb->setDoubleSwapPenality();
+
+            double distReborn = rebornPos.distance(mob->getCurrentPosition());
+            double secs = distReborn / mob->par("maxspeed").doubleValue();
+
+            if (secs > (autoMsgRecharge->getArrivalTime() - simTime()).dbl()) {
+                secs = (autoMsgRecharge->getArrivalTime() - simTime()).dbl() - 0.001;
+            }
+
+            looseRechargingChance = true;
+            scheduleAt(simTime() + secs, backAfterLoose);
+            //backAfterLoose->isScheduled()
+
+            //mob->clearVirtualSprings();
+            mob->clearVirtualSpringsAndsetPosition(rebornPos);
         }
 
         //stop the node
@@ -221,8 +255,11 @@ void UDPRechargeBasic::handleMessageWhenUp(cMessage *msg) {
             filter_neigh.clear();
         }
         //mob->clearVirtualSprings();
-        mob->clearVirtualSpringsAndsetPosition(rebornPos);
+        //mob->clearVirtualSpringsAndsetPosition(rebornPos);
 
+    }
+    else if (msg == backAfterLoose) {
+        looseRechargingChance = false;
     }
     else if (msg == stat5sec) {
         make5secStats();
@@ -340,7 +377,7 @@ void UDPRechargeBasic::processPacket(cPacket *pk)
 
             getFilteredNeigh(filter_neigh);
 
-            if (sb->getState() == power::SimpleBattery::DISCHARGING) {
+            if ((sb->getState() == power::SimpleBattery::DISCHARGING) && (!looseRechargingChance)) {
                 updateVirtualForces();
             }
 
@@ -596,7 +633,7 @@ void UDPRechargeBasic::make5secStats(void) {
         rechargingNodesVector.record(nnodesRecharging);
 
         if (makeCoverageLog){
-            double m2covered = getFullCoverage();
+            double m2covered = getFullCoverage(makeCoverageMap);
             double fullArea = mob->getConstraintAreaMax().x * mob->getConstraintAreaMax().y;
             double fullAreaRatio = m2covered/fullArea;
             totalCoverageVector.record(m2covered);
@@ -628,7 +665,7 @@ void UDPRechargeBasic::make5secStats(void) {
 void UDPRechargeBasic::make1secStats(void) {
 }
 
-double UDPRechargeBasic::getFullCoverage(void) {
+double UDPRechargeBasic::getFullCoverage(bool makeMap) {
 
     // create the groups
     int activeNodes = 0;
@@ -641,15 +678,16 @@ double UDPRechargeBasic::getFullCoverage(void) {
         //Grow Columns by matrixsideSize
         matrixVal[i].resize(mob->getConstraintAreaMax().y);
         for(int j = 0 ; j < (int)matrixVal[i].size() ; ++j) {      //modify matrix
-            matrixVal[i][j] = false;
+            matrixVal[i][j] = 0;
         }
     }
 
     for (int i = 0; i < numberNodesInSimulation; i++) {
+        UDPRechargeBasic *rb = check_and_cast<UDPRechargeBasic *>(this->getParentModule()->getParentModule()->getSubmodule("host", i)->getSubmodule("udpApp",0));
         VirtualSpringMobility *mobN = check_and_cast<VirtualSpringMobility *>(this->getParentModule()->getParentModule()->getSubmodule("host", i)->getSubmodule("mobility"));
         power::SimpleBattery *battN = check_and_cast<power::SimpleBattery *>(this->getParentModule()->getParentModule()->getSubmodule("host", i)->getSubmodule("battery"));
 
-        if (!(battN->isCharging())) {
+        if ((!(battN->isCharging())) && (!(rb->getLooseRechargingChance()))) {
             activeNodes++;
             for(int i = 0 ; i < (int)matrixVal.size() ; ++i) {
                 for(int j = 0 ; j < (int)matrixVal[i].size() ; ++j) {      //modify matrix
@@ -662,6 +700,28 @@ double UDPRechargeBasic::getFullCoverage(void) {
                     }
                 }
             }
+        }
+    }
+
+    if (makeMap) {
+        FILE * fmap;
+        int n;
+        char buff[256];
+
+        snprintf(buff, sizeof(buff), "%s.cmap%03d.map", coverageMapFilename.c_str(), coverageMapIdx);
+        coverageMapIdx++;
+
+        fmap = fopen(buff, "w");
+        if (fmap) {
+            for(int i = 0 ; i < (int)matrixVal.size() ; ++i) {
+                for(int j = 0 ; j < (int)matrixVal[i].size() ; ++j) {
+                    n = snprintf(buff, sizeof(buff), "%d ", matrixVal[i][j]);
+                    fwrite(buff, sizeof(char), n, fmap);
+                }
+                n = snprintf(buff, sizeof(buff), "\n");
+                fwrite(buff, sizeof(char), n, fmap);
+            }
+            fclose (fmap);
         }
     }
     //printMatrix(matrixVal);
