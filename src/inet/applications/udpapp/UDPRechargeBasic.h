@@ -29,6 +29,8 @@
 #include "inet/mobility/single/VirtualSpringMobility.h"
 #include "inet/applications/base/ApplicationPacketRecharge_m.h"
 
+#define N_PERCENTAGE_COVERAGE 20
+
 namespace inet {
 
 class INET_API UDPRechargeBasic : public UDPBasicApp {
@@ -127,9 +129,17 @@ protected:
 
     double sumCoverageTot;
     double sumCoverageRatioTot;
+    double sumCoverageRatioMaxTot;
     double countCoverage;
 
     double looseRechargingChance;
+
+    double areaMaxToCoverage;
+    double flightHeight;
+    double sensorAngle;
+
+    bool firstCoveragePassPercent[N_PERCENTAGE_COVERAGE];
+    simtime_t endCoveragePassPercent[N_PERCENTAGE_COVERAGE];
 
     // messages
     cMessage *autoMsgRecharge = nullptr;
@@ -162,6 +172,7 @@ protected:
     cOutVector timeOfRechargeVector;
     cOutVector totalCoverageVector;
     cOutVector totalCoverageRatioVector;
+    cOutVector totalCoverageRatioMaxVector;
 
     cOutVector hypotheticalDischargeProbVector;
     cOutVector hypotheticalResponseVector;

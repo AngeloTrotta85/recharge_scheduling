@@ -59,6 +59,8 @@ void UDPRechargeBasic::initialize(int stage)
         makeCoverageLog = par("makeCoverageLog").boolValue();
         makeCoverageMap = par("makeCoverageMap").boolValue();
         coverageMapFilename = par("coverageMapFilename").stdstringValue();
+        flightHeight = par("flightHeight");
+        sensorAngle = par("sensorAngle");
 
         double rx = (mob->getConstraintAreaMax().x - mob->getConstraintAreaMin().x) / 2.0;
         double ry = (mob->getConstraintAreaMax().y - mob->getConstraintAreaMin().y) / 2.0;
@@ -70,7 +72,7 @@ void UDPRechargeBasic::initialize(int stage)
         startRecharge = simTime();
         lastSawInRecharge = simTime();
         saveNeighboursMsgs = true;
-        sumCoverageTot = sumCoverageRatioTot = countCoverage = 0.0;
+        sumCoverageTot = sumCoverageRatioTot = sumCoverageRatioMaxTot = countCoverage = 0.0;
         coverageMapIdx = 0;
 
         looseRechargingChance = false;
@@ -93,6 +95,13 @@ void UDPRechargeBasic::initialize(int stage)
         hypotheticalResponseVector.setName("HypotheticalResponseVector");
         totalCoverageVector.setName("totalCoverageVector");;
         totalCoverageRatioVector.setName("totalCoverageRatioVector");
+        totalCoverageRatioMaxVector.setName("totalCoverageRatioMaxVector");
+
+        for (int i = 0; i < N_PERCENTAGE_COVERAGE; i++) {
+            firstCoveragePassPercent[i] = false;
+            endCoveragePassPercent[i] = 0;
+        }
+
 
         goToCharge = new cMessage("goToCharge");
         backAfterLoose = new cMessage("backAfterLoose");
@@ -112,6 +121,13 @@ void UDPRechargeBasic::initialize(int stage)
 
         sb->setState(power::SimpleBattery::DISCHARGING);
         energyAtRecharge = sb->getBatteryLevelAbs();
+
+
+        //double maxArea = ((double) numberNodes) * ((sensorRadious*sensorRadious) * (3.0 / 2.0) * sqrt(3.0));
+        //double maxArea = ((double) numberNodes) * ((sensorRadious*sensorRadious) * 2.598076211);
+        //double maxArea = ((double) (numberNodes - chargingStationNumber)) * ((sensorRadious*sensorRadious) * 2.598076211);
+        sensorRadious = flightHeight * tan(sensorAngle/2.0);
+        areaMaxToCoverage = ((double) (numberNodesInSimulation - chargingStationNumber)) * ((sensorRadious*sensorRadious) * 2.598076211);
     }
 }
 
@@ -149,6 +165,30 @@ void UDPRechargeBasic::finish(void) {
         if (countCoverage > 0) {
             recordScalar("COVERAGE_AVERAGE", sumCoverageTot / countCoverage);
             recordScalar("COVERAGE_RATIO_AVERAGE", sumCoverageRatioTot / countCoverage);
+            recordScalar("COVERAGE_RATIO_MAX_AVERAGE", sumCoverageRatioMaxTot / countCoverage);
+
+            for (int i = 0; i < N_PERCENTAGE_COVERAGE; i++) {
+                double actPercentage = (((double) (i + 1.0)) / ((double) (N_PERCENTAGE_COVERAGE))) * 100.0;
+                double ris = 0;
+
+                char scalarName[64];
+                snprintf(scalarName, sizeof(scalarName), "LIFETIME_COVERAGE_%.0lf", actPercentage);
+
+
+                if (firstCoveragePassPercent[i] == false) {
+                    ris = 0;
+                }
+                else {
+                    if (endCoveragePassPercent[i] == 0) {
+                        ris = simTime().dbl();
+                    }
+                    else {
+                        ris = endCoveragePassPercent[i].dbl();
+                    }
+                }
+
+                recordScalar(scalarName, ris);
+            }
         }
     }
 
@@ -636,12 +676,28 @@ void UDPRechargeBasic::make5secStats(void) {
             double m2covered = getFullCoverage(makeCoverageMap);
             double fullArea = mob->getConstraintAreaMax().x * mob->getConstraintAreaMax().y;
             double fullAreaRatio = m2covered/fullArea;
+            double fullAreaMaxRatio = m2covered/areaMaxToCoverage;
+
+            if (fullAreaMaxRatio > 1) fullAreaMaxRatio = 1;
+
             totalCoverageVector.record(m2covered);
             totalCoverageRatioVector.record(fullAreaRatio);
+            totalCoverageRatioMaxVector.record(fullAreaMaxRatio);
 
             sumCoverageTot += m2covered;
             sumCoverageRatioTot += fullAreaRatio;
+            sumCoverageRatioMaxTot += fullAreaMaxRatio;
             countCoverage += 1.0;
+
+            for (int i = 0; i < N_PERCENTAGE_COVERAGE; i++) {
+                double actRatio = ((double) (i + 1.0)) / ((double) (N_PERCENTAGE_COVERAGE));
+                if ((fullAreaMaxRatio >= actRatio) && (!firstCoveragePassPercent[i])) {
+                    firstCoveragePassPercent[i] = true;
+                }
+                else if ((fullAreaMaxRatio < actRatio) && (firstCoveragePassPercent[i]) && (endCoveragePassPercent[i] == 0)) {
+                    endCoveragePassPercent[i] = simTime();
+                }
+            }
         }
     }
 

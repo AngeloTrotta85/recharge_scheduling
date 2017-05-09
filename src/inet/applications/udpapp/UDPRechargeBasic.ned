@@ -32,6 +32,9 @@ simple UDPRechargeBasic extends UDPBasicApp
         bool makeCoverageLog = default(false);
         bool makeCoverageMap = default(false);
         string coverageMapFilename = default("/dev/null");
+        
+    	double flightHeight @unit(m) = default(50m);
+    	double sensorAngle @unit(rad) = default(1.5708rad);  // PI/2
                 
         
         @display("i=block/app");
