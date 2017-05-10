@@ -152,8 +152,28 @@
       </items>
       <items xsi:type="scave:LineChart" name="CoverageSmooth" lineNameFormat=""/>
     </datasets>
+    <datasets name="kappa10">
+      <items xsi:type="scave:Add" filterPattern="LIFETIME_COVERAGE_10"/>
+      <items xsi:type="scave:BarChart" name="kappa10"/>
+    </datasets>
+    <datasets name="kappa20">
+      <items xsi:type="scave:Add" filterPattern="LIFETIME_COVERAGE_40"/>
+      <items xsi:type="scave:BarChart" name="kappa40"/>
+    </datasets>
+    <datasets name="kappax">
+      <items xsi:type="scave:Add" filterPattern="LIFETIME_COVERAGE_80"/>
+      <items xsi:type="scave:BarChart" name="kappax"/>
+    </datasets>
+    <datasets name="RatioWholeArea">
+      <items xsi:type="scave:Add" filterPattern="totalCoverageRatioVector" type="VECTOR"/>
+      <items xsi:type="scave:Apply" operation="aggregator">
+        <params name="function" value="average"/>
+        <groupBy>measurement</groupBy>
+      </items>
+      <items xsi:type="scave:LineChart" name="RatioWholeArea" lineNameFormat=""/>
+    </datasets>
   </datasets>
   <chartSheets>
-    <chartSheets name="default" charts="//@datasets/@datasets.0/@items.1 //@datasets/@datasets.1/@items.1 //@datasets/@datasets.2/@items.4 //@datasets/@datasets.2/@items.2 //@datasets/@datasets.1/@items.4 //@datasets/@datasets.3/@items.3 //@datasets/@datasets.4/@items.2 //@datasets/@datasets.5/@items.2 //@datasets/@datasets.6/@items.2 //@datasets/@datasets.7/@items.2 //@datasets/@datasets.8/@items.2 //@datasets/@datasets.9/@items.2 //@datasets/@datasets.10/@items.2 //@datasets/@datasets.11/@items.3 //@datasets/@datasets.12/@items.3 //@datasets/@datasets.11/@items.1 //@datasets/@datasets.13/@items.1 //@datasets/@datasets.14/@items.2 //@datasets/@datasets.15/@items.2 //@datasets/@datasets.15/@items.4"/>
+    <chartSheets name="default" charts="//@datasets/@datasets.0/@items.1 //@datasets/@datasets.1/@items.1 //@datasets/@datasets.2/@items.4 //@datasets/@datasets.2/@items.2 //@datasets/@datasets.1/@items.4 //@datasets/@datasets.3/@items.3 //@datasets/@datasets.4/@items.2 //@datasets/@datasets.5/@items.2 //@datasets/@datasets.6/@items.2 //@datasets/@datasets.7/@items.2 //@datasets/@datasets.8/@items.2 //@datasets/@datasets.9/@items.2 //@datasets/@datasets.10/@items.2 //@datasets/@datasets.11/@items.3 //@datasets/@datasets.12/@items.3 //@datasets/@datasets.11/@items.1 //@datasets/@datasets.13/@items.1 //@datasets/@datasets.14/@items.2 //@datasets/@datasets.15/@items.2 //@datasets/@datasets.15/@items.4 //@datasets/@datasets.16/@items.1 //@datasets/@datasets.17/@items.1 //@datasets/@datasets.18/@items.1 //@datasets/@datasets.19/@items.2"/>
   </chartSheets>
 </scave:Analysis>
