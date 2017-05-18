@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scave:Analysis xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:scave="http://www.omnetpp.org/omnetpp/scave">
   <inputs>
-    <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFullGammaDeltaCentrNO*/*.sca"/>
-    <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFullGammaDeltaCentrANA*/*.sca"/>
-    <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFullGammaDeltaDistrGAMETHEORY/*.sca"/>
-    <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFullGammaDeltaDistrGAMETHEORY/*.vec"/>
-    <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFullGammaDeltaDistrPROB*/*.vec"/>
-    <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFullGammaDeltaDistrPROB*/*.sca"/>
+    <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFullEinitCentrNO*/*.sca"/>
+    <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFullEinitCentrANA*/*.sca"/>
+    <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFullEinitDistrGAMETHEORY/*.sca"/>
+    <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFullEinitDistrGAMETHEORY/*.vec"/>
+    <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFullEinitDistrPROB*/*.vec"/>
+    <inputs name="/recharge_scheduling/simulations/test/results/Link_TestFullEinitDistrPROB*/*.sca"/>
   </inputs>
   <datasets>
     <datasets name="LIFETIME">
@@ -163,7 +163,7 @@
       <items xsi:type="scave:BarChart" name="kappax"/>
     </datasets>
     <datasets name="RatioWholeArea">
-      <items xsi:type="scave:Add" filterPattern="totalCoverageRatioMaxVector AND attr:SW(10) AND ((attr:PRS(1) ) OR NOT file(/recharge_scheduling/simulations/test/results/Link_TestFullGammaDeltaDistrPROBABILISTIC/*) )" type="VECTOR"/>
+      <items xsi:type="scave:Add" filterPattern="totalCoverageRatioMaxVector" type="VECTOR"/>
       <items xsi:type="scave:Apply" operation="aggregator">
         <params name="function" value="average"/>
         <groupBy>measurement</groupBy>
@@ -181,7 +181,7 @@
       <items xsi:type="scave:BarChart" name="meancoverage"/>
     </datasets>
     <datasets name="CCPANP lifetime">
-      <items xsi:type="scave:Add" filterPattern="LIFETIME_COVERAGE_* AND attr:KN(GLOBAL_KNOWLEDGE)  AND attr:SW(10) "/>
+      <items xsi:type="scave:Add" filterPattern="LIFETIME_COVERAGE_*"/>
       <items xsi:type="scave:BarChart" name="CCPANP lifetime"/>
     </datasets>
   </datasets>

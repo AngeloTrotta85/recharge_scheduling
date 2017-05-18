@@ -100,6 +100,9 @@ void UDPRechargeBasic::initialize(int stage)
         for (int i = 0; i < N_PERCENTAGE_COVERAGE; i++) {
             firstCoveragePassPercent[i] = false;
             endCoveragePassPercent[i] = 0;
+            endCoveragePassPercent2[i] = 0;
+            endCoveragePassPercent3[i] = 0;
+            numberCoveragePassPercent[i] = 0;
         }
 
 
@@ -168,26 +171,54 @@ void UDPRechargeBasic::finish(void) {
             recordScalar("COVERAGE_RATIO_MAX_AVERAGE", sumCoverageRatioMaxTot / countCoverage);
 
             for (int i = 0; i < N_PERCENTAGE_COVERAGE; i++) {
+                char scalarName[64];
                 double actPercentage = (((double) (i + 1.0)) / ((double) (N_PERCENTAGE_COVERAGE))) * 100.0;
                 double ris = 0;
 
-                char scalarName[64];
-                snprintf(scalarName, sizeof(scalarName), "LIFETIME_COVERAGE_%.0lf", actPercentage);
-
-
+                /******************** INSTANT FAILURE ********************************/
                 if (firstCoveragePassPercent[i] == false) {
                     ris = 0;
                 }
-                else {
-                    if (endCoveragePassPercent[i] == 0) {
-                        ris = simTime().dbl();
-                    }
-                    else {
-                        ris = endCoveragePassPercent[i].dbl();
-                    }
+                else if (endCoveragePassPercent[i] == 0) {
+                    ris = simTime().dbl();
                 }
-
+                else {
+                    ris = endCoveragePassPercent[i].dbl();
+                }
+                snprintf(scalarName, sizeof(scalarName), "LIFETIME_COVERAGE_%.0lf", actPercentage);
                 recordScalar(scalarName, ris);
+                snprintf(scalarName, sizeof(scalarName), "LIFETIME_COVERAGE_RATIOMAX_%.0lf", actPercentage);
+                recordScalar(scalarName, ris/areaMaxToCoverage);
+
+                /******************** 5 seconds FAILURE ********************************/
+                if (firstCoveragePassPercent[i] == false) {
+                    ris = 0;
+                }
+                else if (endCoveragePassPercent2[i] == 0) {
+                    ris = simTime().dbl();
+                }
+                else {
+                    ris = endCoveragePassPercent2[i].dbl();
+                }
+                snprintf(scalarName, sizeof(scalarName), "LIFETIME_COVERAGE_5_%.0lf", actPercentage);
+                recordScalar(scalarName, ris);
+                snprintf(scalarName, sizeof(scalarName), "LIFETIME_COVERAGE_5_RATIOMAX_%.0lf", actPercentage);
+                recordScalar(scalarName, ris/areaMaxToCoverage);
+
+                /******************** 10 seconds FAILURE ********************************/
+                if (firstCoveragePassPercent[i] == false) {
+                    ris = 0;
+                }
+                else if (endCoveragePassPercent3[i] == 0) {
+                    ris = simTime().dbl();
+                }
+                else {
+                    ris = endCoveragePassPercent3[i].dbl();
+                }
+                snprintf(scalarName, sizeof(scalarName), "LIFETIME_COVERAGE_10_%.0lf", actPercentage);
+                recordScalar(scalarName, ris);
+                snprintf(scalarName, sizeof(scalarName), "LIFETIME_COVERAGE_10_RATIOMAX_%.0lf", actPercentage);
+                recordScalar(scalarName, ris/areaMaxToCoverage);
             }
         }
     }
@@ -694,8 +725,24 @@ void UDPRechargeBasic::make5secStats(void) {
                 if ((fullAreaMaxRatio >= actRatio) && (!firstCoveragePassPercent[i])) {
                     firstCoveragePassPercent[i] = true;
                 }
-                else if ((fullAreaMaxRatio < actRatio) && (firstCoveragePassPercent[i]) && (endCoveragePassPercent[i] == 0)) {
-                    endCoveragePassPercent[i] = simTime();
+
+                if ((fullAreaMaxRatio < actRatio) && (firstCoveragePassPercent[i])) {
+                    numberCoveragePassPercent[i]++;
+
+                    if (endCoveragePassPercent[i] == 0) {
+                        endCoveragePassPercent[i] = simTime();
+                    }
+
+                    if ((numberCoveragePassPercent[i] > 1) && (endCoveragePassPercent2[i] == 0)) {
+                        endCoveragePassPercent2[i] = simTime();
+                    }
+                    if ((numberCoveragePassPercent[i] > 2) && (endCoveragePassPercent3[i] == 0)) {
+                        endCoveragePassPercent3[i] = simTime();
+                    }
+                }
+
+                if (fullAreaMaxRatio >= actRatio) {
+                    numberCoveragePassPercent[i] = 0;
                 }
             }
         }

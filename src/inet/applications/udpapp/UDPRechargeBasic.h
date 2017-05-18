@@ -139,7 +139,10 @@ protected:
     double sensorAngle;
 
     bool firstCoveragePassPercent[N_PERCENTAGE_COVERAGE];
+    int numberCoveragePassPercent[N_PERCENTAGE_COVERAGE];
     simtime_t endCoveragePassPercent[N_PERCENTAGE_COVERAGE];
+    simtime_t endCoveragePassPercent2[N_PERCENTAGE_COVERAGE];
+    simtime_t endCoveragePassPercent3[N_PERCENTAGE_COVERAGE];
 
     // messages
     cMessage *autoMsgRecharge = nullptr;
