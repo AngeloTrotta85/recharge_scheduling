@@ -45,7 +45,9 @@ protected:
 
     double getEmax(bool activeOnly, ProbabilisticKnowledge_Type scope);
     double getEmin(bool activeOnly, ProbabilisticKnowledge_Type scope);
+    double getEavg(bool activeOnly, ProbabilisticKnowledge_Type scope);
 
+    double calculateEstimatedTimeInRecharging(void);
 public:
     virtual ~UDPRechargeProbabilistic();
 
@@ -55,6 +57,7 @@ public:
 
 protected:
     bool useDischargeProbability;
+    bool useOptimalRechargeTime;
     int chargeSlots;
     ProbabilisticKnowledge_Type probKnowledgeType;
 

@@ -29,6 +29,7 @@ void UDPRechargeProbabilistic::initialize(int stage)
 
     if (stage == INITSTAGE_LOCAL) {
         useDischargeProbability = par("useDischargeProbability").boolValue();
+        useOptimalRechargeTime = par("useOptimalRechargeTime").boolValue();
         chargeSlots = par("chargeSlots");
 
         std::string probKnowledgeType_str = par("probKnowledgeType").stdstringValue();
@@ -95,12 +96,39 @@ double UDPRechargeProbabilistic::calculateRechargeProb(void){
 }
 
 double UDPRechargeProbabilistic::calculateDischargeProb(void){
-    if (useDischargeProbability) {
-        //return dischargeProbability;
-        return (1.0 / ((double) chargeSlots));
+    if (useOptimalRechargeTime) {
+        double ris = 0.0;
+        double timeInCharge;
+        double estimatedTimeInRecharging = calculateEstimatedTimeInRecharging();
+
+        if (sb->isCharging()) {
+            timeInCharge = (simTime() - startRecharge).dbl();
+        }
+        else {
+            timeInCharge = (simTime() - lastSawInRecharge).dbl();
+
+        }
+
+        estimatedTimeInRecharging = estimatedTimeInRecharging * checkRechargeTimer;
+
+        //fprintf(stderr, "timeInCharge: %lf and estimatedTimeInRecharging = %lf\n", timeInCharge, estimatedTimeInRecharging); fflush(stderr);
+
+        ris = timeInCharge / estimatedTimeInRecharging;
+
+        if (ris > 1) ris = 1;
+        if (ris < 0) ris = 0;
+
+
+        return ris;
     }
     else {
-        return calculateStaticDischargeProbability();
+        if (useDischargeProbability) {
+            //return dischargeProbability;
+            return (1.0 / ((double) chargeSlots));
+        }
+        else {
+            return calculateStaticDischargeProbability();
+        }
     }
 }
 
@@ -207,6 +235,65 @@ double UDPRechargeProbabilistic::getEmin(bool activeOnly, ProbabilisticKnowledge
     }
 
     return min;
+}
+
+double UDPRechargeProbabilistic::getEavg(bool activeOnly, ProbabilisticKnowledge_Type scope) {
+    int numberNodes = this->getParentModule()->getVectorSize();
+    double sum = 0;
+    double nn;
+    if (scope == GLOBAL_KNOWLEDGE) {
+        for (int j = 0; j < numberNodes; j++) {
+            power::SimpleBattery *hostjsb = check_and_cast<power::SimpleBattery *>(this->getParentModule()->getParentModule()->getSubmodule("host", j)->getSubmodule("battery"));
+
+            if (activeOnly && hostjsb->isCharging()) continue;
+
+            sum += hostjsb->getBatteryLevelAbs();
+        }
+        nn = numberNodes;
+    }
+    else if (scope == LOCAL_KNOWLEDGE){
+        sum = sb->getBatteryLevelAbs();
+        if ((sb->isCharging()) && (rechargeIsolation)){
+            for (auto it = neighBackupWhenRecharging.begin(); it != neighBackupWhenRecharging.end(); it++) {
+                nodeInfo_t *act = &(it->second);
+                sum += act->batteryLevelAbs;
+            }
+            nn = neighBackupWhenRecharging.size() + 1;
+        }
+        else {
+            for (auto it = filter_neigh.begin(); it != filter_neigh.end(); it++) {
+                nodeInfo_t *act = &(it->second);
+                sum += act->batteryLevelAbs;
+            }
+            nn = filter_neigh.size() + 1;
+        }
+    }
+    else if (scope == PERSONAL_KNOWLEDGE){
+        return sb->getBatteryLevelAbs();
+    }
+    else {
+        error("Wrong knowledge scope");
+    }
+
+    return (sum / nn);
+}
+
+double UDPRechargeProbabilistic::calculateEstimatedTimeInRecharging(void) {
+    double estimatedTimeInRecharging, energyToUse, timeCalcNum, timeCalcDen1, timeCalcDen2, gPLUSt;
+    int numberNodes = this->getParentModule()->getVectorSize();
+
+
+    energyToUse = getEavg(false, probKnowledgeType);
+
+    gPLUSt = sb->getSwapLoose() + sb->getSwapLoose();
+
+    timeCalcNum = energyToUse - gPLUSt;
+    timeCalcDen1 = sb->getDischargingFactor(checkRechargeTimer) * ((double)(numberNodes - 1.0));
+    timeCalcDen2 = ((double)(numberNodes - 1.0)) * gPLUSt;
+
+    estimatedTimeInRecharging = timeCalcNum / (timeCalcDen1 + timeCalcDen2);
+
+    return estimatedTimeInRecharging;
 }
 
 } /* namespace inet */

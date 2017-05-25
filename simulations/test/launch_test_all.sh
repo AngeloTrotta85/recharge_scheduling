@@ -24,13 +24,14 @@ do
         #./launch_test.sh ${i} ${NPARALLEL} "TestFullDistrGAMETHEORY" /media/angelo/BigLinux/Documents/OmnetSimulations/recharge_scheduler/TestFullLog_GT &
         #./launch_test.sh ${i} ${NPARALLEL} "TestFullDistrPROBABILISTIC" /media/angelo/BigLinux/Documents/OmnetSimulations/recharge_scheduler/TestFullLog_PROB &
         #./launch_test.sh ${i} ${NPARALLEL} "TestOnlyGT" /media/angelo/BigLinux/Documents/OmnetSimulations/recharge_scheduler/TestLog &
+        #./launch_test.sh ${i} ${NPARALLEL} "TestFullDistrPROBABILISTICoptim" /media/angelo/BigLinux/Documents/OmnetSimulations/recharge_scheduler/TestLogTmp &
 
 	#./launch_test.sh ${i} ${NPARALLEL} "TestFullDistrGAMETHEORY_PERSONAL" /media/angelo/BigLinux/Documents/OmnetSimulations/recharge_scheduler/TestLogGT_PROB &
 	#./launch_test.sh ${i} ${NPARALLEL} "TestFullDistrGAMETHEORY_GLOBAL" /media/angelo/BigLinux/Documents/OmnetSimulations/recharge_scheduler/TestLogGT_GLOBAL &
 	
 	#./launch_test.sh ${i} ${NPARALLEL} "TestFullGammaDeltaCentrANALYTICAL TestFullGammaDeltaCentrNORECHARGE TestFullGammaDeltaDistrGAMETHEORY TestFullGammaDeltaDistrPROBABILISTIC" /media/angelo/BigLinux/Documents/OmnetSimulations/recharge_scheduler/TestFullGammaDeltaLog &	
 	
-	./launch_test.sh ${i} ${NPARALLEL} "TestFullEinitCentrANALYTICAL TestFullEinitCentrNORECHARGE TestFullEinitDistrGAMETHEORY TestFullEinitDistrPROBABILISTIC" /media/angelo/BigLinux/Documents/OmnetSimulations/recharge_scheduler/TestFullEinitLog &
+	./launch_test.sh ${i} ${NPARALLEL} "TestFullEinitCentrANALYTICAL TestFullEinitCentrNORECHARGE TestFullEinitDistrGAMETHEORY TestFullEinitDistrPROBABILISTIC TestFullHCentrANALYTICAL TestFullHCentrNORECHARGE TestFullHDistrGAMETHEORY TestFullHDistrPROBABILISTIC" /media/angelo/BigLinux/Documents/OmnetSimulations/recharge_scheduler/TestFullEinitLog &
 
 	#sleep 1
 done
