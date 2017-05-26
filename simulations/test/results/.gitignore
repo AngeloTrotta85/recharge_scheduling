@@ -5,3 +5,7 @@
 /TestBaseGAMETHEORY/
 /Link_*
 /TestInternalGAMETHEORY/
+/TestFullGammaDeltaCentrANALYTICAL_SERV/
+/TestFullGammaDeltaCentrNORECHARGE_SERV/
+/TestFullGammaDeltaDistrGAMETHEORY_SERV/
+/TestFullGammaDeltaDistrPROBABILISTIC_SERV/
