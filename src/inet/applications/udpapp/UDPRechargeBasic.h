@@ -28,6 +28,7 @@
 #include <simplebattery/SimpleBattery.h>
 #include "inet/mobility/single/VirtualSpringMobility.h"
 #include "inet/applications/base/ApplicationPacketRecharge_m.h"
+#include "inet/applications/base/ApplicationPacketPosition_m.h"
 
 #define N_PERCENTAGE_COVERAGE 20
 
@@ -55,6 +56,9 @@ public:
         double gameTheoryC;
         double gameTheoryPC;
         bool recharging;
+
+        bool hasPosInfo;
+        bool hasEnergyInfo;
     } nodeInfo_t;
 
 protected:
@@ -65,10 +69,12 @@ protected:
   virtual void checkAlive(void);
 
   virtual ApplicationPacketRecharge *generatePktToSend(const char *name, bool goingToRecharge);
+  virtual ApplicationPacketPosition *generatePktPosToSend(const char *name);
   virtual void sendPacket();
   virtual void processPacket(cPacket *msg);
   virtual double calculateSendBackoff(void);
   virtual void sendRechargeMessage(void);
+  virtual void sendPositionMessage(void);
   virtual bool checkRechargingStationFree(void);
 
   virtual double calculateInterDistance(double radious);
@@ -115,6 +121,7 @@ protected:
 
     int rechargeLostAccess;
     int failedAttemptCount;
+    int totalAttemptCount;
     double inRechargingTime;
     simtime_t startRecharge;
     simtime_t lastSawInRecharge;
@@ -138,6 +145,7 @@ protected:
     double flightHeight;
     double sensorAngle;
 
+
     bool firstCoveragePassPercent[N_PERCENTAGE_COVERAGE];
     int numberCoveragePassPercent[N_PERCENTAGE_COVERAGE];
     simtime_t endCoveragePassPercent[N_PERCENTAGE_COVERAGE];
@@ -147,6 +155,7 @@ protected:
     // messages
     cMessage *autoMsgRecharge = nullptr;
     cMessage *goToCharge = nullptr;
+    cMessage *posMessage = nullptr;
     cMessage *backAfterLoose = nullptr;
     cMessage *stat1sec = nullptr;
     cMessage *stat5sec = nullptr;
@@ -157,6 +166,8 @@ protected:
     Coord rebornPos;
     int chargingStationNumber;
     bool activateVirtualForceMovements;
+    bool sendDifferentMessages;
+    double positionMessageTimer;
 
     // statistical vectors
     cOutVector activeNodesVector;
