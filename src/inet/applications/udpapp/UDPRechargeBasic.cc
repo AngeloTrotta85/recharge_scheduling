@@ -37,6 +37,7 @@ UDPRechargeBasic::~UDPRechargeBasic() {
     cancelAndDelete(stat5sec);
     cancelAndDelete(goToCharge);
     cancelAndDelete(backAfterLoose);
+    cancelAndDelete(posMessage);
 }
 
 void UDPRechargeBasic::initialize(int stage)
@@ -61,6 +62,8 @@ void UDPRechargeBasic::initialize(int stage)
         coverageMapFilename = par("coverageMapFilename").stdstringValue();
         flightHeight = par("flightHeight");
         sensorAngle = par("sensorAngle");
+        sendDifferentMessages = par("sendDifferentMessages").boolValue();
+        positionMessageTimer = par("positionMessageTimer");
 
         double rx = (mob->getConstraintAreaMax().x - mob->getConstraintAreaMin().x) / 2.0;
         double ry = (mob->getConstraintAreaMax().y - mob->getConstraintAreaMin().y) / 2.0;
@@ -68,6 +71,7 @@ void UDPRechargeBasic::initialize(int stage)
 
         rechargeLostAccess = 0;
         failedAttemptCount = 0;
+        totalAttemptCount = 0;
         inRechargingTime = 0;
         startRecharge = simTime();
         lastSawInRecharge = simTime();
@@ -117,6 +121,11 @@ void UDPRechargeBasic::initialize(int stage)
 
         autoMsgRecharge = new cMessage("msgRecharge");
         scheduleAt(simTime() + checkRechargeTimer, autoMsgRecharge);
+
+        posMessage = new cMessage("posMessage");
+        if (sendDifferentMessages) {
+            scheduleAt(simTime() + positionMessageTimer + dblrand(), posMessage);
+        }
     }
     else if (stage == INITSTAGE_LAST) {
         myAddr = L3AddressResolver().resolve(this->getParentModule()->getFullPath().c_str());
@@ -227,6 +236,9 @@ void UDPRechargeBasic::finish(void) {
 
     recordScalar("FAILED_ATTEMPT_COUNT", failedAttemptCount);
     recordScalar("FAILED_ATTEMPT_FREQ", ((double)failedAttemptCount)/simTime().dbl());
+
+    recordScalar("TOTAL_ATTEMPT_COUNT", totalAttemptCount);
+    recordScalar("TOTAL_ATTEMPT_FREQ", ((double)totalAttemptCount)/simTime().dbl());
 }
 
 
@@ -284,6 +296,8 @@ void UDPRechargeBasic::handleMessageWhenUp(cMessage *msg) {
     }
     else if (msg == goToCharge) {
 
+        totalAttemptCount++;
+
         if (checkRechargingStationFree()) {
 
             rechargeLostAccess = 0;
@@ -331,6 +345,10 @@ void UDPRechargeBasic::handleMessageWhenUp(cMessage *msg) {
     }
     else if (msg == backAfterLoose) {
         looseRechargingChance = false;
+    }
+    else if (msg == posMessage) {
+        sendPositionMessage();
+        scheduleAt(simTime() + positionMessageTimer, posMessage);
     }
     else if (msg == stat5sec) {
         make5secStats();
@@ -388,71 +406,115 @@ void UDPRechargeBasic::processPacket(cPacket *pk)
 {
     //EV << "RECEIVED PACKET: " << pk->getName() << endl;
     if ((sb->getState() == power::SimpleBattery::DISCHARGING) || (!rechargeIsolation)) {
-        ApplicationPacketRecharge *aPkt = check_and_cast<ApplicationPacketRecharge *> (pk);
-        if (myAddr != aPkt->getAddr()) {
+        if (dynamic_cast<ApplicationPacketRecharge *> (pk)) {
+            ApplicationPacketRecharge *aPkt = check_and_cast<ApplicationPacketRecharge *> (pk);
+            if (myAddr != aPkt->getAddr()) {
 
-            cObject *c = pk->getControlInfo();
-            UDPDataIndicationExt *di = check_and_cast<UDPDataIndicationExt *>(c);
+                cObject *c = pk->getControlInfo();
+                UDPDataIndicationExt *di = check_and_cast<UDPDataIndicationExt *>(c);
 
-            //EV_DEBUG << "Received recharge packet " << aPkt->getName() << " with " << di->getFullName() << endl;
+                //EV_DEBUG << "Received recharge packet " << aPkt->getName() << " with " << di->getFullName() << endl;
 
-            if (aPkt->getGoingToRecharge()) {
-                if (neigh.count(aPkt->getAppAddr()) != 0) {
-                    neigh.erase(aPkt->getAppAddr());
+                if (aPkt->getGoingToRecharge()) {
+                    if (neigh.count(aPkt->getAppAddr()) != 0) {
+                        neigh.erase(aPkt->getAppAddr());
+                    }
+                    if (saveNeighboursMsgs) {
+                        lastSawInRecharge = simTime();
+                    }
                 }
-                if (saveNeighboursMsgs) {
-                    lastSawInRecharge = simTime();
+                else {
+
+                    std::stringstream ss;
+
+                    if (neigh.count(aPkt->getAppAddr()) == 0) {
+                        nodeInfo_t newInfo;
+                        newInfo.addr = aPkt->getAddr();
+                        newInfo.appAddr = aPkt->getAppAddr();
+                        newInfo.hasPosInfo = false;
+                        newInfo.hasEnergyInfo = false;
+
+                        neigh[aPkt->getAppAddr()] = newInfo;
+
+                        ss << "[" << myAppAddr << "] - ADDING NEIGHBOUR: ";
+                    }
+                    else {
+                        ss << "[" << myAppAddr << "] - UPDATING NEIGHBOUR: ";
+                    }
+
+                    nodeInfo_t *node = &(neigh[aPkt->getAppAddr()]);
+
+                    if (!sendDifferentMessages) {
+                        node->hasPosInfo = true;
+                        node->pos = aPkt->getPos();
+                    }
+                    node->rcvPow = di->getPow();
+                    node->rcvSnr = di->getSnr();
+
+                    node->timestamp = simTime();
+
+                    if (saveNeighboursMsgs) {
+
+                        node->batteryLevelAbs = aPkt->getBatteryLevelAbs();
+                        node->batteryLevelPerc = aPkt->getBatteryLevelPerc();
+                        node->coveragePercentage = aPkt->getCoveragePercentage();
+                        node->leftLifetime = aPkt->getLeftLifetime();
+                        node->nodeDegree = aPkt->getNodeDegree();
+                        node->inRechargeT = aPkt->getInRecharge();
+                        node->gameTheoryC = aPkt->getGameTheoryC();
+                        node->gameTheoryPC = aPkt->getGameTheoryPC();
+                        node->recharging = aPkt->getRecharging();
+                        node->hasEnergyInfo = true;
+                    }
+
+                    ss << node->appAddr << ". NEIG.SIZE: " << neigh.size();
+                    //fprintf(stderr, "%s\n", ss.str().c_str());fflush(stderr);
+                    EV << ss.str() << endl;
                 }
+
+                getFilteredNeigh(filter_neigh);
+
+                if (!sendDifferentMessages) {
+
+                    if ((sb->getState() == power::SimpleBattery::DISCHARGING) && (!looseRechargingChance)) {
+                        updateVirtualForces();
+                    }
+                }
+
+                EV << "[" << myAppAddr << "] - NEW PACKET arrived. Neigh size: " << neigh.size() << endl;
             }
-            else {
+        }
+        else {
+            ApplicationPacketPosition *aPkt = check_and_cast<ApplicationPacketPosition *> (pk);
+            if (myAddr != aPkt->getAddr()) {
 
-                std::stringstream ss;
+                cObject *c = pk->getControlInfo();
+                UDPDataIndicationExt *di = check_and_cast<UDPDataIndicationExt *>(c);
 
                 if (neigh.count(aPkt->getAppAddr()) == 0) {
                     nodeInfo_t newInfo;
                     newInfo.addr = aPkt->getAddr();
                     newInfo.appAddr = aPkt->getAppAddr();
+                    newInfo.hasPosInfo = false;
+                    newInfo.hasEnergyInfo = false;
 
                     neigh[aPkt->getAppAddr()] = newInfo;
-
-                    ss << "[" << myAppAddr << "] - ADDING NEIGHBOUR: ";
-                }
-                else {
-                    ss << "[" << myAppAddr << "] - UPDATING NEIGHBOUR: ";
                 }
 
                 nodeInfo_t *node = &(neigh[aPkt->getAppAddr()]);
+
                 node->pos = aPkt->getPos();
                 node->rcvPow = di->getPow();
                 node->rcvSnr = di->getSnr();
-
                 node->timestamp = simTime();
+                node->hasPosInfo = true;
 
-                if (saveNeighboursMsgs) {
+                getFilteredNeigh(filter_neigh);
 
-                    node->batteryLevelAbs = aPkt->getBatteryLevelAbs();
-                    node->batteryLevelPerc = aPkt->getBatteryLevelPerc();
-                    node->coveragePercentage = aPkt->getCoveragePercentage();
-                    node->leftLifetime = aPkt->getLeftLifetime();
-                    node->nodeDegree = aPkt->getNodeDegree();
-                    node->inRechargeT = aPkt->getInRecharge();
-                    node->gameTheoryC = aPkt->getGameTheoryC();
-                    node->gameTheoryPC = aPkt->getGameTheoryPC();
-                    node->recharging = aPkt->getRecharging();
+                if ((sb->getState() == power::SimpleBattery::DISCHARGING) && (!looseRechargingChance)) {
+                    updateVirtualForces();
                 }
-
-                ss << node->appAddr << ". NEIG.SIZE: " << neigh.size();
-                //fprintf(stderr, "%s\n", ss.str().c_str());fflush(stderr);
-                EV << ss.str() << endl;
             }
-
-            getFilteredNeigh(filter_neigh);
-
-            if ((sb->getState() == power::SimpleBattery::DISCHARGING) && (!looseRechargingChance)) {
-                updateVirtualForces();
-            }
-
-            EV << "[" << myAppAddr << "] - NEW PACKET arrived. Neigh size: " << neigh.size() << endl;
         }
 
         emit(rcvdPkSignal, pk);
@@ -487,11 +549,37 @@ ApplicationPacketRecharge *UDPRechargeBasic::generatePktToSend(const char *name,
     return payload;
 }
 
+ApplicationPacketPosition *UDPRechargeBasic::generatePktPosToSend(const char *name) {
+    ApplicationPacketPosition *payload = new ApplicationPacketPosition(name);
+    //payload->setByteLength(par("messageLength").longValue());
+    payload->setByteLength(4 * sizeof(double));
+    payload->setSequenceNumber(numSent);
+
+    payload->setPos(mob->getCurrentPosition());
+    payload->setAddr(myAddr);
+    payload->setAppAddr(myAppAddr);
+
+    return payload;
+}
+
 void UDPRechargeBasic::sendRechargeMessage(void) {
     std::ostringstream str;
     str << packetName << "-RECHARGE-" << numSent;
 
     ApplicationPacketRecharge *payload = generatePktToSend(str.str().c_str(), true);
+
+    L3Address destAddr = chooseDestAddr();
+    emit(sentPkSignal, payload);
+    socket.sendTo(payload, destAddr, destPort);
+    numSent++;
+}
+
+void UDPRechargeBasic::sendPositionMessage(void) {
+    std::ostringstream str;
+    str << packetName << "-POSITION-" << numSent;
+
+    //ApplicationPacketRecharge *payload = generatePktToSend(str.str().c_str(), true);
+    ApplicationPacketPosition *payload = generatePktPosToSend(str.str().c_str());
 
     L3Address destAddr = chooseDestAddr();
     emit(sentPkSignal, payload);
@@ -544,7 +632,7 @@ void UDPRechargeBasic::updateVirtualForces(void) {
 
         for (auto it = neigh.begin(); it != neigh.end(); it++) {
             nodeInfo_t *act = &(it->second);
-            if (!act->recharging) {
+            if ((!act->recharging) && (act->hasPosInfo)) {
                 double preferredDistance = calculateInterDistance(sensorRadious);
 
                 double distance = act->pos.distance(myPos);
@@ -628,7 +716,7 @@ void UDPRechargeBasic::getFilteredNeigh(std::map<int, nodeInfo_t> &filteredNeigh
         nodeInfo_t *act = &(it->second);
 
         for (auto it2 = nodeFiltered.begin(); it2 != nodeFiltered.end(); it2++) {
-            if (act->appAddr == it2->id) {
+            if ((act->appAddr == it2->id) && (act->hasEnergyInfo)) {
                 filteredNeigh[it->first] = it->second;
                 break;
             }

@@ -35,6 +35,9 @@ simple UDPRechargeBasic extends UDPBasicApp
         
     	double flightHeight @unit(m) = default(50m);
     	double sensorAngle @unit(rad) = default(1.5708rad);  // PI/2
+    	
+    	bool sendDifferentMessages = default(false);
+        double positionMessageTimer @unit(s) = default(1s);
                 
         
         @display("i=block/app");
