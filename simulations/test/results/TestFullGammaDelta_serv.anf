@@ -7,6 +7,7 @@
     <inputs name="/recharge_scheduling/simulations/test/results/TestFullGammaDeltaDistrGAMETHEORY_SERV/*.vec"/>
     <inputs name="/recharge_scheduling/simulations/test/results/TestFullGammaDeltaDistrPROB*/*.vec"/>
     <inputs name="/recharge_scheduling/simulations/test/results/TestFullGammaDeltaDistrPROB*/*.sca"/>
+    <inputs name="/recharge_scheduling/simulations/test/results/TestFullGammaDeltaDistrGAMETHEORYbis_SERV/*.sca"/>
   </inputs>
   <datasets>
     <datasets name="LIFETIME">
@@ -159,7 +160,7 @@
       <items xsi:type="scave:BarChart" name="kappa40"/>
     </datasets>
     <datasets name="kappax">
-      <items xsi:type="scave:Add" filterPattern="LIFETIME_COVERAGE_5_80"/>
+      <items xsi:type="scave:Add" filterPattern="LIFETIME_COVERAGE_10_70"/>
       <items xsi:type="scave:BarChart" name="kappax"/>
     </datasets>
     <datasets name="RatioWholeArea">
@@ -184,8 +185,12 @@
       <items xsi:type="scave:Add" filterPattern="LIFETIME_COVERAGE_* AND attr:KN(GLOBAL_KNOWLEDGE)  AND attr:SW(10) "/>
       <items xsi:type="scave:BarChart" name="CCPANP lifetime"/>
     </datasets>
+    <datasets name="swap">
+      <items xsi:type="scave:Add" filterPattern="FAILED_ATTEMPT_COUNT"/>
+      <items xsi:type="scave:BarChart" name="failed swap"/>
+    </datasets>
   </datasets>
   <chartSheets>
-    <chartSheets name="default" charts="//@datasets/@datasets.0/@items.1 //@datasets/@datasets.1/@items.1 //@datasets/@datasets.2/@items.4 //@datasets/@datasets.2/@items.2 //@datasets/@datasets.1/@items.4 //@datasets/@datasets.3/@items.3 //@datasets/@datasets.4/@items.2 //@datasets/@datasets.5/@items.2 //@datasets/@datasets.6/@items.2 //@datasets/@datasets.7/@items.2 //@datasets/@datasets.8/@items.2 //@datasets/@datasets.9/@items.2 //@datasets/@datasets.10/@items.2 //@datasets/@datasets.11/@items.3 //@datasets/@datasets.12/@items.3 //@datasets/@datasets.11/@items.1 //@datasets/@datasets.13/@items.1 //@datasets/@datasets.14/@items.2 //@datasets/@datasets.15/@items.2 //@datasets/@datasets.15/@items.4 //@datasets/@datasets.16/@items.1 //@datasets/@datasets.17/@items.1 //@datasets/@datasets.18/@items.1 //@datasets/@datasets.19/@items.2 //@datasets/@datasets.19/@items.3/@items.1 //@datasets/@datasets.20/@items.1 //@datasets/@datasets.21/@items.1"/>
+    <chartSheets name="default" charts="//@datasets/@datasets.0/@items.1 //@datasets/@datasets.1/@items.1 //@datasets/@datasets.2/@items.4 //@datasets/@datasets.2/@items.2 //@datasets/@datasets.1/@items.4 //@datasets/@datasets.3/@items.3 //@datasets/@datasets.4/@items.2 //@datasets/@datasets.5/@items.2 //@datasets/@datasets.6/@items.2 //@datasets/@datasets.7/@items.2 //@datasets/@datasets.8/@items.2 //@datasets/@datasets.9/@items.2 //@datasets/@datasets.10/@items.2 //@datasets/@datasets.11/@items.3 //@datasets/@datasets.12/@items.3 //@datasets/@datasets.11/@items.1 //@datasets/@datasets.13/@items.1 //@datasets/@datasets.14/@items.2 //@datasets/@datasets.15/@items.2 //@datasets/@datasets.15/@items.4 //@datasets/@datasets.16/@items.1 //@datasets/@datasets.17/@items.1 //@datasets/@datasets.18/@items.1 //@datasets/@datasets.19/@items.2 //@datasets/@datasets.19/@items.3/@items.1 //@datasets/@datasets.20/@items.1 //@datasets/@datasets.21/@items.1 //@datasets/@datasets.22/@items.1"/>
   </chartSheets>
 </scave:Analysis>
