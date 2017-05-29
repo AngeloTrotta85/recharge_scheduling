@@ -154,6 +154,7 @@ private:
     double coverageUtilityFactor;
     bool useUnoPRprob;
     double bonus;
+    bool tauInside;
 
     DischargeProbEnergyToUse_Type dischargeProbEnergyToUse;
     GameTheoryKnowledge_Type gameTheoryKnowledgeType;

@@ -44,6 +44,7 @@ void UDPRechargeGameTheory::initialize(int stage)
         useReverseE = par("useReverseE").boolValue();
         coverageUtilityFactor = par("coverageUtilityFactor");
         useUnoPRprob = par("useUnoPRprob").boolValue();
+        tauInside = par("tauInside").boolValue();
 
         estimateDischargeProbVector.setName("EstimateDischargeProbVector");
         estimatedTimeInRechargingVector.setName("EstimatedTimeInRechargingVector");
@@ -1166,7 +1167,12 @@ double UDPRechargeGameTheory::calculateUTplusFail(double energyToUse) {
             valUTplusFail = (-a-g-t) * (kappaPiu + (e * linearIncreaseFactor)) - (a*coverageUtilityFactor);
             break;
         case LINEARINCREASE5:
-            valUTplusFail = (-a-g-t) * (kappaPiu + (e * linearIncreaseFactor)) - (a*coverageUtilityFactor);
+            if (tauInside) {
+                valUTplusFail = (-a-g-t - (a*coverageUtilityFactor)) * (kappaPiu + (e * linearIncreaseFactor));
+            }
+            else {
+                valUTplusFail = (-a-g-t) * (kappaPiu + (e * linearIncreaseFactor)) - (a*coverageUtilityFactor);
+            }
             break;
         case LINEARINCREASECONSISTENT:
             valUTplusFail = (-a-g-t) * (1.0 + log((e + 1.0)/(1.0 - e)));;
@@ -1194,7 +1200,12 @@ double UDPRechargeGameTheory::calculateUTplusFail(double energyToUse) {
                 e = 1.0 - e;
             }
             //valUTplusFail = (-a-g-t)-(a*coverageUtilityFactor);
-            valUTplusFail = ((-a-g-t) * (kappaPiu + (e * linearIncreaseFactor))) - (a*coverageUtilityFactor);
+            if (tauInside) {
+                valUTplusFail = ((-a-g-t - (a*coverageUtilityFactor)) * (kappaPiu + (e * linearIncreaseFactor)));
+            }
+            else {
+                valUTplusFail = ((-a-g-t) * (kappaPiu + (e * linearIncreaseFactor))) - (a*coverageUtilityFactor);
+            }
         }
         else {
             /*if (personalConstantMultiplierC < 1) {
@@ -1420,7 +1431,12 @@ double UDPRechargeGameTheory::calculateUTminusFree(double energyToUse) {
             }
             break;
         case LINEARINCREASE5:
-            valUTminusFree = ((-a) * (1.0 + (e * linearIncreaseFactor))) + (a*coverageUtilityFactor);
+            if (tauInside) {
+                valUTminusFree = (-a  + (a*coverageUtilityFactor)) * (1.0 + (e * linearIncreaseFactor));
+            }
+            else {
+                valUTminusFree = ((-a) * (1.0 + (e * linearIncreaseFactor))) + (a*coverageUtilityFactor);
+            }
             break;
         case LINEARINCREASECONSISTENT:
             valUTminusFree = -a;
@@ -1445,7 +1461,13 @@ double UDPRechargeGameTheory::calculateUTminusFree(double energyToUse) {
             if (useReverseE) {
                 e = 1.0 - e;
             }
-            valUTminusFree = ((-a) * (1.0 + (e * linearIncreaseFactor))) + (a*coverageUtilityFactor);
+
+            if (tauInside) {
+                valUTminusFree = (-a + (a*coverageUtilityFactor)) * (1.0 + (e * linearIncreaseFactor));
+            }
+            else {
+                valUTminusFree = ((-a) * (1.0 + (e * linearIncreaseFactor))) + (a*coverageUtilityFactor);
+            }
         }
         else {
             e = (energyToUse >= sb->getInitialCapacity() ? 1 : (sb->getInitialCapacity() - energyToUse)/sb->getInitialCapacity());
