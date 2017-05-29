@@ -159,7 +159,7 @@
       <items xsi:type="scave:BarChart" name="kappa40"/>
     </datasets>
     <datasets name="kappax">
-      <items xsi:type="scave:Add" filterPattern="LIFETIME_COVERAGE_10_80"/>
+      <items xsi:type="scave:Add" filterPattern="LIFETIME_COVERAGE_5_80"/>
       <items xsi:type="scave:BarChart" name="kappax"/>
     </datasets>
     <datasets name="RatioWholeArea">
