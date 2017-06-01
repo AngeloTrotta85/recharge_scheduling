@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<scave:Analysis xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:scave="http://www.omnetpp.org/omnetpp/scave">
+  <inputs>
+    <inputs name="/recharge_scheduling/simulations/test/results/serverone/TestFullNumUavCentrNO*/*.sca"/>
+    <inputs name="/recharge_scheduling/simulations/test/results/serverone/TestFullNumUavCentrANA*/*.sca"/>
+    <inputs name="/recharge_scheduling/simulations/test/results/serverone/TestFullNumUavDistrGAMETHEORY_SERV/*.sca"/>
+    <inputs name="/recharge_scheduling/simulations/test/results/serverone/TestFullNumUavDistrGAMETHEORY_SERV/*.vec"/>
+    <inputs name="/recharge_scheduling/simulations/test/results/serverone/TestFullNumUavDistrPROB*/*.vec"/>
+    <inputs name="/recharge_scheduling/simulations/test/results/serverone/TestFullNumUavDistrPROB*/*.sca"/>
+  </inputs>
+  <datasets>
+    <datasets name="LIFETIME">
+      <items xsi:type="scave:Add" filterPattern="LIFETIME"/>
+      <items xsi:type="scave:BarChart" name="LIFETIME">
+        <barFields>experiment</barFields>
+      </items>
+    </datasets>
+    <datasets name="Response">
+      <items xsi:type="scave:Add" filterPattern="ResponseVal AND attr:FH(20)" type="VECTOR"/>
+      <items xsi:type="scave:LineChart" name="Response" lineNameFormat=""/>
+      <items xsi:type="scave:Apply" operation="timewinavg">
+        <params name="windowSize" value="30"/>
+      </items>
+      <items xsi:type="scave:Apply" operation="aggregator">
+        <params name="function" value="average"/>
+        <groupBy>measurement</groupBy>
+      </items>
+      <items xsi:type="scave:LineChart" name="response" lineNameFormat=""/>
+    </datasets>
+    <datasets name="Recharge Len">
+      <items xsi:type="scave:Add" filterPattern="TimeOfRechargeVector AND attr:FH(20) " type="VECTOR"/>
+      <items xsi:type="scave:Apply" operation="timewinavg">
+        <params name="windowSize" value="30"/>
+      </items>
+      <items xsi:type="scave:LineChart" name="rl" lineNameFormat=""/>
+      <items xsi:type="scave:Apply" operation="aggregator">
+        <params name="function" value="average"/>
+        <groupBy>measurement</groupBy>
+      </items>
+      <items xsi:type="scave:LineChart" name="rechargeLen" lineNameFormat=""/>
+    </datasets>
+    <datasets name="Discharge">
+      <items xsi:type="scave:Add" filterPattern="DischargeProbVal AND attr:FH(20) " type="VECTOR"/>
+      <items xsi:type="scave:Apply" operation="timewinavg">
+        <params name="windowSize" value="30"/>
+      </items>
+      <items xsi:type="scave:Apply" operation="aggregator">
+        <params name="function" value="average"/>
+        <groupBy>measurement</groupBy>
+      </items>
+      <items xsi:type="scave:LineChart" name="Discharge" lineNameFormat=""/>
+    </datasets>
+    <datasets name="HYPO-discharge">
+      <items xsi:type="scave:Add" filterPattern="HypotheticalDischargeProbVector AND attr:FH(20) " type="VECTOR"/>
+      <items xsi:type="scave:Apply" operation="aggregator">
+        <params name="function" value="average"/>
+        <groupBy>measurement</groupBy>
+      </items>
+      <items xsi:type="scave:LineChart" name="hypo-discharge" lineNameFormat=""/>
+    </datasets>
+    <datasets name="HYPO-recharge">
+      <items xsi:type="scave:Add" filterPattern="HypotheticalResponseVector AND attr:FH(20) " type="VECTOR"/>
+      <items xsi:type="scave:Apply" operation="aggregator">
+        <params name="function" value="average"/>
+        <groupBy>measurement</groupBy>
+      </items>
+      <items xsi:type="scave:LineChart" name="hypo-response" lineNameFormat=""/>
+    </datasets>
+    <datasets name="EstimateDischarge">
+      <items xsi:type="scave:Add" filterPattern="EstimateDischargeProbVector AND attr:FH(20) " type="VECTOR"/>
+      <items xsi:type="scave:Apply" operation="aggregator">
+        <params name="function" value="average"/>
+        <groupBy>measurement</groupBy>
+      </items>
+      <items xsi:type="scave:LineChart" name="estimateDischarge" lineNameFormat=""/>
+    </datasets>
+    <datasets name="EstimateTimeCharge">
+      <items xsi:type="scave:Add" filterPattern="EstimatedTimeInRechargingVector AND attr:FH(20) " type="VECTOR"/>
+      <items xsi:type="scave:Apply" operation="aggregator">
+        <params name="function" value="average"/>
+        <groupBy>measurement</groupBy>
+      </items>
+      <items xsi:type="scave:LineChart" name="estimateTimeInCharge" lineNameFormat=""/>
+    </datasets>
+    <datasets name="FullDegree">
+      <items xsi:type="scave:Add" filterPattern="FullDegreeVal AND attr:FH(20) " type="VECTOR"/>
+      <items xsi:type="scave:Apply" operation="aggregator">
+        <params name="function" value="average"/>
+        <groupBy>measurement</groupBy>
+      </items>
+      <items xsi:type="scave:LineChart" name="FullDegree" lineNameFormat=""/>
+    </datasets>
+    <datasets name="Degree">
+      <items xsi:type="scave:Add" filterPattern="DegreeVal AND attr:FH(20) " type="VECTOR"/>
+      <items xsi:type="scave:Apply" operation="aggregator">
+        <params name="function" value="average"/>
+        <groupBy>measurement</groupBy>
+      </items>
+      <items xsi:type="scave:LineChart" name="Degree" lineNameFormat=""/>
+    </datasets>
+    <datasets name="Tentativi">
+      <items xsi:type="scave:Add" filterPattern="FailedAttemptVal and attr:FH(20) " type="VECTOR"/>
+      <items xsi:type="scave:Apply" operation="aggregator">
+        <params name="function" value="average"/>
+        <groupBy>measurement</groupBy>
+      </items>
+      <items xsi:type="scave:LineChart" name="Attempts" lineNameFormat=""/>
+    </datasets>
+    <datasets name="Battery">
+      <items xsi:type="scave:Add" filterPattern="EnergyVal AND attr:FH(20)" type="VECTOR"/>
+      <items xsi:type="scave:LineChart" name="batteryFULL" lineNameFormat=""/>
+      <items xsi:type="scave:Apply" operation="aggregator">
+        <params name="function" value="average"/>
+        <groupBy>measurement</groupBy>
+      </items>
+      <items xsi:type="scave:LineChart" name="Battery" lineNameFormat=""/>
+    </datasets>
+    <datasets name="UseOfStation">
+      <items xsi:type="scave:Add" filterPattern="rechargingNodes AND attr:FH(0) " type="VECTOR"/>
+      <items xsi:type="scave:Apply" operation="timewinavg">
+        <params name="windowSize" value="30"/>
+      </items>
+      <items xsi:type="scave:Apply" operation="aggregator">
+        <params name="function" value="average"/>
+        <groupBy>measurement</groupBy>
+      </items>
+      <items xsi:type="scave:LineChart" name="stationOccupation" lineNameFormat=""/>
+    </datasets>
+    <datasets name="FINALENERGY_VAR">
+      <items xsi:type="scave:Add" filterPattern="FINALENERGYVAR AND attr:FH(20) "/>
+      <items xsi:type="scave:BarChart" name="FINALENERGY_VAR"/>
+    </datasets>
+    <datasets name="BATTERY_MAXMIN">
+      <items xsi:type="scave:Add" filterPattern="energyVectorAllMaxMinDiff AND attr:FH(20)" type="VECTOR"/>
+      <items xsi:type="scave:Apply" operation="aggregator">
+        <params name="function" value="average"/>
+        <groupBy>measurement</groupBy>
+      </items>
+      <items xsi:type="scave:LineChart" name="Battery_MaxMin" lineNameFormat=""/>
+    </datasets>
+    <datasets name="Coverage">
+      <items xsi:type="scave:Add" filterPattern="totalCoverageVector" type="VECTOR"/>
+      <items xsi:type="scave:Apply" operation="aggregator">
+        <params name="function" value="average"/>
+        <groupBy>measurement</groupBy>
+      </items>
+      <items xsi:type="scave:LineChart" name="Coverage" lineNameFormat=""/>
+      <items xsi:type="scave:Apply" operation="timewinavg">
+        <params name="windowSize" value="50"/>
+      </items>
+      <items xsi:type="scave:LineChart" name="CoverageSmooth" lineNameFormat=""/>
+    </datasets>
+    <datasets name="kappa10">
+      <items xsi:type="scave:Add" filterPattern="LIFETIME_COVERAGE_10"/>
+      <items xsi:type="scave:BarChart" name="kappa10"/>
+    </datasets>
+    <datasets name="kappa20">
+      <items xsi:type="scave:Add" filterPattern="LIFETIME_COVERAGE_40"/>
+      <items xsi:type="scave:BarChart" name="kappa40"/>
+    </datasets>
+    <datasets name="kappax">
+      <items xsi:type="scave:Add" filterPattern="LIFETIME_COVERAGE_10_75"/>
+      <items xsi:type="scave:BarChart" name="kappax"/>
+    </datasets>
+    <datasets name="RatioWholeArea">
+      <items xsi:type="scave:Add" filterPattern="totalCoverageRatioMaxVector AND attr:SW(5) AND attr:KN(GLOBAL_KNOWLEDGE) AND file(/recharge_scheduling/simulations/test/results/serverone/TestFullGammaDeltaDistrPROBABILISTIC_SERV/*) " type="VECTOR"/>
+      <items xsi:type="scave:Apply" operation="aggregator">
+        <params name="function" value="average"/>
+        <groupBy>measurement</groupBy>
+      </items>
+      <items xsi:type="scave:LineChart" name="RatioWholeArea" lineNameFormat=""/>
+      <items xsi:type="scave:Group" name="avg">
+        <items xsi:type="scave:Apply" operation="timewinavg">
+          <params name="windowSize" value="20"/>
+        </items>
+        <items xsi:type="scave:LineChart" name="RatioWholeAreaAvg" lineNameFormat=""/>
+      </items>
+    </datasets>
+    <datasets name="MeanCoverage">
+      <items xsi:type="scave:Add" filterPattern="COVERAGE_RATIO_MAX_AVERAGE"/>
+      <items xsi:type="scave:BarChart" name="meancoverage"/>
+    </datasets>
+    <datasets name="CCPANP lifetime">
+      <items xsi:type="scave:Add" filterPattern="LIFETIME_COVERAGE_* AND attr:KN(GLOBAL_KNOWLEDGE)  AND attr:SW(10) "/>
+      <items xsi:type="scave:BarChart" name="CCPANP lifetime"/>
+    </datasets>
+    <datasets name="SwapRatio">
+      <items xsi:type="scave:Add" filterPattern="TOTAL_ATTEMPT_COUNT"/>
+      <items xsi:type="scave:BarChart" name="SwapRatio">
+        <averagedFields>module</averagedFields>
+      </items>
+    </datasets>
+  </datasets>
+  <chartSheets>
+    <chartSheets name="default" charts="//@datasets/@datasets.0/@items.1 //@datasets/@datasets.1/@items.1 //@datasets/@datasets.2/@items.4 //@datasets/@datasets.2/@items.2 //@datasets/@datasets.1/@items.4 //@datasets/@datasets.3/@items.3 //@datasets/@datasets.4/@items.2 //@datasets/@datasets.5/@items.2 //@datasets/@datasets.6/@items.2 //@datasets/@datasets.7/@items.2 //@datasets/@datasets.8/@items.2 //@datasets/@datasets.9/@items.2 //@datasets/@datasets.10/@items.2 //@datasets/@datasets.11/@items.3 //@datasets/@datasets.12/@items.3 //@datasets/@datasets.11/@items.1 //@datasets/@datasets.13/@items.1 //@datasets/@datasets.14/@items.2 //@datasets/@datasets.15/@items.2 //@datasets/@datasets.15/@items.4 //@datasets/@datasets.16/@items.1 //@datasets/@datasets.17/@items.1 //@datasets/@datasets.18/@items.1 //@datasets/@datasets.19/@items.2 //@datasets/@datasets.19/@items.3/@items.1 //@datasets/@datasets.20/@items.1 //@datasets/@datasets.21/@items.1 //@datasets/@datasets.22/@items.1"/>
+  </chartSheets>
+</scave:Analysis>
