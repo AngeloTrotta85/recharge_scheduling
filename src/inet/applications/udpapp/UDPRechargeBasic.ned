@@ -38,6 +38,9 @@ simple UDPRechargeBasic extends UDPBasicApp
     	
     	bool sendDifferentMessages = default(false);
         double positionMessageTimer @unit(s) = default(1s);
+        
+        double delayTimeToUpdateEnergy @unit(s) = default(1s);
+        bool useEnergyToShare = default(false);
                 
         
         @display("i=block/app");

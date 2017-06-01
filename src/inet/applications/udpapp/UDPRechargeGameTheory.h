@@ -155,6 +155,7 @@ private:
     bool useUnoPRprob;
     double bonus;
     bool tauInside;
+    double tauValue;
 
     DischargeProbEnergyToUse_Type dischargeProbEnergyToUse;
     GameTheoryKnowledge_Type gameTheoryKnowledgeType;

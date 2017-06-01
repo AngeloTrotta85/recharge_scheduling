@@ -108,6 +108,10 @@ public:
         return looseRechargingChance;
     }
 
+    double getEnergyToShare() const {
+        return energyToShare;
+    }
+
 protected:
     L3Address myAddr;
     int myAppAddr;
@@ -144,6 +148,11 @@ protected:
     double areaMaxToCoverage;
     double flightHeight;
     double sensorAngle;
+
+    simtime_t timeToUpdateEnergy;
+    simtime_t delayTimeToUpdateEnergy;
+    double energyToShare;
+    bool useEnergyToShare;
 
 
     bool firstCoveragePassPercent[N_PERCENTAGE_COVERAGE];

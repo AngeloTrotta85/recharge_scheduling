@@ -64,6 +64,10 @@ void UDPRechargeBasic::initialize(int stage)
         sensorAngle = par("sensorAngle");
         sendDifferentMessages = par("sendDifferentMessages").boolValue();
         positionMessageTimer = par("positionMessageTimer");
+        delayTimeToUpdateEnergy = par("delayTimeToUpdateEnergy");
+        useEnergyToShare = par("useEnergyToShare").boolValue();
+
+        timeToUpdateEnergy = simTime() + delayTimeToUpdateEnergy;
 
         double rx = (mob->getConstraintAreaMax().x - mob->getConstraintAreaMin().x) / 2.0;
         double ry = (mob->getConstraintAreaMax().y - mob->getConstraintAreaMin().y) / 2.0;
@@ -134,6 +138,7 @@ void UDPRechargeBasic::initialize(int stage)
         sb->setState(power::SimpleBattery::DISCHARGING);
         energyAtRecharge = sb->getBatteryLevelAbs();
 
+        energyToShare = sb->getBatteryLevelAbs();
 
         //double maxArea = ((double) numberNodes) * ((sensorRadious*sensorRadious) * (3.0 / 2.0) * sqrt(3.0));
         //double maxArea = ((double) numberNodes) * ((sensorRadious*sensorRadious) * 2.598076211);
@@ -364,6 +369,14 @@ void UDPRechargeBasic::handleMessageWhenUp(cMessage *msg) {
             checkAlive();
         }
 
+        if (useEnergyToShare) {
+            if(timeToUpdateEnergy <= simTime()){
+                energyToShare = sb->getBatteryLevelAbs();
+
+                timeToUpdateEnergy = simTime() + delayTimeToUpdateEnergy;
+            }
+        }
+
         scheduleAt(simTime() + 1, msg);
     }
     else {
@@ -535,7 +548,12 @@ ApplicationPacketRecharge *UDPRechargeBasic::generatePktToSend(const char *name,
     payload->setPos(mob->getCurrentPosition());
     payload->setAddr(myAddr);
     payload->setAppAddr(myAppAddr);
-    payload->setBatteryLevelAbs(sb->getBatteryLevelAbs());
+    if (useEnergyToShare) {
+        payload->setBatteryLevelAbs(getEnergyToShare());
+    }
+    else {
+        payload->setBatteryLevelAbs(sb->getBatteryLevelAbs());
+    }
     payload->setBatteryLevelPerc(sb->getBatteryLevelPerc());
     payload->setCoveragePercentage(0);
     payload->setLeftLifetime(sb->getBatteryLevelAbs() / sb->getDischargingFactor(checkRechargeTimer));

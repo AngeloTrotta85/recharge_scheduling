@@ -156,8 +156,14 @@ double UDPRechargeProbabilistic::getEmax(bool activeOnly, ProbabilisticKnowledge
 
             if (activeOnly && hostjsb->isCharging()) continue;
 
-            if (hostjsb->getBatteryLevelAbs() > max){
-                max = hostjsb->getBatteryLevelAbs();
+            double batteryLevel = hostjsb->getBatteryLevelAbs();
+            if ((useEnergyToShare) && (myAppAddr != j)) {
+                UDPRechargeProbabilistic *hostj = check_and_cast<UDPRechargeProbabilistic *>(this->getParentModule()->getParentModule()->getSubmodule("host", j)->getSubmodule("udpApp", 0));
+                batteryLevel = hostj->getEnergyToShare();
+            }
+
+            if (batteryLevel > max){
+                max = batteryLevel;
             }
         }
     }
@@ -202,8 +208,14 @@ double UDPRechargeProbabilistic::getEmin(bool activeOnly, ProbabilisticKnowledge
 
             if (activeOnly && hostjsb->isCharging()) continue;
 
-            if (hostjsb->getBatteryLevelAbs() < min){
-                min = hostjsb->getBatteryLevelAbs();
+            double batteryLevel = hostjsb->getBatteryLevelAbs();
+            if ((useEnergyToShare) && (myAppAddr != j)) {
+                UDPRechargeProbabilistic *hostj = check_and_cast<UDPRechargeProbabilistic *>(this->getParentModule()->getParentModule()->getSubmodule("host", j)->getSubmodule("udpApp", 0));
+                batteryLevel = hostj->getEnergyToShare();
+            }
+
+            if (batteryLevel < min){
+                min = batteryLevel;
             }
         }
     }
@@ -247,7 +259,13 @@ double UDPRechargeProbabilistic::getEavg(bool activeOnly, ProbabilisticKnowledge
 
             if (activeOnly && hostjsb->isCharging()) continue;
 
-            sum += hostjsb->getBatteryLevelAbs();
+            double batteryLevel = hostjsb->getBatteryLevelAbs();
+            if ((useEnergyToShare) && (myAppAddr != j)) {
+                UDPRechargeProbabilistic *hostj = check_and_cast<UDPRechargeProbabilistic *>(this->getParentModule()->getParentModule()->getSubmodule("host", j)->getSubmodule("udpApp", 0));
+                batteryLevel = hostj->getEnergyToShare();
+            }
+
+            sum += batteryLevel;
         }
         nn = numberNodes;
     }

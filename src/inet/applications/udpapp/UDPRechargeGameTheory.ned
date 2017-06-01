@@ -41,6 +41,7 @@ simple UDPRechargeGameTheory extends UDPRechargeBasic
         double coverageUtilityFactor = default(0);
         bool useUnoPRprob = default(false);
         bool tauInside = default(false);
+        double tauValue = default(-1);
         
         @display("i=block/app");
         @class(UDPRechargeGameTheory);

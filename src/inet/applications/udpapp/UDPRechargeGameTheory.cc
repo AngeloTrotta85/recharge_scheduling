@@ -45,6 +45,7 @@ void UDPRechargeGameTheory::initialize(int stage)
         coverageUtilityFactor = par("coverageUtilityFactor");
         useUnoPRprob = par("useUnoPRprob").boolValue();
         tauInside = par("tauInside").boolValue();
+        tauValue = par("tauValue");
 
         estimateDischargeProbVector.setName("EstimateDischargeProbVector");
         estimatedTimeInRechargingVector.setName("EstimatedTimeInRechargingVector");
@@ -1008,7 +1009,13 @@ double UDPRechargeGameTheory::getEavg(bool activeOnly, GameTheoryKnowledge_Type 
 
             if (activeOnly && hostjsb->isCharging()) continue;
 
-            sum += hostjsb->getBatteryLevelAbs();
+            if ((useEnergyToShare) && (myAppAddr != j)) {
+                UDPRechargeGameTheory *hostj = check_and_cast<UDPRechargeGameTheory *>(this->getParentModule()->getParentModule()->getSubmodule("host", j)->getSubmodule("udpApp", 0));
+                sum += hostj->getEnergyToShare();
+            }
+            else {
+                sum += hostjsb->getBatteryLevelAbs();
+            }
         }
         nn = numberNodes;
     }
@@ -1049,8 +1056,14 @@ double UDPRechargeGameTheory::getEmax(bool activeOnly, GameTheoryKnowledge_Type 
 
             if (activeOnly && hostjsb->isCharging()) continue;
 
-            if (hostjsb->getBatteryLevelAbs() > max){
-                max = hostjsb->getBatteryLevelAbs();
+            double batteryLevel = hostjsb->getBatteryLevelAbs();
+            if ((useEnergyToShare) && (myAppAddr != j)) {
+                UDPRechargeGameTheory *hostj = check_and_cast<UDPRechargeGameTheory *>(this->getParentModule()->getParentModule()->getSubmodule("host", j)->getSubmodule("udpApp", 0));
+                batteryLevel = hostj->getEnergyToShare();
+            }
+
+            if (batteryLevel > max){
+                max = batteryLevel;
             }
         }
     }
@@ -1095,8 +1108,14 @@ double UDPRechargeGameTheory::getEmin(bool activeOnly, GameTheoryKnowledge_Type 
 
             if (activeOnly && hostjsb->isCharging()) continue;
 
-            if (hostjsb->getBatteryLevelAbs() < min){
-                min = hostjsb->getBatteryLevelAbs();
+            double batteryLevel = hostjsb->getBatteryLevelAbs();
+            if ((useEnergyToShare) && (myAppAddr != j)) {
+                UDPRechargeGameTheory *hostj = check_and_cast<UDPRechargeGameTheory *>(this->getParentModule()->getParentModule()->getSubmodule("host", j)->getSubmodule("udpApp", 0));
+                batteryLevel = hostj->getEnergyToShare();
+            }
+
+            if (batteryLevel < min){
+                min = batteryLevel;
             }
         }
     }
@@ -1151,6 +1170,11 @@ double UDPRechargeGameTheory::calculateUTplusFail(double energyToUse) {
         e = 1.0 - e;
     }
 
+    double ttau = (a*coverageUtilityFactor);
+    if (tauValue >= 0) {
+        ttau = tauValue;
+    }
+
     if (variableC) {
         switch (constant_T_type) {
         case LINEARINCREASE:
@@ -1158,20 +1182,20 @@ double UDPRechargeGameTheory::calculateUTplusFail(double energyToUse) {
             valUTplusFail = (-a-g-t) * (1.0 + (e * linearIncreaseFactor));
             break;
         case LINEARINCREASE2:
-            valUTplusFail = (-a-g-t) * (kappaPiu + (e * linearIncreaseFactor)) - (a*coverageUtilityFactor);
+            valUTplusFail = (-a-g-t) * (kappaPiu + (e * linearIncreaseFactor)) - ttau;
             break;
         case LINEARINCREASE3:
             valUTplusFail = (-a-g-t) * (kappaPiu + (e * linearIncreaseFactor));
             break;
         case LINEARINCREASE4:
-            valUTplusFail = (-a-g-t) * (kappaPiu + (e * linearIncreaseFactor)) - (a*coverageUtilityFactor);
+            valUTplusFail = (-a-g-t) * (kappaPiu + (e * linearIncreaseFactor)) - ttau;
             break;
         case LINEARINCREASE5:
             if (tauInside) {
-                valUTplusFail = (-a-g-t - (a*coverageUtilityFactor)) * (kappaPiu + (e * linearIncreaseFactor));
+                valUTplusFail = (-a-g-t - ttau) * (kappaPiu + (e * linearIncreaseFactor));
             }
             else {
-                valUTplusFail = (-a-g-t) * (kappaPiu + (e * linearIncreaseFactor)) - (a*coverageUtilityFactor);
+                valUTplusFail = (-a-g-t) * (kappaPiu + (e * linearIncreaseFactor)) - ttau;
             }
             break;
         case LINEARINCREASECONSISTENT:
@@ -1201,10 +1225,10 @@ double UDPRechargeGameTheory::calculateUTplusFail(double energyToUse) {
             }
             //valUTplusFail = (-a-g-t)-(a*coverageUtilityFactor);
             if (tauInside) {
-                valUTplusFail = ((-a-g-t - (a*coverageUtilityFactor)) * (kappaPiu + (e * linearIncreaseFactor)));
+                valUTplusFail = ((-a-g-t - ttau) * (kappaPiu + (e * linearIncreaseFactor)));
             }
             else {
-                valUTplusFail = ((-a-g-t) * (kappaPiu + (e * linearIncreaseFactor))) - (a*coverageUtilityFactor);
+                valUTplusFail = ((-a-g-t) * (kappaPiu + (e * linearIncreaseFactor))) - ttau;
             }
         }
         else {
@@ -1233,8 +1257,8 @@ double UDPRechargeGameTheory::calculateUTplusFail(double energyToUse) {
             //valUTplusFail = (-a-g-t) * (1.0 + (e * 0.5));
             //valUTplusFail = (-a-g-t) * (1.0 + (e*2.0));
             //valUTplusFail = (-a-g-t) * (kappaPiu + (e * linearIncreaseFactor));
-            valUTplusFail = (-a-g-t)-(a*coverageUtilityFactor);
-            valUTplusFail = ((-a-g-t) * (kappaPiu + (e * linearIncreaseFactor))) - (a*coverageUtilityFactor);
+            valUTplusFail = (-a-g-t)-ttau;
+            valUTplusFail = ((-a-g-t) * (kappaPiu + (e * linearIncreaseFactor))) - ttau;
         }
     }
 
@@ -1266,6 +1290,11 @@ double UDPRechargeGameTheory::calculateUTplusOk(double energyToUse) {
     //    e = 1.0 - e;
     //}
 
+    double ttau = (a*coverageUtilityFactor);
+    if (tauValue >= 0) {
+        ttau = tauValue;
+    }
+
     if (variableC) {
         switch (constant_T_type) {
         case LINEARINCREASE:
@@ -1273,16 +1302,16 @@ double UDPRechargeGameTheory::calculateUTplusOk(double energyToUse) {
             valUTplusOk = b-g-t;
             break;
         case LINEARINCREASE2:
-            valUTplusOk = b-g-t - (a*coverageUtilityFactor);
+            valUTplusOk = b-g-t - ttau;
             break;
         case LINEARINCREASE3:
             valUTplusOk = b-g;
             break;
         case LINEARINCREASE4:
-            valUTplusOk = (b * estimatedTimeInRecharging)-g - (a*coverageUtilityFactor);
+            valUTplusOk = (b * estimatedTimeInRecharging)-g - ttau;
             break;
         case LINEARINCREASE5:
-            valUTplusOk = (b * estimatedTimeInRecharging)-g - (a*coverageUtilityFactor);
+            valUTplusOk = (b * estimatedTimeInRecharging)-g - ttau;
             break;
         case LINEARINCREASECONSISTENT:
             valUTplusOk = b-g-t;
@@ -1295,15 +1324,15 @@ double UDPRechargeGameTheory::calculateUTplusOk(double energyToUse) {
         }
         else if (constant_T_type == LINEARINCREASE4){
             //valUTplusOk = (b * estimatedTimeInRecharging)-g - (a*coverageUtilityFactor);
-            valUTplusOk = b-g-(a*coverageUtilityFactor) - (a*coverageUtilityFactor);
+            valUTplusOk = b-g-(a*coverageUtilityFactor) - ttau;
         }
         else if (constant_T_type == LINEARINCREASE5){
             //valUTplusOk = (b * estimatedTimeInRecharging)-g - (a*coverageUtilityFactor);
-            valUTplusOk = b-g-(a*coverageUtilityFactor) - (a*coverageUtilityFactor);
+            valUTplusOk = b-g-(a*coverageUtilityFactor) - ttau;
         }
         else {
             //valUTplusOk = b-g-t;
-            valUTplusOk = b-g-(a*coverageUtilityFactor) - (a*coverageUtilityFactor);
+            valUTplusOk = b-g-(a*coverageUtilityFactor) - ttau;
             //valUTplusOk = 10.0*b;
         }
     }
@@ -1331,6 +1360,11 @@ double UDPRechargeGameTheory::calculateUTminusBusy(double energyToUse) {
     //    e = 1.0 - e;
     //}
 
+    double ttau = (a*coverageUtilityFactor);
+    if (tauValue >= 0) {
+        ttau = tauValue;
+    }
+
     if (variableC) {
         switch (constant_T_type) {
         case LINEARINCREASE:
@@ -1338,16 +1372,16 @@ double UDPRechargeGameTheory::calculateUTminusBusy(double energyToUse) {
             valUTminusBusy = -a;
             break;
         case LINEARINCREASE2:
-            valUTminusBusy = -a + (a*coverageUtilityFactor);
+            valUTminusBusy = -a + ttau;
             break;
         case LINEARINCREASE3:
             valUTminusBusy = 0;
             break;
         case LINEARINCREASE4:
-            valUTminusBusy = -a + (a*coverageUtilityFactor);
+            valUTminusBusy = -a + ttau;
             break;
         case LINEARINCREASE5:
-            valUTminusBusy = -a + (a*coverageUtilityFactor);
+            valUTminusBusy = -a + ttau;
             break;
         case LINEARINCREASECONSISTENT:
             valUTminusBusy = -a;
@@ -1365,10 +1399,10 @@ double UDPRechargeGameTheory::calculateUTminusBusy(double energyToUse) {
             //}
 
             //valUTminusBusy = -a * (1 + e);
-            valUTminusBusy = -a + (a*coverageUtilityFactor);
+            valUTminusBusy = -a + ttau;
         }
         else if (constant_T_type == LINEARINCREASE5){
-            valUTminusBusy = -a + (a*coverageUtilityFactor);
+            valUTminusBusy = -a + ttau;
         }
         else {
             //e = (energyToUse >= sb->getInitialCapacity() ? 1 : (sb->getInitialCapacity() - energyToUse)/sb->getInitialCapacity());
@@ -1377,7 +1411,7 @@ double UDPRechargeGameTheory::calculateUTminusBusy(double energyToUse) {
             //}
 
             //valUTminusBusy = -a * (1 + e);
-            valUTminusBusy = -a + (a*coverageUtilityFactor);
+            valUTminusBusy = -a + ttau;
         }
     }
 
@@ -1405,6 +1439,11 @@ double UDPRechargeGameTheory::calculateUTminusFree(double energyToUse) {
         e = 1.0 - e;
     }
 
+    double ttau = (a*coverageUtilityFactor);
+    if (tauValue >= 0) {
+        ttau = tauValue;
+    }
+
     if (variableC) {
         switch (constant_T_type) {
         case LINEARINCREASE:
@@ -1416,7 +1455,7 @@ double UDPRechargeGameTheory::calculateUTminusFree(double energyToUse) {
                 valUTminusFree = (-a) * (kappaMeno + (e * linearIncreaseFactor));
             }
             else {
-                valUTminusFree = -a + (a*coverageUtilityFactor);
+                valUTminusFree = -a + ttau;
             }
             break;
         case LINEARINCREASE3:
@@ -1427,15 +1466,15 @@ double UDPRechargeGameTheory::calculateUTminusFree(double energyToUse) {
                 valUTminusFree = (-a) * (kappaMeno + (e * linearIncreaseFactor));
             }
             else {
-                valUTminusFree = -a + (a*coverageUtilityFactor);
+                valUTminusFree = -a + ttau;
             }
             break;
         case LINEARINCREASE5:
             if (tauInside) {
-                valUTminusFree = (-a  + (a*coverageUtilityFactor)) * (1.0 + (e * linearIncreaseFactor));
+                valUTminusFree = (-a  + ttau) * (1.0 + (e * linearIncreaseFactor));
             }
             else {
-                valUTminusFree = ((-a) * (1.0 + (e * linearIncreaseFactor))) + (a*coverageUtilityFactor);
+                valUTminusFree = ((-a) * (1.0 + (e * linearIncreaseFactor))) + ttau;
             }
             break;
         case LINEARINCREASECONSISTENT:
@@ -1463,10 +1502,10 @@ double UDPRechargeGameTheory::calculateUTminusFree(double energyToUse) {
             }
 
             if (tauInside) {
-                valUTminusFree = (-a + (a*coverageUtilityFactor)) * (1.0 + (e * linearIncreaseFactor));
+                valUTminusFree = (-a + ttau) * (1.0 + (e * linearIncreaseFactor));
             }
             else {
-                valUTminusFree = ((-a) * (1.0 + (e * linearIncreaseFactor))) + (a*coverageUtilityFactor);
+                valUTminusFree = ((-a) * (1.0 + (e * linearIncreaseFactor))) + ttau;
             }
         }
         else {
@@ -1476,7 +1515,7 @@ double UDPRechargeGameTheory::calculateUTminusFree(double energyToUse) {
             }
 
             //valUTminusFree = -a * (2 - e);
-            valUTminusFree = -a + (a*coverageUtilityFactor);
+            valUTminusFree = -a + ttau;
         }
     }
 
