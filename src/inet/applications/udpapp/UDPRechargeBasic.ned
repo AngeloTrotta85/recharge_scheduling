@@ -41,6 +41,8 @@ simple UDPRechargeBasic extends UDPBasicApp
         
         double delayTimeToUpdateEnergy @unit(s) = default(1s);
         bool useEnergyToShare = default(false);
+        
+        bool shift5secTimer = default(false);
                 
         
         @display("i=block/app");

@@ -66,6 +66,7 @@ void UDPRechargeBasic::initialize(int stage)
         positionMessageTimer = par("positionMessageTimer");
         delayTimeToUpdateEnergy = par("delayTimeToUpdateEnergy");
         useEnergyToShare = par("useEnergyToShare").boolValue();
+        shift5secTimer = par("shift5secTimer").boolValue();
 
         timeToUpdateEnergy = simTime() + delayTimeToUpdateEnergy;
 
@@ -121,7 +122,12 @@ void UDPRechargeBasic::initialize(int stage)
         scheduleAt(simTime(), stat1sec);
 
         stat5sec = new cMessage("stat5secMsg");
-        scheduleAt(simTime(), stat5sec);
+        if (shift5secTimer) {
+            scheduleAt(simTime() + 0.5, stat5sec);
+        }
+        else {
+            scheduleAt(simTime(), stat5sec);
+        }
 
         autoMsgRecharge = new cMessage("msgRecharge");
         scheduleAt(simTime() + checkRechargeTimer, autoMsgRecharge);
@@ -622,7 +628,7 @@ void UDPRechargeBasic::sendPacket()
 }
 
 double UDPRechargeBasic::calculateSendBackoff(void){
-    double cw = 0.5;
+    double cw = 0.45;
     double ris = 0;
 
     //cw = cw / (((double)rechargeLostAccess) + 1.0);

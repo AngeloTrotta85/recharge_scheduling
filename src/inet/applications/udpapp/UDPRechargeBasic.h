@@ -153,6 +153,7 @@ protected:
     simtime_t delayTimeToUpdateEnergy;
     double energyToShare;
     bool useEnergyToShare;
+    bool shift5secTimer;
 
 
     bool firstCoveragePassPercent[N_PERCENTAGE_COVERAGE];
