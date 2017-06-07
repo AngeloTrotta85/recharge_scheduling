@@ -1,23 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scave:Analysis xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:scave="http://www.omnetpp.org/omnetpp/scave">
   <inputs>
-    <inputs name="/recharge_scheduling/simulations/test/results/serverone/TestFullHCentrNO*/*.sca"/>
-    <inputs name="/recharge_scheduling/simulations/test/results/serverone/TestFullHCentrANA*/*.sca"/>
-    <inputs name="/recharge_scheduling/simulations/test/results/serverone/TestFullHDistrGAMETHEORY_SERV/*.sca"/>
-    <inputs name="/recharge_scheduling/simulations/test/results/serverone/TestFullHDistrGAMETHEORY_SERV/*.vec"/>
-    <inputs name="/recharge_scheduling/simulations/test/results/serverone/TestFullHDistrPROB*/*.vec"/>
-    <inputs name="/recharge_scheduling/simulations/test/results/serverone/TestFullHDistrPROB*/*.sca"/>
-    <inputs name="/recharge_scheduling/simulations/test/results/serverone/TestFullH5CentrNO*/*.sca"/>
-    <inputs name="/recharge_scheduling/simulations/test/results/serverone/TestFullH5CentrANA*/*.sca"/>
-    <inputs name="/recharge_scheduling/simulations/test/results/serverone/TestFullH5DistrGAMETHEORY_SERV/*.sca"/>
-    <inputs name="/recharge_scheduling/simulations/test/results/serverone/TestFullH5DistrPROB*/*.sca"/>
+    <inputs name="/recharge_scheduling/simulations/test/results/serverone/TestFullAlphaBetaNewCentrNO*/*.sca"/>
+    <inputs name="/recharge_scheduling/simulations/test/results/serverone/TestFullAlphaBetaNewCentrANA*/*.sca"/>
+    <inputs name="/recharge_scheduling/simulations/test/results/serverone/TestFullAlphaBetaNewDistrGAMETHEORY_SERV/*.sca"/>
+    <inputs name="/recharge_scheduling/simulations/test/results/serverone/TestFullAlphaBetaNewDistrPROB*/*.sca"/>
   </inputs>
   <datasets>
     <datasets name="LIFETIME">
       <items xsi:type="scave:Add" filterPattern="LIFETIME"/>
-      <items xsi:type="scave:BarChart" name="LIFETIME">
-        <barFields>experiment</barFields>
-      </items>
+      <items xsi:type="scave:BarChart" name="LIFETIME"/>
     </datasets>
     <datasets name="Response">
       <items xsi:type="scave:Add" filterPattern="ResponseVal AND attr:FH(20)" type="VECTOR"/>
@@ -163,7 +155,7 @@
       <items xsi:type="scave:BarChart" name="kappa40"/>
     </datasets>
     <datasets name="kappax">
-      <items xsi:type="scave:Add" filterPattern="LIFETIME_COVERAGE_10_40"/>
+      <items xsi:type="scave:Add" filterPattern="LIFETIME_COVERAGE_10_75"/>
       <items xsi:type="scave:BarChart" name="kappax"/>
     </datasets>
     <datasets name="RatioWholeArea">

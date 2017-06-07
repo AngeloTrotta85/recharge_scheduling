@@ -1,23 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <scave:Analysis xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:scave="http://www.omnetpp.org/omnetpp/scave">
   <inputs>
-    <inputs name="/recharge_scheduling/simulations/test/results/serverone/TestFullHCentrNO*/*.sca"/>
-    <inputs name="/recharge_scheduling/simulations/test/results/serverone/TestFullHCentrANA*/*.sca"/>
-    <inputs name="/recharge_scheduling/simulations/test/results/serverone/TestFullHDistrGAMETHEORY_SERV/*.sca"/>
-    <inputs name="/recharge_scheduling/simulations/test/results/serverone/TestFullHDistrGAMETHEORY_SERV/*.vec"/>
-    <inputs name="/recharge_scheduling/simulations/test/results/serverone/TestFullHDistrPROB*/*.vec"/>
-    <inputs name="/recharge_scheduling/simulations/test/results/serverone/TestFullHDistrPROB*/*.sca"/>
-    <inputs name="/recharge_scheduling/simulations/test/results/serverone/TestFullH5CentrNO*/*.sca"/>
-    <inputs name="/recharge_scheduling/simulations/test/results/serverone/TestFullH5CentrANA*/*.sca"/>
-    <inputs name="/recharge_scheduling/simulations/test/results/serverone/TestFullH5DistrGAMETHEORY_SERV/*.sca"/>
-    <inputs name="/recharge_scheduling/simulations/test/results/serverone/TestFullH5DistrPROB*/*.sca"/>
+    <inputs name="/recharge_scheduling/simulations/test/results/serverone/TestFullBeaconingPositionNewCentrNO*/*.sca"/>
+    <inputs name="/recharge_scheduling/simulations/test/results/serverone/TestFullBeaconingPositionNewCentrANA*/*.sca"/>
+    <inputs name="/recharge_scheduling/simulations/test/results/serverone/TestFullBeaconingPositionNewDistrGAMETHEORY_SERV/*.sca"/>
+    <inputs name="/recharge_scheduling/simulations/test/results/serverone/TestFullBeaconingPositionNewDistrPROB*/*.sca"/>
   </inputs>
   <datasets>
     <datasets name="LIFETIME">
       <items xsi:type="scave:Add" filterPattern="LIFETIME"/>
-      <items xsi:type="scave:BarChart" name="LIFETIME">
-        <barFields>experiment</barFields>
-      </items>
+      <items xsi:type="scave:BarChart" name="LIFETIME"/>
     </datasets>
     <datasets name="Response">
       <items xsi:type="scave:Add" filterPattern="ResponseVal AND attr:FH(20)" type="VECTOR"/>
@@ -163,7 +155,7 @@
       <items xsi:type="scave:BarChart" name="kappa40"/>
     </datasets>
     <datasets name="kappax">
-      <items xsi:type="scave:Add" filterPattern="LIFETIME_COVERAGE_10_40"/>
+      <items xsi:type="scave:Add" filterPattern="LIFETIME_COVERAGE_10_75"/>
       <items xsi:type="scave:BarChart" name="kappax"/>
     </datasets>
     <datasets name="RatioWholeArea">
@@ -194,6 +186,7 @@
         <averagedFields>module</averagedFields>
       </items>
     </datasets>
+    <datasets name="clusters"/>
   </datasets>
   <chartSheets>
     <chartSheets name="default" charts="//@datasets/@datasets.0/@items.1 //@datasets/@datasets.1/@items.1 //@datasets/@datasets.2/@items.4 //@datasets/@datasets.2/@items.2 //@datasets/@datasets.1/@items.4 //@datasets/@datasets.3/@items.3 //@datasets/@datasets.4/@items.2 //@datasets/@datasets.5/@items.2 //@datasets/@datasets.6/@items.2 //@datasets/@datasets.7/@items.2 //@datasets/@datasets.8/@items.2 //@datasets/@datasets.9/@items.2 //@datasets/@datasets.10/@items.2 //@datasets/@datasets.11/@items.3 //@datasets/@datasets.12/@items.3 //@datasets/@datasets.11/@items.1 //@datasets/@datasets.13/@items.1 //@datasets/@datasets.14/@items.2 //@datasets/@datasets.15/@items.2 //@datasets/@datasets.15/@items.4 //@datasets/@datasets.16/@items.1 //@datasets/@datasets.17/@items.1 //@datasets/@datasets.18/@items.1 //@datasets/@datasets.19/@items.2 //@datasets/@datasets.19/@items.3/@items.1 //@datasets/@datasets.20/@items.1 //@datasets/@datasets.21/@items.1 //@datasets/@datasets.22/@items.1"/>
