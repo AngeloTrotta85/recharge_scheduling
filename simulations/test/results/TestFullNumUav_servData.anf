@@ -190,8 +190,21 @@
         <averagedFields>module</averagedFields>
       </items>
     </datasets>
+    <datasets name="finalEnergy">
+      <items xsi:type="scave:Add" filterPattern="FINAL_BATTERY"/>
+      <items xsi:type="scave:BarChart" name="">
+        <properties name="Graph.Title" value="finalBatery"/>
+        <barFields>measurement</barFields>
+      </items>
+    </datasets>
+    <datasets name="failedattemptratio">
+      <items xsi:type="scave:Add" filterPattern="FAILED_ATTEMPT_COUNT"/>
+      <items xsi:type="scave:BarChart" name="failed">
+        <averagedFields>module</averagedFields>
+      </items>
+    </datasets>
   </datasets>
   <chartSheets>
-    <chartSheets name="default" charts="//@datasets/@datasets.0/@items.1 //@datasets/@datasets.1/@items.1 //@datasets/@datasets.2/@items.4 //@datasets/@datasets.2/@items.2 //@datasets/@datasets.1/@items.4 //@datasets/@datasets.3/@items.3 //@datasets/@datasets.4/@items.2 //@datasets/@datasets.5/@items.2 //@datasets/@datasets.6/@items.2 //@datasets/@datasets.7/@items.2 //@datasets/@datasets.8/@items.2 //@datasets/@datasets.9/@items.2 //@datasets/@datasets.10/@items.2 //@datasets/@datasets.11/@items.3 //@datasets/@datasets.12/@items.3 //@datasets/@datasets.11/@items.1 //@datasets/@datasets.13/@items.1 //@datasets/@datasets.14/@items.2 //@datasets/@datasets.15/@items.2 //@datasets/@datasets.15/@items.4 //@datasets/@datasets.16/@items.1 //@datasets/@datasets.17/@items.1 //@datasets/@datasets.18/@items.1 //@datasets/@datasets.19/@items.2 //@datasets/@datasets.19/@items.3/@items.1 //@datasets/@datasets.20/@items.1 //@datasets/@datasets.21/@items.1 //@datasets/@datasets.22/@items.1"/>
+    <chartSheets name="default" charts="//@datasets/@datasets.0/@items.1 //@datasets/@datasets.1/@items.1 //@datasets/@datasets.2/@items.4 //@datasets/@datasets.2/@items.2 //@datasets/@datasets.1/@items.4 //@datasets/@datasets.3/@items.3 //@datasets/@datasets.4/@items.2 //@datasets/@datasets.5/@items.2 //@datasets/@datasets.6/@items.2 //@datasets/@datasets.7/@items.2 //@datasets/@datasets.8/@items.2 //@datasets/@datasets.9/@items.2 //@datasets/@datasets.10/@items.2 //@datasets/@datasets.11/@items.3 //@datasets/@datasets.12/@items.3 //@datasets/@datasets.11/@items.1 //@datasets/@datasets.13/@items.1 //@datasets/@datasets.14/@items.2 //@datasets/@datasets.15/@items.2 //@datasets/@datasets.15/@items.4 //@datasets/@datasets.16/@items.1 //@datasets/@datasets.17/@items.1 //@datasets/@datasets.18/@items.1 //@datasets/@datasets.19/@items.2 //@datasets/@datasets.19/@items.3/@items.1 //@datasets/@datasets.20/@items.1 //@datasets/@datasets.21/@items.1 //@datasets/@datasets.22/@items.1 //@datasets/@datasets.23/@items.1 //@datasets/@datasets.24/@items.1"/>
   </chartSheets>
 </scave:Analysis>
